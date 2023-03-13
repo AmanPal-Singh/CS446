@@ -1,6 +1,5 @@
 package com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -90,7 +89,7 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
 
     val selectedModifier = Modifier
         .drawBehind {
-            val strokeWidth = Stroke.DefaultMiter + 10f
+            val strokeWidth = Stroke.DefaultMiter
             val y = size.height - strokeWidth / 2
 
             drawLine(
@@ -105,11 +104,10 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
     var modifier: Modifier =  if (isHomeButton) homeModifier else defaultModifier
 
     if (currentDestination?.route == item.screen_route) {
-        if (item.title !== "Home") {
-            println("currentROute modifier $currentDestination")
-            modifier = modifier.then(selectedModifier)
+        modifier = if (item.title !== "Home") {
+            modifier.then(selectedModifier)
         } else {
-            modifier = modifier.then(homeSelectedModifier)
+            modifier.then(homeSelectedModifier)
         }
 
     }
