@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 
 
 class LoginActivity : ComponentActivity(){
@@ -30,14 +32,16 @@ class LoginActivity : ComponentActivity(){
 @Composable
 fun LoginCard() {
     val context = LocalContext.current
-    Column{
-        Image(painter = painterResource(id = R.drawable.goose), contentDescription = "Goose.")
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
+    GooseBuddyTheme() {
+        Column(horizontalAlignment = Alignment.CenterHorizontally){
+            Image(painter = painterResource(id = R.drawable.goose), contentDescription = "Goose.")
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = {
                 val intent = Intent(context, MainActivity::class.java)
                 context.startActivity(intent)
             }) {
-            Text(text="login")
+                Text(text="login" )
+            }
         }
     }
 }
