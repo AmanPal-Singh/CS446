@@ -1,96 +1,97 @@
 package com.example.goosebuddy.ui.screens
 
+import android.widget.Space
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.semantics.Role.Companion.Checkbox
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
-import com.example.goosebuddy.ui.theme.Yellow
-import com.example.goosebuddy.ui.theme.Green
+import com.example.goosebuddy.ui.theme.White
 
 
-class Routine(
-    // Represents a routine
-    var title: String,
-    var completedSteps: Int,
-    var totalSteps: Int,
-)
+sealed class RoutineItem(var title: String, var progress: Int) {
 
-// TODO: used to stub routines, will update for demo 2
-val mockRoutines = arrayOf(
-    Routine("Skincare", 10, 10),
-    Routine("Fitness", 75, 100),
-    Routine("Yoga", 0, 10),
-    Routine("Cleaning", 5, 10),
-    Routine("Study", 25, 100),
-)
-
-fun getColour(progress: Float): Color {
-    if (progress == 1.0f) {
-        return Green
-    } else if (progress > 0.25f) {
-        return Yellow
-    } else {
-        return Red
+    fun completeRoutine() {
+        this.progress = 100
     }
+    object Skincare: RoutineItem("Skincare", 100)
+    object Fitness: RoutineItem("Fitness", 75)
+    object Yoga: RoutineItem("Yoga", 0)
+    object Cleaning: RoutineItem("Cleaning", 50)
+    object Study: RoutineItem("Study", 25)
 }
+
+val items = listOf(
+    RoutineItem.Skincare,
+    RoutineItem.Fitness,
+    RoutineItem.Yoga,
+    RoutineItem.Cleaning,
+    RoutineItem.Study
+)
+
 @Composable
 fun Routines() {
-    Surface() {
-        Column {
-            mockRoutines.forEach { item ->
-                RoutineBlock(item = item)
-            }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(2.dp, Red, RectangleShape)
+            .background(Grey),
+    ) {
+        items.forEach { item ->
+            RoutineBlock(item = item)
         }
     }
+
 }
 
 @Composable
-fun RoutineBlock(item: Routine) {
-    Surface() {
+fun RoutineBlock(item: RoutineItem) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        shape = RoundedCornerShape(7.dp)
+    ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp)
         ) {
             Checkbox(
-                checked = item.totalSteps == item.completedSteps,
+                checked = item.progress == 100,
                 onCheckedChange = {
-                    item.completedSteps = item.totalSteps
-                },
-                colors=CheckboxDefaults.colors(
-                        checkedColor = Green,
-                        uncheckedColor = Grey,
-            )
+                    item.completeRoutine()
+                }
             )
             Column {
                 Text(item.title)
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .background(Color.Transparent)
-                        .clip(CircleShape)
-                        .height(8.dp),
-                    progress = item.completedSteps.toFloat()/item.totalSteps,
-                    color = getColour(item.completedSteps.toFloat()/item.totalSteps),
-                    backgroundColor = Grey,
-                )
+                Spacer(Modifier.height(10.dp))
+                LinearProgressIndicator(progress = item.progress/100f)
+                Spacer(Modifier.height(10.dp))
             }
 
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "More",
-                    tint = Grey
+                    tint = Grey,
+                    modifier = Modifier.size(50.dp)
                 )
             }
         }
@@ -100,5 +101,6 @@ fun RoutineBlock(item: Routine) {
 @Preview
 @Composable
 fun RoutineBlockPreview() {
-    RoutineBlock(mockRoutines[2])
+    RoutineBlock(items[0])
+    RoutineBlock(items[1])
 }
