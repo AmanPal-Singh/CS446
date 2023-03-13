@@ -4,13 +4,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.semantics.Role.Companion.Checkbox
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.goosebuddy.ui.theme.Grey
+import com.example.goosebuddy.ui.theme.Red
+import com.example.goosebuddy.ui.theme.Yellow
+import com.example.goosebuddy.ui.theme.Green
 
 
 sealed class RoutineItem(var title: String, var progress: Int) {
@@ -32,7 +34,15 @@ val items = listOf(
     RoutineItem.Cleaning,
     RoutineItem.Study
 )
-
+fun getColour(progress: Float): Color {
+    if (progress == 1.0f) {
+        return Green
+    } else if (progress > 0.25f) {
+        return Yellow
+    } else {
+        return Red
+    }
+}
 @Composable
 fun Routines() {
     Surface() {
@@ -58,7 +68,11 @@ fun RoutineBlock(item: RoutineItem) {
             )
             Column {
                 Text(item.title)
-                LinearProgressIndicator(progress = item.progress/100f)
+                LinearProgressIndicator(
+                    progress = item.progress/100f,
+                    color = getColour(item.progress/100f),
+                    backgroundColor = Grey
+                )
             }
 
             IconButton(onClick = { /*TODO*/ }) {
@@ -76,5 +90,4 @@ fun RoutineBlock(item: RoutineItem) {
 @Composable
 fun RoutineBlockPreview() {
     RoutineBlock(items[0])
-    RoutineBlock(items[1])
 }
