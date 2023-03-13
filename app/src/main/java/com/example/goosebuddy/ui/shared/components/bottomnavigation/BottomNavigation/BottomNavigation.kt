@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,7 +25,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.goosebuddy.ui.theme.*
 
-
+/** TODO: Probably put this in another file later */
 sealed class BottomNavigationItem(var title: String, var icon: ImageVector, var color: Color, var screen_route: String) {
     object Home: BottomNavigationItem("Home", Icons.Filled.Home, White, "home")
     object DailyRoutines: BottomNavigationItem("Routines",Icons.Outlined.CheckCircle,  Yellow, "routines")
@@ -46,7 +45,6 @@ val items = listOf(
 
 private val ICON_SIZE = 40.dp
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun BottomNavigation(
     navController: NavController
