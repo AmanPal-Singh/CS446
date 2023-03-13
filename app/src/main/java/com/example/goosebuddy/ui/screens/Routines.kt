@@ -4,7 +4,9 @@ import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -21,7 +23,7 @@ import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
 
-
+/** Represent data using another structure - not sealed class */
 sealed class RoutineItem(var title: String, var progress: Int) {
 
     fun completeRoutine() {
@@ -34,12 +36,34 @@ sealed class RoutineItem(var title: String, var progress: Int) {
     object Study: RoutineItem("Study", 25)
 }
 
+class WeekdayData(
+    val weekday: String,
+    val completedCount: Int,
+    val totalCount: Int
+)
+
+val mockWeekdayData = arrayOf(
+    WeekdayData("S", 5, 10),
+    WeekdayData("M", 5, 10),
+    WeekdayData("T", 5, 10),
+    WeekdayData("W", 5, 10),
+    WeekdayData("Th", 5, 10),
+    WeekdayData("F", 5, 10),
+    WeekdayData("S", 5, 10),
+)
+
 val items = listOf(
     RoutineItem.Skincare,
     RoutineItem.Fitness,
     RoutineItem.Yoga,
     RoutineItem.Cleaning,
-    RoutineItem.Study
+    RoutineItem.Study,
+    RoutineItem.Study,
+    RoutineItem.Study,
+    RoutineItem.Study,
+    RoutineItem.Study,
+    RoutineItem.Study,
+    RoutineItem.Study,
 )
 
 @Composable
@@ -48,16 +72,32 @@ fun Routines() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .border(2.dp, Red, RectangleShape)
-            .background(Grey),
+            .background(Grey)
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
     ) {
         items.forEach { item ->
             RoutineBlock(item = item)
         }
     }
-
 }
 
+
+
+@Composable
+fun RoutineWeeklyTracker() {
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        mockWeekdayData.forEach{ day ->
+
+            Text(day.weekday)
+
+        }
+    }
+}
+
+/** TODO: Put in componenets directory? */
 @Composable
 fun RoutineBlock(item: RoutineItem) {
     Card(
