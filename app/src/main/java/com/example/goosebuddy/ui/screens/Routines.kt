@@ -1,22 +1,22 @@
 package com.example.goosebuddy.ui.screens
 
-import android.widget.Space
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.semantics.Role.Companion.Checkbox
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +24,10 @@ import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
+import androidx.compose.ui.graphics.Color
+import com.example.goosebuddy.ui.theme.Yellow
+
+
 
 /** Represent data using another structure - not sealed class */
 sealed class RoutineItem(var title: String, var progress: Int) {
@@ -69,6 +73,15 @@ val items = listOf(
 )
 
 /** TODO: Make the weekly tracker stick to top? and make vertical scroll only on list of routines */
+fun getColour(progress: Float): Color {
+    if (progress == 1.0f) {
+        return Green
+    } else if (progress > 0.25f) {
+        return Yellow
+    } else {
+        return Red
+    }
+}
 @Composable
 fun Routines() {
     Column(
@@ -166,8 +179,16 @@ fun RoutineBlock(item: RoutineItem) {
             Column {
                 Text(item.title)
                 Spacer(Modifier.height(10.dp))
-                LinearProgressIndicator(progress = item.progress/100f)
                 Spacer(Modifier.height(10.dp))
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .background(Color.Transparent)
+                        .clip(CircleShape)
+                        .height(8.dp),
+                    progress = item.progress/100f,
+                    color = getColour(item.progress/100f),
+                    backgroundColor = Grey,
+                )
             }
 
             IconButton(onClick = { /*TODO*/ }) {
@@ -186,5 +207,4 @@ fun RoutineBlock(item: RoutineItem) {
 @Composable
 fun RoutineBlockPreview() {
     RoutineBlock(items[0])
-    RoutineBlock(items[1])
 }
