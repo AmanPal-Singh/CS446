@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.Role.Companion.Checkbox
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
@@ -45,10 +47,10 @@ class WeekdayData(
 val mockWeekdayData = arrayOf(
     WeekdayData("S", 5, 10),
     WeekdayData("M", 5, 10),
-    WeekdayData("T", 5, 10),
-    WeekdayData("W", 5, 10),
+    WeekdayData("T", 3, 10),
+    WeekdayData("W", 5, 9),
     WeekdayData("Th", 5, 10),
-    WeekdayData("F", 5, 10),
+    WeekdayData("F", 1, 10),
     WeekdayData("S", 5, 10),
 )
 
@@ -66,6 +68,7 @@ val items = listOf(
     RoutineItem.Study,
 )
 
+/** TODO: Make the weekly tracker stick to top? and make vertical scroll only on list of routines */
 @Composable
 fun Routines() {
     Column(
@@ -76,6 +79,7 @@ fun Routines() {
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
     ) {
+        RoutineWeeklyTracker()
         items.forEach { item ->
             RoutineBlock(item = item)
         }
@@ -83,18 +87,59 @@ fun Routines() {
 }
 
 
-
+/** Make padding part of theme */
 @Composable
 fun RoutineWeeklyTracker() {
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly
+    Card(
+        shape = RoundedCornerShape(7.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(White)
+            .padding(10.dp)
     ) {
-        mockWeekdayData.forEach{ day ->
-
-            Text(day.weekday)
-
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp)
+            ) {
+                Text("Daily Routines", fontSize = 24.sp)
+                Text("Weekly view")
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.padding(10.dp)
+                    .fillMaxWidth()
+            ) {
+                mockWeekdayData.forEach{ day ->
+                    val totalHeight = 160
+                    val completedHeight = totalHeight * day.completedCount/day.totalCount
+                    val leftOverheight = totalHeight - completedHeight
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .background(Grey)
+                                .height(leftOverheight.dp)
+                                .width(10.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .background(Green)
+                                .height(completedHeight.dp)
+                                .width(10.dp)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(day.weekday)
+                    }
+                }
+            }
         }
     }
+
 }
 
 /** TODO: Put in componenets directory? */
@@ -104,7 +149,6 @@ fun RoutineBlock(item: RoutineItem) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp),
-        shape = RoundedCornerShape(7.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
