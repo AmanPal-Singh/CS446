@@ -75,10 +75,6 @@ fun getColour(progress: Float): Color {
 }
 @Composable
 fun Routines() {
-    Surface() {
-        Column {
-            mockRoutines.forEach { item ->
-                RoutineBlock(item = item)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
