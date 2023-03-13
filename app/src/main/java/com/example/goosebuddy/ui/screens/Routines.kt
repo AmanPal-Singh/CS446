@@ -174,7 +174,11 @@ fun RoutineBlock(item: RoutineItem) {
                 checked = item.progress == 100,
                 onCheckedChange = {
                     item.completeRoutine()
-                }
+                },
+                colors=CheckboxDefaults.colors(
+                        checkedColor = Green,
+                        uncheckedColor = Grey,
+            )
             )
             Column {
                 Text(item.title)
@@ -206,5 +210,5 @@ fun RoutineBlock(item: RoutineItem) {
 @Preview
 @Composable
 fun RoutineBlockPreview() {
-    RoutineBlock(items[0])
+    RoutineBlock(items[1])
 }
