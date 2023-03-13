@@ -84,7 +84,7 @@ fun Routines() {
             .verticalScroll(rememberScrollState())
     ) {
         RoutineWeeklyTracker()
-        items.forEach { item ->
+        mockRoutines.forEach { item ->
             RoutineBlock(item = item)
         }
     }
