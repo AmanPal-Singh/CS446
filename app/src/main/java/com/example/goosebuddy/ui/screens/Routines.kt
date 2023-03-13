@@ -21,25 +21,22 @@ import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.ui.theme.Green
 
 
-sealed class RoutineItem(var title: String, var progress: Int) {
-
-    fun completeRoutine() {
-        this.progress = 100
-    }
-    object Skincare: RoutineItem("Skincare", 100)
-    object Fitness: RoutineItem("Fitness", 75)
-    object Yoga: RoutineItem("Yoga", 0)
-    object Cleaning: RoutineItem("Cleaning", 50)
-    object Study: RoutineItem("Study", 25)
-}
-
-val items = listOf(
-    RoutineItem.Skincare,
-    RoutineItem.Fitness,
-    RoutineItem.Yoga,
-    RoutineItem.Cleaning,
-    RoutineItem.Study
+class Routine(
+    // Represents a routine
+    var title: String,
+    var completedSteps: Int,
+    var totalSteps: Int,
 )
+
+// TODO: used to stub routines, will update for demo 2
+val mockRoutines = arrayOf(
+    Routine("Skincare", 10, 10),
+    Routine("Fitness", 75, 100),
+    Routine("Yoga", 0, 10),
+    Routine("Cleaning", 5, 10),
+    Routine("Study", 25, 100),
+)
+
 fun getColour(progress: Float): Color {
     if (progress == 1.0f) {
         return Green
@@ -53,7 +50,7 @@ fun getColour(progress: Float): Color {
 fun Routines() {
     Surface() {
         Column {
-            items.forEach { item ->
+            mockRoutines.forEach { item ->
                 RoutineBlock(item = item)
             }
         }
@@ -61,15 +58,15 @@ fun Routines() {
 }
 
 @Composable
-fun RoutineBlock(item: RoutineItem) {
+fun RoutineBlock(item: Routine) {
     Surface() {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
-                checked = item.progress == 100,
+                checked = item.totalSteps == item.completedSteps,
                 onCheckedChange = {
-                    item.completeRoutine()
+                    item.completedSteps = item.totalSteps
                 },
                 colors=CheckboxDefaults.colors(
                         checkedColor = Green,
@@ -83,8 +80,8 @@ fun RoutineBlock(item: RoutineItem) {
                         .background(Color.Transparent)
                         .clip(CircleShape)
                         .height(8.dp),
-                    progress = item.progress/100f,
-                    color = getColour(item.progress/100f),
+                    progress = item.completedSteps.toFloat()/item.totalSteps,
+                    color = getColour(item.completedSteps.toFloat()/item.totalSteps),
                     backgroundColor = Grey,
                 )
             }
@@ -103,5 +100,5 @@ fun RoutineBlock(item: RoutineItem) {
 @Preview
 @Composable
 fun RoutineBlockPreview() {
-    RoutineBlock(items[1])
+    RoutineBlock(mockRoutines[2])
 }
