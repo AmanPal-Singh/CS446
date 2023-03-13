@@ -104,11 +104,10 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
     var modifier: Modifier =  if (isHomeButton) homeModifier else defaultModifier
 
     if (currentDestination?.route == item.screen_route) {
-        if (item.title !== "Home") {
-            println("currentROute modifier $currentDestination")
-            modifier = modifier.then(selectedModifier)
+        modifier = if (item.title !== "Home") {
+            modifier.then(selectedModifier)
         } else {
-            modifier = modifier.then(homeSelectedModifier)
+            modifier.then(homeSelectedModifier)
         }
 
     }
