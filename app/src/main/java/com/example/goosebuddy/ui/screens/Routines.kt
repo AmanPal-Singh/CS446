@@ -1,14 +1,20 @@
 package com.example.goosebuddy.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.Yellow
@@ -69,9 +75,13 @@ fun RoutineBlock(item: RoutineItem) {
             Column {
                 Text(item.title)
                 LinearProgressIndicator(
+                    modifier = Modifier
+                        .background(Color.Transparent)
+                        .clip(CircleShape)
+                        .height(8.dp),
                     progress = item.progress/100f,
                     color = getColour(item.progress/100f),
-                    backgroundColor = Grey
+                    backgroundColor = Grey,
                 )
             }
 
