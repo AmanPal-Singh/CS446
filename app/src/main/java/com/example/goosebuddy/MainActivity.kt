@@ -22,7 +22,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.goosebuddy.ui.screens.Routines
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
+import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
+import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.LightGrey
 
 class MainActivity : ComponentActivity() {
@@ -32,13 +34,15 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             GooseBuddyTheme {
                 Scaffold(
+                    topBar = { TopBar() },
                     bottomBar = { BottomNavigation(navController = navController) }
                 ) { padding ->
                     Surface(
                         modifier = Modifier
                             .padding(padding)
                             .fillMaxSize()
-                            .height(100.dp)
+                            .fillMaxHeight()
+                            .background(Grey)
                     ) {
                        NavigationGraph(navController = navController)
                     }
