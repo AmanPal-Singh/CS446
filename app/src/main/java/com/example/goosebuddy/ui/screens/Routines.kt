@@ -168,9 +168,9 @@ fun RoutineBlock(item: Routine) {
                     item.completedSteps = item.totalSteps
                 },
                 colors=CheckboxDefaults.colors(
-                        checkedColor = Green,
-                        uncheckedColor = Grey,
-            )
+                    checkedColor = Green,
+                    uncheckedColor = Grey,
+                )
             )
             Column {
                 Text(item.title)
