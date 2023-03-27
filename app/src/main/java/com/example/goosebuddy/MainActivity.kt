@@ -24,7 +24,6 @@ import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNaviga
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
-import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,8 +52,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
-    var calendarState = rememberSelectableCalendarState()
-    NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route) {
+    //var calendarState = rememberSelectableCalendarState()
+    NavHost(navController, startDestination = "onboarding") {
+        composable("onboarding") {
+            OnboardingActivity()
+        }
         composable(BottomNavigationItem.Home.screen_route) {
             Greeting(name = "Home")
         }
@@ -65,7 +67,7 @@ fun NavigationGraph(navController: NavHostController) {
             Greeting(name = "Habits")
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
-            Calendar(calendarState = calendarState)
+            Calendar()
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             Greeting(name = "Profile")
