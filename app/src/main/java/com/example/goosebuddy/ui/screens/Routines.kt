@@ -96,7 +96,6 @@ fun Routines(navController: NavController) {
                 RoutineBlock(item = item, navController = navController)
             }
         }
-
     }
 }
 
@@ -187,9 +186,9 @@ fun RoutineBlock(item: Routine, navController: NavController) {
                     }
                 },
                 colors=CheckboxDefaults.colors(
-                        checkedColor = Green,
-                        uncheckedColor = Grey,
-            )
+                    checkedColor = Green,
+                    uncheckedColor = Grey,
+                )
             )
             Column {
                 Text(item.title)
@@ -221,5 +220,6 @@ fun RoutineBlock(item: Routine, navController: NavController) {
 @Preview
 @Composable
 fun RoutineBlockPreview() {
+
     //RoutineBlock(mockRoutines[2])
 }
