@@ -59,7 +59,7 @@ fun NavigationGraph(navController: NavHostController) {
             Greeting(name = "Home")
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
-            Routines()
+            Routines(navController = navController)
         }
         composable(BottomNavigationItem.Habits.screen_route) {
             Greeting(name = "Habits")
@@ -70,12 +70,15 @@ fun NavigationGraph(navController: NavHostController) {
         composable(BottomNavigationItem.Profile.screen_route) {
             Greeting(name = "Profile")
         }
-    }
+        composable("routine1") {
+            Greeting(name = "more on a routine")
+        }
+     }
 }
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "hello $name")
+    Text(text = "$name")
 }
 
 @Preview(showBackground = true)
