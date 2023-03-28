@@ -1,7 +1,7 @@
 package com.example.goosebuddy
 
-import RoutinesDao
-import WeekdayDataDao
+import com.example.goosebuddy.dao.RoutinesDao
+import com.example.goosebuddy.dao.WeekdayDataDao
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.models.WeekdayData
