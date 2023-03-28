@@ -5,7 +5,7 @@ import androidx.room.Query
 import com.example.goosebuddy.models.Routines
 
 @Dao
-interface UserDao {
+interface RoutinesDao {
     @Query("SELECT * FROM routines")
     fun getAll(): List<Routines>
 
