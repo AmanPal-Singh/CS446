@@ -1,3 +1,5 @@
+package com.example.goosebuddy.dao
+
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -6,7 +8,7 @@ import com.example.goosebuddy.models.WeekdayData
 
 @Dao
 interface WeekdayDataDao {
-    @Query("SELECT * FROM weekday_data")
+    @Query("SELECT * FROM weekdaydata")
     fun getAll(): List<WeekdayData>
 
     @Insert
