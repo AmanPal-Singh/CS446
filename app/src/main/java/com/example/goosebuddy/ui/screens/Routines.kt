@@ -14,6 +14,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +27,7 @@ import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import com.example.goosebuddy.ui.theme.Yellow
 
 
@@ -42,23 +45,26 @@ val mockRoutines = arrayOf(
     Routine("Yoga", 0, 10),
     Routine("Cleaning", 5, 10),
     Routine("Study", 25, 100),
+    Routine("Study2", 15, 90),
+    Routine("Study3", 25, 100),
+    Routine("Study4", 15, 30),
 )
 
 
 class WeekdayData(
-    val weekday: String,
-    val completedCount: Int,
-    val totalCount: Int
+    var weekday: String,
+    var completedCount: Int,
+    var totalCount: Int
 )
 
 val mockWeekdayData = arrayOf(
-    WeekdayData("S", 5, 10),
+    WeekdayData("S", 1, mockRoutines.size),
     WeekdayData("M", 5, 10),
     WeekdayData("T", 3, 10),
     WeekdayData("W", 5, 9),
     WeekdayData("Th", 5, 10),
     WeekdayData("F", 1, 10),
-    WeekdayData("S", 5, 10),
+    WeekdayData("S", 0, 10),
 )
 
 
@@ -74,22 +80,24 @@ fun getColour(progress: Float): Color {
     }
 }
 @Composable
-fun Routines() {
+fun Routines(navController: NavController) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .background(Grey)
             .fillMaxHeight()
-            .verticalScroll(rememberScrollState())
     ) {
         RoutineWeeklyTracker()
-        mockRoutines.forEach { item ->
-            RoutineBlock(item = item)
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            mockRoutines.forEach { item ->
+                RoutineBlock(item = item, navController = navController)
+            }
         }
     }
 }
-
 
 /** Make padding part of theme */
 @Composable
@@ -116,18 +124,20 @@ fun RoutineWeeklyTracker() {
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier
+                    .padding(10.dp)
                     .fillMaxWidth()
             ) {
                 mockWeekdayData.forEach{ day ->
-                    val totalHeight = 160
-                    val completedHeight = totalHeight * day.completedCount/day.totalCount
-                    val leftOverheight = totalHeight - completedHeight
-                    Column {
+                    var totalHeight = 160
+                    var completedHeight = totalHeight * day.completedCount/day.totalCount
+                    var leftoverHeight = totalHeight - completedHeight
+                    Column(
+                    ) {
                         Box(
                             modifier = Modifier
                                 .background(Grey)
-                                .height(leftOverheight.dp)
+                                .height(leftoverHeight.dp)
                                 .width(10.dp)
                         )
                         Box(
@@ -149,7 +159,7 @@ fun RoutineWeeklyTracker() {
 /** TODO: Put in componenets directory? */
 @Composable
 
-fun RoutineBlock(item: Routine) {
+fun RoutineBlock(item: Routine, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,15 +172,23 @@ fun RoutineBlock(item: Routine) {
                 .fillMaxWidth()
                 .padding(vertical = 10.dp)
         ) {
+            val checkedState = remember { mutableStateOf(item.totalSteps == item.completedSteps) }
             Checkbox(
-                checked = item.totalSteps == item.completedSteps,
+                checked = checkedState.value,
                 onCheckedChange = {
-                    item.completedSteps = item.totalSteps
+                    checkedState.value = it
+                    if (it) {
+                        item.completedSteps = item.totalSteps
+                        mockWeekdayData[0].completedCount += 1
+                    } else {
+                        item.completedSteps = 0
+                        mockWeekdayData[0].completedCount -= 1
+                    }
                 },
                 colors=CheckboxDefaults.colors(
-                        checkedColor = Green,
-                        uncheckedColor = Grey,
-            )
+                    checkedColor = Green,
+                    uncheckedColor = Grey,
+                )
             )
             Column {
                 Text(item.title)
@@ -187,7 +205,7 @@ fun RoutineBlock(item: Routine) {
                 )
             }
 
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { navController.navigate("routine1") }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "More",
@@ -202,5 +220,6 @@ fun RoutineBlock(item: Routine) {
 @Preview
 @Composable
 fun RoutineBlockPreview() {
-    RoutineBlock(mockRoutines[2])
+
+    //RoutineBlock(mockRoutines[2])
 }
