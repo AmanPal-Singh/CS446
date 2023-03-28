@@ -5,7 +5,7 @@ import androidx.room.Query
 import com.example.goosebuddy.models.WeekdayData
 
 @Dao
-interface WeekdayData {
+interface WeekdayDataDao {
     @Query("SELECT * FROM weekday_data")
     fun getAll(): List<WeekdayData>
 
