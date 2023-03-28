@@ -1,13 +1,17 @@
-package com.example.goosebuddy.dao
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import com.example.goosebuddy.models.Routines
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+@Dao
+interface UserDao {
+    @Query("SELECT * FROM routines")
+    fun getAll(): List<Routines>
 
-@Entity
-data class RoutinesDao (
-    // Represents the model for routines
-    @PrimaryKey val id: Int,
-    val title: String,
-    val completedSteps: Int,
-    val totalSteps: Int
-)
+    @Insert
+    fun insertAll(vararg routines: Routines)
+
+    @Delete
+    fun delete(routines: Routines)
+}
