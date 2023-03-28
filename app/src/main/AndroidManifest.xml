@@ -22,6 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".OnboardingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.GooseBuddy"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"
