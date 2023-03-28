@@ -1,5 +1,6 @@
 package com.example.goosebuddy
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,13 +26,25 @@ import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNaviga
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
-import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            NavigationGraph(navController = navController)
+        }
+    }
+}
+
+@Composable
+fun NavigationGraph(navController: NavHostController) {
+    //var calendarState = rememberSelectableCalendarState()
+
+    /**  TODO: only have the bottom navigation show up if the current destination is a bottom navigation item
+        other screens such as setting screen should not show bottom nav ui */
+    NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route, route = "main") {
+        composable(BottomNavigationItem.Home.screen_route) {
             GooseBuddyTheme {
                 Scaffold(
                     topBar = { TopBar() },
@@ -43,20 +57,10 @@ class MainActivity : ComponentActivity() {
                             .fillMaxHeight()
                             .background(Grey)
                     ) {
-                       NavigationGraph(navController = navController)
+                        Greeting(name = "Home")
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun NavigationGraph(navController: NavHostController) {
-    var calendarState = rememberSelectableCalendarState()
-    NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route) {
-        composable(BottomNavigationItem.Home.screen_route) {
-            Greeting(name = "Home")
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             Routines(navController = navController)
@@ -65,7 +69,7 @@ fun NavigationGraph(navController: NavHostController) {
             Greeting(name = "Habits")
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
-            Calendar(calendarState = calendarState)
+            Calendar()
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             Greeting(name = "Profile")
