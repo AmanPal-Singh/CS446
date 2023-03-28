@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.goosebuddy.ui.screens.Routines
 import com.example.goosebuddy.ui.screens.Calendar
+import com.example.goosebuddy.ui.screens.Habits
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
@@ -67,7 +68,7 @@ fun NavigationGraph(navController: NavHostController) {
             Routines(navController = navController)
         }
         composable(BottomNavigationItem.Habits.screen_route) {
-            Greeting(name = "Habits")
+            Habits(navController = navController)
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             Calendar()
