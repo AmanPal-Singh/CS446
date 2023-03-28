@@ -1,4 +1,5 @@
-package com.example.goosebuddy
+package com.example.goosebuddy.ui.screens
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,18 +22,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.OnboardingActivity
+import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.theme.*
-
-
-class LoginActivity : ComponentActivity(){
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            LoginCard()
-        }
-    }
-}
-
 
 @Composable
 fun LoginCard() {
@@ -55,7 +47,7 @@ fun LoginCard() {
                 colorFilter = ColorFilter.tint(Yellow)
             )
             TextField(
-                placeholder = { Text("PIN")},
+                placeholder = { Text("PIN") },
                 value = pin,
                 onValueChange = { newText -> pin = newText},
                 visualTransformation = PasswordVisualTransformation()
