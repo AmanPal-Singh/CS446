@@ -30,6 +30,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.goosebuddy.ui.theme.Yellow
 
+
+class Habit(
+    // Represents a habit
+    var title: String,
+    var description: String,
+    var completed: Int,
+)
+
+val mockHabits = arrayOf(
+    Habit("Skincare", "skincare yo", 1),
+    Habit("Fitness", "fitness yo", 0),
+)
+
 @Composable
 fun Habits(navController: NavController) {
     Column(
@@ -39,7 +52,40 @@ fun Habits(navController: NavController) {
             .background(Grey)
             .fillMaxHeight()
     ) {
-       // TODO
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState())
+        ) {
+            mockHabits.forEach { item ->
+                HabitBlock(item = item, navController = navController)
+            }
+        }
+    }
+}
+
+@Composable
+
+fun HabitBlock(item: Habit, navController: NavController) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp)
+        ) {
+            Column {
+                Text(item.title)
+                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
+                Text(item.description)
+                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
+            }
+        }
     }
 }
 
