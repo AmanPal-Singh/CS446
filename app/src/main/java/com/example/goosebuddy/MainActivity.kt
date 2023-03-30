@@ -23,6 +23,8 @@ import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNaviga
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +80,8 @@ fun RootNavigationGraph() {
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Routines(navController = navController)
+               // Routines(navController = navController)
+                RoutineTimer(name = "Morning Routine", duration = 10.seconds)
             }
         }
         composable("routines/{routine_id}") {
@@ -89,7 +92,21 @@ fun RootNavigationGraph() {
                 Subroutine(name = "part 4", description = "aaa", completed = false),
                 Subroutine(name = "part 5", description = "aaa", completed = true),
             )
-            Routine(name = "Morning Routine", subroutines = subroutines)
+            Routine(
+                name = "Morning Routine",
+                subroutines = subroutines,
+                navController = navController
+            )
+        }
+        composable("routines/{routine_id}/timer") {
+            val subroutines = arrayOf(
+                Subroutine(name = "part 1", description = "aaa", completed = true),
+                Subroutine(name = "part 2", description = "aaa", completed = true),
+                Subroutine(name = "part 3", description = "aaa", completed = false),
+                Subroutine(name = "part 4", description = "aaa", completed = false),
+                Subroutine(name = "part 5", description = "aaa", completed = true),
+            )
+            RoutineTimer(name = "Morning Routine", duration = 10.seconds)
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
