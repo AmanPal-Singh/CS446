@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.room.Room
+import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RootNavigationGraph(context=applicationContext)
+            RootNavigationGraph(ctx = applicationContext)
         }
     }
 }
@@ -62,13 +63,10 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 }
 
 @Composable
-fun RootNavigationGraph(context: Context) {
+fun RootNavigationGraph(ctx: Context) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
-    var db = Room.databaseBuilder(
-        context,
-        AppDatabase::class.java, "database-name"
-    ).allowMainThreadQueries().fallbackToDestructiveMigrationFrom(1).build()
+    var db = createInstance(ctx)
     NavHost(
         navController = navController,
         startDestination = "routines",
