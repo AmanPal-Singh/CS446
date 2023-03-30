@@ -1,6 +1,7 @@
 package com.example.goosebuddy.ui.screens
 
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -31,7 +32,10 @@ import com.example.goosebuddy.ui.theme.Beige
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
+import androidx.room.RoomDatabase
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
+import com.example.goosebuddy.models.Habits
 
 
 class Habit(
@@ -48,7 +52,11 @@ val mockHabits = arrayOf(
 )
 
 @Composable
-fun Habits(navController: NavController) {
+fun Habits(navController: NavController, db: AppDatabase) {
+    var habitsDao = db.habitsDao()
+    habitsDao.insertAll(Habits(0, "Skincare", "skincare yo", 1, "Daily"))
+    habitsDao.insertAll(Habits(1, "Fitness", "fitness yo yo", 0, "Weekly"))
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -59,7 +67,7 @@ fun Habits(navController: NavController) {
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            mockHabits.forEach { item ->
+            habitsDao.getAll().forEach { item ->
                 HabitBlock(item = item, navController = navController)
             }
         }
@@ -68,7 +76,7 @@ fun Habits(navController: NavController) {
 
 @Composable
 
-fun HabitBlock(item: Habit, navController: NavController) {
+fun HabitBlock(item: Habits, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
