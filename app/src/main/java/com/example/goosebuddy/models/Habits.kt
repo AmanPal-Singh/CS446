@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 @Entity
 data class Habits (
     // Represents the model for habits
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int,
     var title: String,
     var description: String,
     var completed: Int,

@@ -1,5 +1,6 @@
 package com.example.goosebuddy
 
+import androidx.room.AutoMigration
 import com.example.goosebuddy.dao.RoutinesDao
 import com.example.goosebuddy.dao.WeekdayDataDao
 import androidx.room.Database
@@ -11,7 +12,7 @@ import com.example.goosebuddy.models.Habits
 
 
 
-@Database(entities = [Routines::class, WeekdayData::class, Habits::class], version = 1)
+@Database(entities = [Routines::class, WeekdayData::class, Habits::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routinesDao(): RoutinesDao;
     abstract fun weekdayDataDao(): WeekdayDataDao;
