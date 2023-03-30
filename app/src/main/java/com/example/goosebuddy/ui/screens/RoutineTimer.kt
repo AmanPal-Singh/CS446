@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun RoutineTimer(name: String, duration: Duration) {
     var ticks by remember { mutableStateOf(0f) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(ticks) {
         while(ticks <= duration.inWholeMilliseconds) {
             delay(1.milliseconds)
             ticks++
@@ -70,7 +70,9 @@ fun RoutineTimer(name: String, duration: Duration) {
             Button(onClick = { /*TODO*/ }) {
                 Text("Back")
             }
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = {
+                ticks = 0f
+            }) {
                 Text("Play")
             }
             Button(onClick = { /*TODO*/ }) {
