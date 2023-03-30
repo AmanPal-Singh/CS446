@@ -1,5 +1,6 @@
 package com.example.goosebuddy
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,7 +46,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxHeight()
                             .background(Grey)
                     ) {
-                       NavigationGraph(navController = navController)
+                       NavigationGraph(navController = navController, context=applicationContext )
                     }
                 }
             }
@@ -54,8 +55,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
+fun NavigationGraph(navController: NavHostController, context: Context) {
     var calendarState = rememberSelectableCalendarState()
+    var db = Room.databaseBuilder(
+        context,
+        AppDatabase::class.java, "database-name"
+    ).allowMainThreadQueries().build()
     NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route) {
         composable(BottomNavigationItem.Home.screen_route) {
             Greeting(name = "Home")
@@ -64,7 +69,7 @@ fun NavigationGraph(navController: NavHostController) {
             Routines(navController = navController)
         }
         composable(BottomNavigationItem.Habits.screen_route) {
-            Habits(navController = navController)
+            Habits(navController = navController, db = db)
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             Calendar(calendarState = calendarState)
