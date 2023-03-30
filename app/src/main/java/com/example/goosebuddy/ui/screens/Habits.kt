@@ -26,7 +26,10 @@ import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
+import com.example.goosebuddy.ui.theme.Black
+import com.example.goosebuddy.ui.theme.Beige
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.goosebuddy.ui.theme.Yellow
 
@@ -36,11 +39,12 @@ class Habit(
     var title: String,
     var description: String,
     var completed: Int,
+    var schedule: String,
 )
 
 val mockHabits = arrayOf(
-    Habit("Skincare", "skincare yo", 1),
-    Habit("Fitness", "fitness yo", 0),
+    Habit("Skincare", "skincare yo", 1, "Daily"),
+    Habit("Fitness", "fitness yo", 0, "Weekly"),
 )
 
 @Composable
@@ -49,7 +53,7 @@ fun Habits(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .background(Grey)
+            .background(Beige)
             .fillMaxHeight()
     ) {
         Column(
@@ -68,24 +72,49 @@ fun HabitBlock(item: Habit, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
-        ) {
-            Column {
-                Text(item.title)
-                Spacer(Modifier.height(10.dp))
-                Spacer(Modifier.height(10.dp))
-                Text(item.description)
-                Spacer(Modifier.height(10.dp))
-                Spacer(Modifier.height(10.dp))
+            .padding(5.dp),
+    ) { Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(White)
+            .fillMaxHeight()
+        ){
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(item.schedule, color = Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(item.title, color = Black,  fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(item.description,  fontSize = 12.sp, color = Grey)
+                }
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp, horizontal = 16.dp)
+            ) {
+                Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="Edit", color = White)
+                }
+                Spacer(modifier = Modifier.padding(10.dp))
+                Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
+                    Text(text="Done", color = White)
+                }
             }
         }
+
     }
 }
 
