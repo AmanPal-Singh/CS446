@@ -1,8 +1,5 @@
-package com.example.goosebuddy
+package com.example.goosebuddy.ui.screens
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -10,45 +7,36 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import java.lang.Integer.min
-import kotlin.math.max
 
-class OnboardingActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val navController = rememberNavController()
-            val progress = remember {
-                mutableStateOf(0)
-            }
-            GooseBuddyTheme {
-                Scaffold(
-                    topBar = { ProgressIndicator(completed = progress.value, total = onboardingSteps.size) }
-                ) { padding ->
-                    Surface(
-                        modifier = Modifier
-                            .padding(padding)
-                            .fillMaxSize()
-                            .fillMaxHeight()
-                    ) {
-                        OnboardingNavigationGraph(navController = navController, progress = progress)
-                    }
+@Composable
+fun OnboardingFlow(navController: NavHostController, step: String?) {
+    val onboardingStep = onboardingSteps.find { s -> s.name == step }
+    val completed = onboardingSteps.indexOf(onboardingStep) + 1
+    GooseBuddyTheme {
+        Scaffold(
+            topBar = { ProgressIndicator(completed = completed, total = onboardingSteps.size) }
+        ) { padding ->
+            Surface(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .fillMaxHeight()
+            ) {
+                if (onboardingStep != null) {
+                    OnboardingStepComponent(
+                        step = onboardingStep,
+                        navController = navController,
+                    )
                 }
             }
         }
@@ -68,29 +56,11 @@ val onboardingSteps = arrayOf(
 )
 
 @Composable
-fun OnboardingNavigationGraph(navController: NavHostController, progress: MutableState<Int>) {
-    NavHost(navController = navController, startDestination = "welcome", route = "onboarding") {
-        onboardingSteps.forEachIndexed {  index, step ->
-            composable(step.name) {
-                OnboardingStepComponent(
-                    step = step,
-                    index = index,
-                    navController = navController,
-                    progress = progress
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun OnboardingStepComponent(
     step: OnboardingStep,
-    index: Int,
     navController: NavHostController,
-    progress: MutableState<Int>
 ) {
-    Column (
+    Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -102,12 +72,19 @@ fun OnboardingStepComponent(
             buttonText = "Next",
             onClick = {
                 // If last step
-                if (index == onboardingSteps.size - 1) {
-                    println("last step")
-                    navController.navigate("main")
+                val progress = onboardingSteps.indexOf(step)
+                println(progress)
+                println(onboardingSteps.size - 1)
+                if (progress == onboardingSteps.size - 1) {
+                    println("hellloooo")
+                    navController.navigate("home")
+                } else {
+                    val step = onboardingSteps[min(
+                        progress + 1,
+                        onboardingSteps.size - 1
+                    )].name
+                    navController.navigate("onboarding/$step")
                 }
-                navController.navigate(onboardingSteps[min(index+1, onboardingSteps.size - 1)].name)
-                progress.value = progress.value + 1
             },
             skippable = step.skippable
         )
@@ -116,7 +93,7 @@ fun OnboardingStepComponent(
 
 @Composable
 fun ProgressIndicator(completed: Int, total: Int) {
-    Row (
+    Row(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier

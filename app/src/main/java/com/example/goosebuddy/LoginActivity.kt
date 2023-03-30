@@ -62,7 +62,7 @@ fun LoginCard() {
             )
             Button(
                 onClick = {
-                    val intent = Intent(context, OnboardingActivity::class.java)
+                    val intent = Intent(context, MainActivity::class.java)
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Green)
