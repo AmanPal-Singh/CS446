@@ -17,9 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.goosebuddy.ui.screens.Routines
-import com.example.goosebuddy.ui.screens.OnboardingFlow
-import com.example.goosebuddy.ui.screens.Habits
+import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
@@ -65,7 +63,7 @@ fun RootNavigationGraph() {
     val scaffoldState = rememberScaffoldState()
     NavHost(
         navController = navController,
-        startDestination = "onboarding",
+        startDestination = "routines",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
@@ -82,6 +80,16 @@ fun RootNavigationGraph() {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routines(navController = navController)
             }
+        }
+        composable("routines/{routine_id}") {
+            val subroutines = arrayOf(
+                Subroutine(name = "part 1", description = "aaa", completed = true),
+                Subroutine(name = "part 2", description = "aaa", completed = true),
+                Subroutine(name = "part 3", description = "aaa", completed = false),
+                Subroutine(name = "part 4", description = "aaa", completed = false),
+                Subroutine(name = "part 5", description = "aaa", completed = true),
+            )
+            Routine(name = "Morning Routine", subroutines = subroutines)
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
