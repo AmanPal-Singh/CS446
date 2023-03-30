@@ -55,8 +55,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController, context: Context) {
-    var calendarState = rememberSelectableCalendarState()
+fun RootNavigationGraph() {
+    val navController = rememberNavController()
+    val scaffoldState = rememberScaffoldState()
     var db = Room.databaseBuilder(
         context,
         AppDatabase::class.java, "database-name"
