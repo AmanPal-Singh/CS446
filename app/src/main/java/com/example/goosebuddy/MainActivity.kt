@@ -7,9 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,9 +19,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.ui.screens.Routines
 import com.example.goosebuddy.ui.screens.OnboardingFlow
-import androidx.room.Room
-import com.example.goosebuddy.ui.screens.Routines
-import com.example.goosebuddy.ui.screens.Calendar
 import com.example.goosebuddy.ui.screens.Habits
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -35,17 +30,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
-            RootNavigationGraph(navController = navController)
+            RootNavigationGraph()
         }
     }
 }
 
 @Composable
-fun MainFoundation(navController: NavHostController, content: @Composable() () -> Unit) {
+fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldState, content: @Composable() () -> Unit) {
     GooseBuddyTheme {
         Scaffold(
-            topBar = { TopBar() },
+            scaffoldState = scaffoldState,
+            drawerContent = {
+                Text("hello this is a drawer")
+            },
+            topBar = { TopBar(scaffoldState) },
             bottomBar = { BottomNavigation(navController = navController) }
         ) { padding ->
             Surface(
@@ -61,42 +59,37 @@ fun MainFoundation(navController: NavHostController, content: @Composable() () -
     }
 }
 
-public object Graph {
-    const val ROOT = "root_graph"
-    const val ONBOARDING = "onboarding_graph"
-    const val MAIN = "main_graph"
-}
-
 @Composable
-fun RootNavigationGraph(navController: NavHostController) {
-
+fun RootNavigationGraph() {
+    val navController = rememberNavController()
+    val scaffoldState = rememberScaffoldState()
     NavHost(
         navController = navController,
         startDestination = "onboarding",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
-            MainFoundation(navController = navController) {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Greeting(name = "home")
             }
         }
         composable(BottomNavigationItem.Habits.screen_route) {
-            MainFoundation(navController = navController) {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Habits(navController = navController)
             }
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
-            MainFoundation(navController = navController) {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routines(navController = navController)
             }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
-            MainFoundation(navController = navController) {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Greeting(name = "calendar")
             }
         }
         composable(BottomNavigationItem.Profile.screen_route) {
-            MainFoundation(navController = navController) {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Greeting(name = "profile")
             }
         }
