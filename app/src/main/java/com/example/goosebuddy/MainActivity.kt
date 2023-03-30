@@ -1,6 +1,5 @@
 package com.example.goosebuddy
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,12 +12,15 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.goosebuddy.ui.screens.Routines
+import com.example.goosebuddy.ui.screens.OnboardingFlow
 import androidx.room.Room
 import com.example.goosebuddy.ui.screens.Routines
 import com.example.goosebuddy.ui.screens.Calendar
@@ -34,52 +36,83 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            NavigationGraph(navController = navController)
+            RootNavigationGraph(navController = navController)
         }
     }
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
-    //var calendarState = rememberSelectableCalendarState()
+fun MainFoundation(navController: NavHostController, content: @Composable() () -> Unit) {
+    GooseBuddyTheme {
+        Scaffold(
+            topBar = { TopBar() },
+            bottomBar = { BottomNavigation(navController = navController) }
+        ) { padding ->
+            Surface(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .fillMaxHeight()
+                    .background(Grey)
+            ) {
+                content()
+            }
+        }
+    }
+}
 
-    /**  TODO: only have the bottom navigation show up if the current destination is a bottom navigation item
-        other screens such as setting screen should not show bottom nav ui */
-    NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route, route = "main") {
+public object Graph {
+    const val ROOT = "root_graph"
+    const val ONBOARDING = "onboarding_graph"
+    const val MAIN = "main_graph"
+}
+
+@Composable
+fun RootNavigationGraph(navController: NavHostController) {
+
+    NavHost(
+        navController = navController,
+        startDestination = "onboarding",
+        route = "main"
+    ) {
         composable(BottomNavigationItem.Home.screen_route) {
-            GooseBuddyTheme {
-                Scaffold(
-                    topBar = { TopBar() },
-                    bottomBar = { BottomNavigation(navController = navController) }
-                ) { padding ->
-                    Surface(
-                        modifier = Modifier
-                            .padding(padding)
-                            .fillMaxSize()
-                            .fillMaxHeight()
-                            .background(Grey)
-                    ) {
-                        Greeting(name = "Home")
-                    }
-                }
+            MainFoundation(navController = navController) {
+                Greeting(name = "home")
+            }
+        }
+        composable(BottomNavigationItem.Habits.screen_route) {
+            MainFoundation(navController = navController) {
+                Habits(navController = navController)
             }
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
-            Routines(navController = navController)
-        }
-        composable(BottomNavigationItem.Habits.screen_route) {
-            Habits(navController = navController)
+            MainFoundation(navController = navController) {
+                Routines(navController = navController)
+            }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
-            Calendar()
+            MainFoundation(navController = navController) {
+                Greeting(name = "calendar")
+            }
         }
         composable(BottomNavigationItem.Profile.screen_route) {
-            Greeting(name = "Profile")
+            MainFoundation(navController = navController) {
+                Greeting(name = "profile")
+            }
         }
-        composable("routine1") {
-            Greeting(name = "more on a routine")
+        composable(
+            "onboarding"
+        ) {
+            OnboardingFlow(navController = navController, "welcome")
         }
-     }
+        composable(
+            "onboarding/{step}",
+            arguments = listOf(navArgument("step") { type = NavType.StringType })
+        ) { backStackEntry ->
+            OnboardingFlow(navController = navController, backStackEntry.arguments?.getString("step"))
+        }
+
+    }
 }
 
 @Composable
