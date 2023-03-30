@@ -60,7 +60,7 @@ fun NavigationGraph(navController: NavHostController, context: Context) {
     var db = Room.databaseBuilder(
         context,
         AppDatabase::class.java, "database-name"
-    ).allowMainThreadQueries().build()
+    ).allowMainThreadQueries().fallbackToDestructiveMigrationFrom(1).build()
     NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route) {
         composable(BottomNavigationItem.Home.screen_route) {
             Greeting(name = "Home")

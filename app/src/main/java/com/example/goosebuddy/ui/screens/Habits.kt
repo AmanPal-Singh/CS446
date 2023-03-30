@@ -54,8 +54,7 @@ val mockHabits = arrayOf(
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    habitsDao.insertAll(Habits(0, "Skincare", "skincare yo", 1, "Daily"))
-    habitsDao.insertAll(Habits(1, "Fitness", "fitness yo yo", 0, "Weekly"))
+    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily"), Habits(19382, "Fitness", "fitness yo yo", 0, "Weekly"))
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

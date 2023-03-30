@@ -1,9 +1,6 @@
 package com.example.goosebuddy.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.models.Routines
 
@@ -12,7 +9,7 @@ interface HabitsDao {
     @Query("SELECT * FROM habits")
     fun getAll(): List<Habits>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg habits: Habits)
 
     @Delete
