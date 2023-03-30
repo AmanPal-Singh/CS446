@@ -37,20 +37,6 @@ import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
 
-
-class Habit(
-    // Represents a habit
-    var title: String,
-    var description: String,
-    var completed: Int,
-    var schedule: String,
-)
-
-val mockHabits = arrayOf(
-    Habit("Skincare", "skincare yo", 1, "Daily"),
-    Habit("Fitness", "fitness yo", 0, "Weekly"),
-)
-
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
