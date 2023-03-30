@@ -36,18 +36,19 @@ class Routine(
     var title: String,
     var completedSteps: Int,
     var totalSteps: Int,
+    var id: Int
 )
 
 // TODO: used to stub routines, will update for demo 2
 val mockRoutines = arrayOf(
-    Routine("Skincare", 10, 10),
-    Routine("Fitness", 75, 100),
-    Routine("Yoga", 0, 10),
-    Routine("Cleaning", 5, 10),
-    Routine("Study", 25, 100),
-    Routine("Study2", 15, 90),
-    Routine("Study3", 25, 100),
-    Routine("Study4", 15, 30),
+    Routine("Skincare", 10, 10, 1),
+    Routine("Fitness", 75, 100, 2),
+    Routine("Yoga", 0, 10, 3),
+    Routine("Cleaning", 5, 10, 4),
+    Routine("Study", 25, 100, 5),
+    Routine("Study2", 15, 90, 6),
+    Routine("Study3", 25, 100, 7),
+    Routine("Study4", 15, 30, 8),
 )
 
 
@@ -158,7 +159,6 @@ fun RoutineWeeklyTracker() {
 
 /** TODO: Put in componenets directory? */
 @Composable
-
 fun RoutineBlock(item: Routine, navController: NavController) {
     Card(
         modifier = Modifier
@@ -192,8 +192,7 @@ fun RoutineBlock(item: Routine, navController: NavController) {
             )
             Column {
                 Text(item.title)
-                Spacer(Modifier.height(10.dp))
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(20.dp))
                 LinearProgressIndicator(
                     modifier = Modifier
                         .background(Color.Transparent)
@@ -205,7 +204,7 @@ fun RoutineBlock(item: Routine, navController: NavController) {
                 )
             }
 
-            IconButton(onClick = { navController.navigate("routine1") }) {
+            IconButton(onClick = { navController.navigate("routines/${item.id}") }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "More",
