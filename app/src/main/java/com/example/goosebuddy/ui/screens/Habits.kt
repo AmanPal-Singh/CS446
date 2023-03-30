@@ -72,7 +72,7 @@ fun HabitBlock(item: Habit, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(5.dp),
     ) { Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -93,9 +93,9 @@ fun HabitBlock(item: Habit, navController: NavController) {
                         .padding(16.dp),
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    Text(item.schedule, color = Black, fontWeight = FontWeight.Bold)
-                    Text(item.title, color = Black, fontWeight = FontWeight.Bold)
-                    Text(item.description, color = Grey)
+                    Text(item.schedule, color = Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(item.title, color = Black,  fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(item.description,  fontSize = 12.sp, color = Grey)
                 }
             }
             Row(
