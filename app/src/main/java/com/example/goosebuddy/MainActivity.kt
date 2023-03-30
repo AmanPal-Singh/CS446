@@ -8,51 +8,47 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.goosebuddy.ui.screens.*
+import androidx.room.Room
+import com.example.goosebuddy.ui.screens.Routines
+import com.example.goosebuddy.ui.screens.Calendar
+import com.example.goosebuddy.ui.screens.Habits
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
+import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RootNavigationGraph()
-        }
-    }
-}
-
-@Composable
-fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldState, content: @Composable() () -> Unit) {
-    GooseBuddyTheme {
-        Scaffold(
-            scaffoldState = scaffoldState,
-            drawerContent = {
-                Text("hello this is a drawer")
-            },
-            topBar = { TopBar(scaffoldState) },
-            bottomBar = { BottomNavigation(navController = navController) }
-        ) { padding ->
-            Surface(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize()
-                    .fillMaxHeight()
-                    .background(Grey)
-            ) {
-                content()
+            val navController = rememberNavController()
+            GooseBuddyTheme {
+                Scaffold(
+                    topBar = { TopBar() },
+                    bottomBar = { BottomNavigation(navController = navController) }
+                ) { padding ->
+                    Surface(
+                        modifier = Modifier
+                            .padding(padding)
+                            .fillMaxSize()
+                            .fillMaxHeight()
+                            .background(Grey)
+                    ) {
+                       NavigationGraph(navController = navController, context=applicationContext )
+                    }
+                }
             }
         }
     }
@@ -66,59 +62,26 @@ fun RootNavigationGraph() {
         context,
         AppDatabase::class.java, "database-name"
     ).allowMainThreadQueries().fallbackToDestructiveMigrationFrom(1).build()
-    NavHost(
-        navController = navController,
-        startDestination = "routines",
-        route = "main"
-    ) {
+    NavHost(navController, startDestination = BottomNavigationItem.Home.screen_route) {
         composable(BottomNavigationItem.Home.screen_route) {
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "home")
-            }
-        }
-        composable(BottomNavigationItem.Habits.screen_route) {
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Habits(navController = navController, db = db)
-            }
+            Greeting(name = "Home")
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Routines(navController = navController)
-            }
+            Routines(navController = navController)
         }
-        composable("routines/{routine_id}") {
-            val subroutines = arrayOf(
-                Subroutine(name = "part 1", description = "aaa", completed = true),
-                Subroutine(name = "part 2", description = "aaa", completed = true),
-                Subroutine(name = "part 3", description = "aaa", completed = false),
-                Subroutine(name = "part 4", description = "aaa", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = true),
-            )
-            Routine(name = "Morning Routine", subroutines = subroutines)
+        composable(BottomNavigationItem.Habits.screen_route) {
+            Habits(navController = navController, db = db)
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "calendar")
-            }
+            Calendar(calendarState = calendarState)
         }
         composable(BottomNavigationItem.Profile.screen_route) {
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "profile")
-            }
+            Greeting(name = "Profile")
         }
-        composable(
-            "onboarding"
-        ) {
-            OnboardingFlow(navController = navController, "welcome")
+        composable("routine1") {
+            Greeting(name = "more on a routine")
         }
-        composable(
-            "onboarding/{step}",
-            arguments = listOf(navArgument("step") { type = NavType.StringType })
-        ) { backStackEntry ->
-            OnboardingFlow(navController = navController, backStackEntry.arguments?.getString("step"))
-        }
-
-    }
+     }
 }
 
 @Composable
