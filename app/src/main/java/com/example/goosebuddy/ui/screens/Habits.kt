@@ -26,6 +26,7 @@ import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
+import com.example.goosebuddy.ui.theme.Black
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.goosebuddy.ui.theme.Yellow
@@ -69,7 +70,13 @@ fun HabitBlock(item: Habit, navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp),
-    ) {
+    ) { Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(White)
+            .fillMaxHeight()
+        ){
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -79,13 +86,25 @@ fun HabitBlock(item: Habit, navController: NavController) {
         ) {
             Column {
                 Text(item.title)
-                Spacer(Modifier.height(10.dp))
-                Spacer(Modifier.height(10.dp))
                 Text(item.description)
-                Spacer(Modifier.height(10.dp))
-                Spacer(Modifier.height(10.dp))
             }
         }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp)
+        ) {
+            Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                Text(text="Edit", color = White)
+            }
+            Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
+                Text(text="Done", color = White)
+            }
+        }
+    }
+
     }
 }
 
