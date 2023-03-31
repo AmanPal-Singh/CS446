@@ -15,9 +15,11 @@ import android.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.ui.screens.Utility.formatTime
 import com.example.goosebuddy.ui.theme.Red
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
@@ -25,19 +27,11 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RoutineTimer(name: String, duration: Duration) {
-    var ticks by remember { mutableStateOf(0f) }
-    LaunchedEffect(ticks) {
-        while(ticks <= duration.inWholeMilliseconds) {
-            delay(1.milliseconds)
-            ticks++
-            println(ticks/duration.inWholeMilliseconds)
-        }
-    }
+    val viewModel = RoutineTimerViewModel()
+    val time by viewModel.time.observeAsState(Utility.TIME_COUNTDOWN.formatTime())
+    val progress by viewModel.progress.observeAsState(1.00F)
+    val isPlaying by viewModel.isPlaying.observeAsState(false)
 
-    val animatedProgress by animateFloatAsState(
-        targetValue = ticks/duration.inWholeMilliseconds,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -45,6 +39,7 @@ fun RoutineTimer(name: String, duration: Duration) {
             .fillMaxWidth()
     ) {
         Text(text = name)
+        Text(text = "$progress")
         Box {
             CircularProgressIndicatorBackground(
                 modifier = Modifier
@@ -54,7 +49,7 @@ fun RoutineTimer(name: String, duration: Duration) {
                 stroke = 15
             )
             CircularProgressIndicator(
-                progress = animatedProgress,
+                progress = progress,
                 modifier = Modifier
                     .height(300.dp)
                     .width(300.dp),
@@ -67,11 +62,11 @@ fun RoutineTimer(name: String, duration: Duration) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = {   }) {
                 Text("Back")
             }
             Button(onClick = {
-                ticks = 0f
+                viewModel.handleCountdownTimer()
             }) {
                 Text("Play")
             }
