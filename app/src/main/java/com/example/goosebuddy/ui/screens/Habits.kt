@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
@@ -119,7 +120,10 @@ fun HabitBlock(item: Habits, navController: NavController) {
                     .fillMaxWidth()
                     .padding(vertical = 5.dp, horizontal = 16.dp)
             ) {
-                Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                Button(onClick = {
+                    navController.navigate("habits/${item.id}/edit")
+                                 },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
                     Text(text="Edit", color = White)
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
