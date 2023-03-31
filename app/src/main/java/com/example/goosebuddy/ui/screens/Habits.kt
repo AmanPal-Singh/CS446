@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,19 +25,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.Grey
-import com.example.goosebuddy.ui.theme.Red
-import com.example.goosebuddy.ui.theme.White
-import com.example.goosebuddy.ui.theme.Black
-import com.example.goosebuddy.ui.theme.Beige
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
+import com.example.goosebuddy.ui.theme.*
 
 
 class Habit(
@@ -63,13 +59,24 @@ fun Habits(navController: NavController, db: AppDatabase) {
             .background(Beige)
             .fillMaxHeight()
     ) {
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
-        ) {
-            habitsDao.getAll().forEach { item ->
-                HabitBlock(item = item, navController = navController)
+        Box {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                habitsDao.getAll().forEach { item ->
+                    HabitBlock(item = item, navController = navController)
+                }
+            }
+            Button(
+                onClick = { navController.navigate("habits/create" )},
+                colors = ButtonDefaults.buttonColors(backgroundColor = TransluenceBlack),
+                modifier = Modifier.align(Alignment.TopCenter))
+            {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "emailIcon", tint = White)
+                Text(text="Add Habit", color = White)
             }
         }
+
     }
 }
 
@@ -116,7 +123,7 @@ fun HabitBlock(item: Habits, navController: NavController) {
                     Text(text="Edit", color = White)
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
-                Button(onClick = { navController.navigate("habits/create" )}, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
+                Button(onClick = { }, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
                     Text(text="Done", color = White)
                 }
             }
