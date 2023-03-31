@@ -41,6 +41,7 @@ import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
+import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 @Composable
 fun AddHabit(navController: NavController, db: AppDatabase) {
@@ -85,7 +86,14 @@ fun AddHabit(navController: NavController, db: AppDatabase) {
                     backgroundColor=White
                 )
             )
-            Button(onClick = {  }, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
+            Button(
+                onClick = {
+                    habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily"))
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Black)
+            )
+            {
                 Text(text="Add Habit", color = White)
             }
         }
