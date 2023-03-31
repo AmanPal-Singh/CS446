@@ -87,6 +87,12 @@ fun RootNavigationGraph(ctx: Context) {
                 AddHabit(navController = navController, db=db)
             }
         }
+        composable("habits/{habit_id}/edit") { backStackEntry ->
+            Habit(
+                habitId = backStackEntry.arguments?.getString("habit_id")!!.toInt(),
+                db=db
+            )
+        }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routines(navController = navController)
