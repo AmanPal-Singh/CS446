@@ -82,6 +82,11 @@ fun RootNavigationGraph(ctx: Context) {
                 Habits(navController = navController, db=db)
             }
         }
+        composable("habits/create") {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                AddHabit(navController = navController, db=db)
+            }
+        }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routines(navController = navController)

@@ -102,7 +102,7 @@ fun HabitBlock(item: Habits, navController: NavController) {
                     Text(text="Edit", color = White)
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
-                Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
+                Button(onClick = { navController.navigate("habits/create" )}, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
                     Text(text="Done", color = White)
                 }
             }
