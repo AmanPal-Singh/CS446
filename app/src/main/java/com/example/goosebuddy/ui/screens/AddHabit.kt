@@ -43,7 +43,7 @@ import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
 
 @Composable
-fun AddHabits(navController: NavController, db: AppDatabase) {
+fun AddHabit(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
 
     // Form values
