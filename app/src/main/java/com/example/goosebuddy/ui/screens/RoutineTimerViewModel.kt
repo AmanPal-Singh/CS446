@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 
 object Utility {
 
@@ -24,9 +24,13 @@ object Utility {
 
 }
 
-class RoutineTimerViewModel: ViewModel() {
-
-    var duration: Duration = 60.seconds
+class RoutineTimerViewModel(duration: Duration): ViewModel() {
+    private var initialDuration: Duration
+    private var _duration: Duration
+    init {
+        initialDuration = duration
+        _duration = duration
+    }
 
     private var countDownTimer: CountDownTimer? = null
 
@@ -52,19 +56,20 @@ class RoutineTimerViewModel: ViewModel() {
 
     private fun stopTimer() {
         countDownTimer?.cancel()
-        handleTimerValues(false, duration.inWholeMilliseconds.formatTime(), 1.0F)
+        handleTimerValues(false, _duration.inWholeMilliseconds.formatTime(), 1.0F)
     }
 
     private fun pauseTimer() {
+        _duration = (initialDuration.inWholeMilliseconds * progress.value!!).toLong().milliseconds
         countDownTimer?.cancel()
-        _progress.value?.let { handleTimerValues(false, duration.inWholeMilliseconds.formatTime(), it) }
+        _progress.value?.let { handleTimerValues(false, _duration.inWholeMilliseconds.formatTime(), it) }
     }
 
     private fun startTimer() {
         _isPlaying.value = true
-        countDownTimer = object : CountDownTimer(duration.inWholeMilliseconds, 10) {
+        countDownTimer = object : CountDownTimer(_duration.inWholeMilliseconds, 10) {
             override fun onTick(millisRemaining: Long) {
-                val progressValue = millisRemaining.toFloat() / duration.inWholeMilliseconds
+                val progressValue = millisRemaining.toFloat() / initialDuration.inWholeMilliseconds
                 handleTimerValues(true, millisRemaining.formatTime(), progressValue)
             }
 

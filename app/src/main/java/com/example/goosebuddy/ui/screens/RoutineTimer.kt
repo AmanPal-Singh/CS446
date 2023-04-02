@@ -25,11 +25,12 @@ import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-val viewModel = RoutineTimerViewModel()
 @Composable
 fun RoutineTimer(name: String, duration: Duration) {
 
-    viewModel.duration = duration
+    val viewModel by remember {
+        mutableStateOf(RoutineTimerViewModel(duration))
+    }
     val time by viewModel.time.observeAsState(duration.inWholeMilliseconds.formatTime())
     val progress by viewModel.progress.observeAsState(1.00F)
     val isPlaying by viewModel.isPlaying.observeAsState(false)

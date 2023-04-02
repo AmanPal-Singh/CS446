@@ -81,7 +81,7 @@ fun RootNavigationGraph() {
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                // Routines(navController = navController)
-                RoutineTimer(name = "Morning Routine", duration = 10.seconds)
+                RoutineTimer(name = "Morning Routine", duration = 30.seconds)
             }
         }
         composable("routines/{routine_id}") {
