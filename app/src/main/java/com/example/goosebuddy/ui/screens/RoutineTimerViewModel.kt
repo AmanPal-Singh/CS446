@@ -6,11 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 object Utility {
 
     //time to countdown - 1hr - 60secs
-    const val TIME_COUNTDOWN: Long = 60000L
     private const val TIME_FORMAT = "%02d:%02d"
 
 
@@ -25,9 +26,11 @@ object Utility {
 
 class RoutineTimerViewModel: ViewModel() {
 
+    var duration: Duration = 60.seconds
+
     private var countDownTimer: CountDownTimer? = null
 
-    private val _time = MutableLiveData(Utility.TIME_COUNTDOWN.formatTime())
+    private val _time = MutableLiveData(duration.inWholeMilliseconds.formatTime())
     val time: LiveData<String> = _time
 
     private val _progress = MutableLiveData(1.00F)
@@ -39,6 +42,7 @@ class RoutineTimerViewModel: ViewModel() {
     fun handleCountdownTimer() {
         println("HELLO")
         if (isPlaying.value == true) {
+            println("pause")
             pauseTimer()
         } else {
             println("start timer")
@@ -46,23 +50,26 @@ class RoutineTimerViewModel: ViewModel() {
         }
     }
 
+    private fun stopTimer() {
+        countDownTimer?.cancel()
+        handleTimerValues(false, duration.inWholeMilliseconds.formatTime(), 1.0F)
+    }
+
     private fun pauseTimer() {
         countDownTimer?.cancel()
-        handleTimerValues(false, Utility.TIME_COUNTDOWN.formatTime(), 1.0F)
+        _progress.value?.let { handleTimerValues(false, duration.inWholeMilliseconds.formatTime(), it) }
     }
 
     private fun startTimer() {
         _isPlaying.value = true
-        countDownTimer = object : CountDownTimer(Utility.TIME_COUNTDOWN, 1000) {
+        countDownTimer = object : CountDownTimer(duration.inWholeMilliseconds, 10) {
             override fun onTick(millisRemaining: Long) {
-                println("start timeraaa")
-                val progressValue = millisRemaining.toFloat() / Utility.TIME_COUNTDOWN
+                val progressValue = millisRemaining.toFloat() / duration.inWholeMilliseconds
                 handleTimerValues(true, millisRemaining.formatTime(), progressValue)
-                println(progressValue)
             }
 
             override fun onFinish() {
-                pauseTimer()
+                stopTimer()
             }
         }.start()
     }

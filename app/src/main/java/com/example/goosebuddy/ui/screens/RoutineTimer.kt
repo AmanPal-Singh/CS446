@@ -25,12 +25,15 @@ import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
+val viewModel = RoutineTimerViewModel()
 @Composable
 fun RoutineTimer(name: String, duration: Duration) {
-    val viewModel = RoutineTimerViewModel()
-    val time by viewModel.time.observeAsState(Utility.TIME_COUNTDOWN.formatTime())
+
+    viewModel.duration = duration
+    val time by viewModel.time.observeAsState(duration.inWholeMilliseconds.formatTime())
     val progress by viewModel.progress.observeAsState(1.00F)
     val isPlaying by viewModel.isPlaying.observeAsState(false)
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -39,7 +42,7 @@ fun RoutineTimer(name: String, duration: Duration) {
             .fillMaxWidth()
     ) {
         Text(text = name)
-        Text(text = "$progress")
+        Text(text = time)
         Box {
             CircularProgressIndicatorBackground(
                 modifier = Modifier
@@ -68,7 +71,7 @@ fun RoutineTimer(name: String, duration: Duration) {
             Button(onClick = {
                 viewModel.handleCountdownTimer()
             }) {
-                Text("Play")
+                Text(if (isPlaying) "Pause" else "Play")
             }
             Button(onClick = { /*TODO*/ }) {
                 Text("Next")
