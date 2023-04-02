@@ -74,7 +74,7 @@ fun RootNavigationGraph(ctx: Context) {
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "home")
+                Home()
             }
         }
         composable(BottomNavigationItem.Habits.screen_route) {
