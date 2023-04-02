@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 
 class Subroutine(
@@ -21,7 +22,7 @@ class Subroutine(
 
 
 @Composable
-fun Routine(name: String, subroutines: Array<Subroutine>) {
+fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHostController) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -29,7 +30,7 @@ fun Routine(name: String, subroutines: Array<Subroutine>) {
             .fillMaxWidth()
     ) {
         Text(name)
-        Button(onClick = { }) {
+        Button(onClick = {navController.navigate("routines/1/timer") }) {
             Text("Resume")
         }
         Column(
@@ -68,17 +69,4 @@ fun SubroutineCard(name: String, description: String, completed: Boolean) {
         }
     }
 
-}
-
-@Preview
-@Composable
-fun RoutinesPreview() {
-    val subroutines = arrayOf(
-        Subroutine(name = "part 1", description = "aaa", completed = true),
-        Subroutine(name = "part 2", description = "aaa", completed = true),
-        Subroutine(name = "part 3", description = "aaa", completed = false),
-        Subroutine(name = "part 4", description = "aaa", completed = false),
-        Subroutine(name = "part 5", description = "aaa", completed = true),
-    )
-    Routine(name = "Morning routine", subroutines = subroutines)
 }
