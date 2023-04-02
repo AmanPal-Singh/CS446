@@ -22,7 +22,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.goosebuddy.OnboardingActivity
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.theme.*
 
@@ -54,8 +53,7 @@ fun LoginCard() {
             )
             Button(
                 onClick = {
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
+                          print("hi")
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Green)
             ) {
