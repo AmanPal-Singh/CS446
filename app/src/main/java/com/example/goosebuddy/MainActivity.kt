@@ -26,6 +26,7 @@ import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNaviga
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
+import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,6 +67,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 fun RootNavigationGraph(ctx: Context) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
+    var calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
     NavHost(
         navController = navController,
@@ -90,7 +92,7 @@ fun RootNavigationGraph(ctx: Context) {
         composable("habits/{habit_id}/edit") { backStackEntry ->
             Habit(
                 habitId = backStackEntry.arguments?.getString("habit_id")!!.toInt(),
-                db=db
+                db = db
             )
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
@@ -125,7 +127,7 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "calendar")
+                Calendar(calendarState = calendarState)
             }
         }
         composable(BottomNavigationItem.Profile.screen_route) {
@@ -144,7 +146,6 @@ fun RootNavigationGraph(ctx: Context) {
         ) { backStackEntry ->
             OnboardingFlow(navController = navController, backStackEntry.arguments?.getString("step"))
         }
-
     }
 }
 
