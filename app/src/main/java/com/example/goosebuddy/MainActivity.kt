@@ -1,5 +1,6 @@
 package com.example.goosebuddy
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.room.Room
+import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -30,7 +33,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RootNavigationGraph()
+            RootNavigationGraph(ctx = applicationContext)
         }
     }
 }
@@ -60,9 +63,10 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 }
 
 @Composable
-fun RootNavigationGraph() {
+fun RootNavigationGraph(ctx: Context) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
+    var db = createInstance(ctx)
     NavHost(
         navController = navController,
         startDestination = "routines",
@@ -75,8 +79,19 @@ fun RootNavigationGraph() {
         }
         composable(BottomNavigationItem.Habits.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Habits(navController = navController)
+                Habits(navController = navController, db=db)
             }
+        }
+        composable("habits/create") {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                AddHabit(navController = navController, db=db)
+            }
+        }
+        composable("habits/{habit_id}/edit") { backStackEntry ->
+            Habit(
+                habitId = backStackEntry.arguments?.getString("habit_id")!!.toInt(),
+                db=db
+            )
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {

@@ -28,6 +28,7 @@ import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
 
 
