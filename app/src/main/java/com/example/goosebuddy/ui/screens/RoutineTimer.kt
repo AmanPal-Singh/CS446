@@ -19,6 +19,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import com.example.goosebuddy.ui.theme.Red
 import kotlinx.coroutines.delay
@@ -26,7 +27,12 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun RoutineTimer(name: String, duration: Duration) {
+fun RoutineTimer(
+    navController: NavController,
+    name: String,
+    duration: Duration,
+    routine: Routine
+) {
 
     val viewModel by remember {
         mutableStateOf(RoutineTimerViewModel(duration))
@@ -34,7 +40,6 @@ fun RoutineTimer(name: String, duration: Duration) {
     val time by viewModel.time.observeAsState(duration.inWholeMilliseconds.formatTime())
     val progress by viewModel.progress.observeAsState(1.00F)
     val isPlaying by viewModel.isPlaying.observeAsState(false)
-
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -66,7 +71,7 @@ fun RoutineTimer(name: String, duration: Duration) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onClick = {   }) {
+            Button(onClick = { /** Navigate to last subroutine of routine */ }) {
                 Text("Back")
             }
             Button(onClick = {
@@ -74,7 +79,7 @@ fun RoutineTimer(name: String, duration: Duration) {
             }) {
                 Text(if (isPlaying) "Pause" else "Play")
             }
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { /** Navigate to next subroutine of routine */  }) {
                 Text("Next")
             }
         }

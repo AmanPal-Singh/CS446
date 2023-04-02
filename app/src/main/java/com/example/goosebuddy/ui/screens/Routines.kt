@@ -37,21 +37,10 @@ class Routine(
     var title: String,
     var completedSteps: Int,
     var totalSteps: Int,
-    var id: Int
+    var id: Int,
+    var subroutine: Array<Subroutine>,
+    var isPlaying: Boolean,
 )
-
-// TODO: used to stub routines, will update for demo 2
-val mockRoutines = arrayOf(
-    Routine("Skincare", 10, 10, 1),
-    Routine("Fitness", 75, 100, 2),
-    Routine("Yoga", 0, 10, 3),
-    Routine("Cleaning", 5, 10, 4),
-    Routine("Study", 25, 100, 5),
-    Routine("Study2", 15, 90, 6),
-    Routine("Study3", 25, 100, 7),
-    Routine("Study4", 15, 30, 8),
-)
-
 
 class WeekdayData(
     var weekday: String,
@@ -60,7 +49,7 @@ class WeekdayData(
 )
 
 val mockWeekdayData = arrayOf(
-    WeekdayData("S", 1, mockRoutines.size),
+    WeekdayData("S", 1,11),
     WeekdayData("M", 5, 10),
     WeekdayData("T", 3, 10),
     WeekdayData("W", 5, 9),
@@ -82,7 +71,7 @@ fun getColour(progress: Float): Color {
     }
 }
 @Composable
-fun Routines(navController: NavController) {
+fun Routines(navController: NavController, routines: Array<Routine>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -94,7 +83,7 @@ fun Routines(navController: NavController) {
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            mockRoutines.forEach { item ->
+            routines.forEach { item ->
                 RoutineBlock(item = item, navController = navController)
             }
         }

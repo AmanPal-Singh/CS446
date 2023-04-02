@@ -38,6 +38,26 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// TODO: used to stub routines, will update for demo 2
+
+val subroutines = arrayOf(
+    Subroutine(name = "part 1", description = "aaa", completed = true),
+    Subroutine(name = "part 2", description = "aaa", completed = true),
+    Subroutine(name = "part 3", description = "aaa", completed = false),
+    Subroutine(name = "part 4", description = "aaa", completed = false),
+    Subroutine(name = "part 5", description = "aaa", completed = true),
+)
+val mockRoutines = arrayOf(
+    Routine("Skincare", 10, 10, 1, subroutines),
+    Routine("Fitness", 75, 100, 2, subroutines),
+    Routine("Yoga", 0, 10, 3, subroutines),
+    Routine("Cleaning", 5, 10, 4, subroutines),
+    Routine("Study", 25, 100, 5, subroutines),
+    Routine("Study2", 15, 90, 6, subroutines),
+    Routine("Study3", 25, 100, 7, subroutines),
+    Routine("Study4", 15, 30, 8, subroutines),
+)
+
 @Composable
 fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldState, content: @Composable() () -> Unit) {
     GooseBuddyTheme {
@@ -95,25 +115,32 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-               // Routines(navController = navController)
-                RoutineTimer(name = "Morning Routine", duration = 30.seconds)
+                Routines(navController = navController, routines = mockRoutines)
             }
         }
-        composable("routines/{routine_id}") {
-            val subroutines = arrayOf(
-                Subroutine(name = "part 1", description = "aaa", completed = true),
-                Subroutine(name = "part 2", description = "aaa", completed = true),
-                Subroutine(name = "part 3", description = "aaa", completed = false),
-                Subroutine(name = "part 4", description = "aaa", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = true),
-            )
-            Routine(
-                name = "Morning Routine",
-                subroutines = subroutines,
-                navController = navController
-            )
+        composable(
+            "routines/{routine_id}",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")
+
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                Routine(
+                    name = "Morning Routine",
+                    subroutines = subroutines,
+                    navController = navController
+                )
+            }
         }
-        composable("routines/{routine_id}/timer") {
+        composable(
+            "routines/{routine_id}/{subroutine_id}",
+            arguments = listOf(
+                navArgument("routine_id") { type = NavType.StringType },
+                navArgument("subroutine_id") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")
+            val subroutineId = backStackEntry.arguments?.get("subroutine_id")
             val subroutines = arrayOf(
                 Subroutine(name = "part 1", description = "aaa", completed = true),
                 Subroutine(name = "part 2", description = "aaa", completed = true),
@@ -121,7 +148,14 @@ fun RootNavigationGraph(ctx: Context) {
                 Subroutine(name = "part 4", description = "aaa", completed = false),
                 Subroutine(name = "part 5", description = "aaa", completed = true),
             )
-            RoutineTimer(name = "Morning Routine", duration = 10.seconds)
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                RoutineTimer(
+                    navController = navController,
+                    routine = mockRoutines[0],
+                    name = "Morning Routine",
+                    duration = 10.seconds,
+                )
+            }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {

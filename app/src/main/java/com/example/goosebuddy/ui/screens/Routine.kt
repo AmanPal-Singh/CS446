@@ -11,18 +11,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 class Subroutine(
     var name: String,
     var description: String,
-    var completed: Boolean
+    var completed: Boolean,
+    var duration: Duration = 30.seconds
 )
 
 
 
 @Composable
-fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHostController) {
+fun Routine(
+    name: String,
+    subroutines: Array<Subroutine>,
+    navController: NavHostController,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
