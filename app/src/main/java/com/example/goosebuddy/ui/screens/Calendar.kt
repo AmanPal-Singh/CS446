@@ -1,6 +1,5 @@
 package com.example.goosebuddy.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,21 +9,16 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.awaitResponse
-import com.github.kittinunf.fuel.core.awaitResponseResult
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
-import com.github.kittinunf.fuel.coroutines.awaitStringResult
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -32,15 +26,11 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.github.boguszpawlowski.composecalendar.CalendarState
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.selection.DynamicSelectionState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
 import kotlinx.datetime.LocalDateTime.Companion.parse
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.URL
-import java.net.HttpURLConnection
+
+const val calendarImportRoute = "calendar/import"
 
 class CalendarItem(
     var title: String,
@@ -168,6 +158,10 @@ class CalendarViewModel(
                 // Some UI feedback?
             }
         }
+    }
+
+    fun onSubmitCalendarImport(subject: String, courseNumber: String, classNumber: String) {
+        importSchedule(subject, courseNumber, classNumber)
 
         // With calendar import happening in background, navigate back to calendar screen
         navController.navigate(BottomNavigationItem.Calendar.screen_route)
@@ -200,7 +194,7 @@ fun Calendar(
         }
         Button(
             onClick = {
-                cvm.navController.navigate("scheduleImportForm")
+                cvm.navController.navigate(calendarImportRoute)
             }) {
             Text("Add course to schedule")
         }

@@ -131,9 +131,9 @@ fun RootNavigationGraph(ctx: Context) {
                 Calendar(cvm = calendarViewModel)
             }
         }
-        composable("scheduleImportForm") {
+        composable(calendarImportRoute) {
             val sivm = ScheduleImportViewModel()
-            ScheduleImport(sivm = sivm, onSubmit = calendarViewModel::importSchedule)
+            ScheduleImport(sivm = sivm, onSubmit = calendarViewModel::onSubmitCalendarImport)
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
