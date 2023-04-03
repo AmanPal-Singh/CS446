@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,43 +28,67 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.app.ActivityCompat.recreate
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.theme.*
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
     habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily"), Habits(19382, "Fitness", "fitness yo yo", 0, "Weekly"))
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Beige)
-            .fillMaxHeight()
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetBackgroundColor = Color.Transparent,
+        sheetElevation = 0.dp,
+        sheetContent = {
+            AddHabit(scope, sheetState, db, navController)
+        },
     ) {
-        Box {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                habitsDao.getAll().forEach { item ->
-                    HabitBlock(item = item, navController = navController)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Beige)
+                .fillMaxHeight()
+        ) {
+            Box {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    habitsDao.getAll().forEach { item ->
+                        HabitBlock(item = item, navController = navController)
+                    }
+                }
+                Button(
+                    onClick = {
+                        scope.launch {
+                            sheetState.show()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = TransluenceBlack),
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
+                {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "emailIcon",
+                        tint = White
+                    )
+                    Text(text = "Add Habit", color = White)
                 }
             }
-            Button(
-                onClick = { navController.navigate("habits/create" )},
-                colors = ButtonDefaults.buttonColors(backgroundColor = TransluenceBlack),
-                modifier = Modifier.align(Alignment.TopCenter))
-            {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "emailIcon", tint = White)
-                Text(text="Add Habit", color = White)
-            }
-        }
 
+        }
     }
 }
 

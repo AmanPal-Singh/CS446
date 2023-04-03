@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -35,70 +37,80 @@ import com.example.goosebuddy.ui.theme.Black
 import com.example.goosebuddy.ui.theme.Beige
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
+import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddHabit(navController: NavController, db: AppDatabase) {
+fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, navController: NavController) {
     var habitsDao = db.habitsDao()
 
-    // Form values
-    var habitName by remember { mutableStateOf(TextFieldValue("")) }
-    var habitDescription by remember { mutableStateOf(TextFieldValue("")) }
-    var habitSchedule by remember { mutableStateOf(TextFieldValue("")) }
+    var habitName by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var habitDescription by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var schedule by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Beige)
-            .fillMaxHeight()
-    ) {
-        Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
+    var expanded by remember { mutableStateOf(false) }
+    Column {
+        SpeechBubble("Honk! Adding a Habit...")
+        Goose(200.dp, 8f)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            OutlinedTextField(
-                value = habitName,
-                leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "emailIcon") },
-                onValueChange = {
-                    habitName = it
-                },
-                label = { Text(text = "Habit Name") },
-                placeholder = { Text(text = "Enter the habit name") },
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor=White
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(25.dp)
+            ) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = habitName,
+                    onValueChange = { newText ->
+                        habitName = newText
+                    },
+                    label = { Text(text = "Name") },
                 )
-            )
-            OutlinedTextField(
-                value = habitDescription,
-                leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "emailIcon") },
-                onValueChange = {
-                    habitDescription = it
-                },
-                label = { Text(text = "Habit Description") },
-                placeholder = { Text(text = "Enter the habit description") },
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor=White
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = habitDescription,
+                    onValueChange = { newText ->
+                        habitDescription = newText
+                    },
+                    label = { Text(text = "Description") },
                 )
-            )
-            Button(
-                onClick = {
+                Button(onClick = { scope.launch {
+                    // Insert habit
                     habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily"))
+                    // Reset form
+                    habitName = TextFieldValue("")
+                    habitDescription = TextFieldValue("")
+                    sheetState.hide()
                     navController.navigate(BottomNavigationItem.Habits.screen_route)
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Black)
-            )
-            {
-                Text(text="Add Habit", color = White)
+                }  }) {
+                    Text("Add")
+                }
             }
         }
-
     }
+
 }
 
 

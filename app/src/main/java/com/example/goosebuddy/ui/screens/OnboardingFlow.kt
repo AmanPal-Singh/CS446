@@ -19,9 +19,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.ui.theme.*
 import java.lang.Integer.min
+import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.models.UserData
 
 @Composable
-fun OnboardingFlow(navController: NavHostController, step: String?) {
+fun OnboardingFlow(navController: NavHostController, db: AppDatabase, step: String?) {
     val onboardingStep = onboardingSteps.find { s -> s.name == step }
     val completed = onboardingSteps.indexOf(onboardingStep) + 1
     GooseBuddyTheme {
@@ -38,6 +40,7 @@ fun OnboardingFlow(navController: NavHostController, step: String?) {
                     OnboardingStepComponent(
                         step = onboardingStep,
                         navController = navController,
+                        db = db
                     )
                 }
             }
@@ -55,13 +58,15 @@ val onboardingSteps = arrayOf(
     OnboardingStep("name", false),
     OnboardingStep("year", false),
     OnboardingStep("residence", true),
-    OnboardingStep("schedule", true)
+    OnboardingStep("schedule", true),
+    OnboardingStep("submit", false)
 )
 
 @Composable
 fun OnboardingStepComponent(
     step: OnboardingStep,
     navController: NavHostController,
+    db: AppDatabase
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
@@ -71,21 +76,25 @@ fun OnboardingStepComponent(
             .fillMaxWidth()
             .background(color = Beige)
     ) {
-        Text(step.name)
 
+        val userData = UserData()
         when (step.name) {
-            "welcome" -> WelcomePage()
-            "name" -> NamePage()
-            "year" -> YearPage()
-            "residence" -> ResidencePage()
+            "welcome" -> WelcomePage(userData)
+            "name" -> NamePage(userData)
+            "year" -> YearPage(userData)
+            "residence" -> ResidencePage(userData)
+            "submit" -> SubmitPage(userData)
         }
 
         BottomButtons(
-            buttonText = "Next",
+            buttonText = if (step.name == "submit") "Submit" else "Next",
             onClick = {
-                // If last step
                 val progress = onboardingSteps.indexOf(step)
+                // if user is on the last step and clicks submit
                 if (progress == onboardingSteps.size - 1) {
+                    // save all the user data into dao
+                    var userdataDao = db.userdataDao()
+                    userdataDao.insertAll(userData)
                     navController.navigate("home")
                 } else {
                     val step = onboardingSteps[min(
@@ -139,7 +148,7 @@ fun BottomButtons(
             Text("$buttonText")
         }
         if (skippable) {
-            Button(onClick = { println("skip") }) {
+            Button(onClick = {}) {
                 Text(text = "Skip for now")
             }
         }
@@ -149,8 +158,7 @@ fun BottomButtons(
 
 
 @Composable
-fun WelcomePage(
-) {
+fun WelcomePage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -169,8 +177,7 @@ fun WelcomePage(
 }
 
 @Composable
-fun NamePage(
-) {
+fun NamePage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -185,6 +192,7 @@ fun NamePage(
             onValueChange = {
                 text.value = it
                 // update model
+                userData.name = it
             },
             label = { Text(text = "Name") },
             placeholder = { Text(text = "Enter your name") },
@@ -193,8 +201,7 @@ fun NamePage(
 }
 
 @Composable
-fun YearPage(
-) {
+fun YearPage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -209,6 +216,7 @@ fun YearPage(
             onValueChange = {
                 text.value = it
                 // update model
+                userData.year = it.toInt()
             },
             label = { Text(text = "Year") },
             placeholder = { Text(text = "Enter your year as an integer") },
@@ -219,8 +227,7 @@ fun YearPage(
 
 
 @Composable
-fun ResidencePage(
-) {
+fun ResidencePage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -250,6 +257,13 @@ fun ResidencePage(
                     onCheckedChange = { checked_ ->
                         isChecked = checked_
                         // update model
+                        if (it == "roommates") {
+                            userData.hasRoommates = checked_
+                        } else if (it == "student_res") {
+                            userData.onStudentRes = checked_
+                        } else if (it == "first_time") {
+                            userData.firstTimeAlone = checked_
+                        }
                     },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Yellow
@@ -257,5 +271,25 @@ fun ResidencePage(
                 )
             }
         }
+    }
+}
+
+
+@Composable
+fun SubmitPage(userData: UserData) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val imageModifier = Modifier
+            .size(150.dp)
+        Image(
+            painter = painterResource(id = R.drawable.onboarding_goose),
+            contentDescription = "Goose Image",
+            contentScale = ContentScale.Fit,
+            modifier = imageModifier
+        )
+        val submitMsg = "Congrats, you are all set!\n Submit whenever you are ready!"
+        Text(submitMsg, textAlign = TextAlign.Center)
     }
 }
