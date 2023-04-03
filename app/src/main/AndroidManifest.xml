@@ -13,10 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GooseBuddy"
         tools:targetApi="31">
+
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.GooseBuddy">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,10 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".OnboardingActivity"
-            android:exported="true"
-            android:theme="@style/Theme.GooseBuddy"></activity>
-        <activity
-            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.GooseBuddy"></activity>
     </application>
