@@ -28,6 +28,7 @@ import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import kotlin.time.Duration
+
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
@@ -67,11 +68,12 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 fun RootNavigationGraph(ctx: Context) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
-    var calendarState = rememberSelectableCalendarState()
+    val calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
+    val calendarViewModel = CalendarViewModel(calendarState, navController)
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = "onboarding",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
@@ -126,8 +128,12 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Calendar(calendarState = calendarState)
+                Calendar(cvm = calendarViewModel)
             }
+        }
+        composable(calendarImportRoute) {
+            val sivm = ScheduleImportViewModel()
+            ScheduleImport(sivm = sivm, onSubmit = calendarViewModel::onSubmitCalendarImport)
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
@@ -137,13 +143,13 @@ fun RootNavigationGraph(ctx: Context) {
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, "welcome")
+            OnboardingFlow(navController = navController, db=db,"welcome")
         }
         composable(
             "onboarding/{step}",
             arguments = listOf(navArgument("step") { type = NavType.StringType })
         ) { backStackEntry ->
-            OnboardingFlow(navController = navController, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, backStackEntry.arguments?.getString("step"))
         }
     }
 }
