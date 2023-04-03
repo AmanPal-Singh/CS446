@@ -25,11 +25,12 @@ abstract class AppDatabase : RoomDatabase() {
 
         @Synchronized
         fun createInstance(context: Context): AppDatabase {
-            if(instance == null)
+            if(instance == null) {
                 instance = Room.databaseBuilder(
                     context,
                     AppDatabase::class.java, "database-name"
                 ).allowMainThreadQueries().fallbackToDestructiveMigration().build();
+            }
 
             return instance!!
 
