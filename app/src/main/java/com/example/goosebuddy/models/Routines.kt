@@ -9,6 +9,6 @@ data class Routines (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
-    val completedSteps: Int,
-    val totalSteps: Int
+    var completedSteps: Int,
+    var totalSteps: Int
 )

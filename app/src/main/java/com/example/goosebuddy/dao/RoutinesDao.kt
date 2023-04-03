@@ -13,4 +13,7 @@ interface RoutinesDao {
 
     @Delete
     fun delete(routines: Routines)
+
+    @Update
+    fun update(routines: Routines)
 }
