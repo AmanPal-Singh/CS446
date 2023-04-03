@@ -73,7 +73,7 @@ fun RootNavigationGraph(ctx: Context) {
     val calendarViewModel = CalendarViewModel(calendarState, navController)
     NavHost(
         navController = navController,
-        startDestination = "onboarding",
+        startDestination = "home",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
@@ -123,7 +123,7 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "profile")
+                Profile()
             }
         }
         composable(
