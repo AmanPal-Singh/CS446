@@ -245,7 +245,6 @@ fun AddRoutineForm(
                         description = TextFieldValue("")
                         sheetState.hide()
                         navController.navigate(BottomNavigationItem.DailyRoutines.screen_route)
-                        // navController.navigate("routine/{routine_id}")
                     }
                 }) {
                     Text("Add")
