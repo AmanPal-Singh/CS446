@@ -103,6 +103,8 @@ fun Habits(navController: NavController, db: AppDatabase) {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit ) {
+    var habitsDao = db.habitsDao()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,7 +159,13 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     Text(text="Edit", color = White)
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
-                Button(onClick = { }, colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
+                Button(
+                    onClick = {
+                              item.completed = 1
+                              habitsDao.update(item)
+                              navController.navigate(BottomNavigationItem.Habits.screen_route)
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
                     Text(text="Done", color = White)
                 }
             }

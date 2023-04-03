@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
 import com.example.goosebuddy.dao.*
 import com.example.goosebuddy.models.*
 
-@Database(entities = [Routines::class, WeekdayData::class, Habits::class, UserData::class, Lock::class], version = 3)
+
+@Database(entities = [Routines::class, WeekdayData::class, Habits::class, UserData::class, Lock::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routinesDao(): RoutinesDao;
     abstract fun weekdayDataDao(): WeekdayDataDao;
