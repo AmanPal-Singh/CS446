@@ -13,9 +13,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.Black
 import com.example.goosebuddy.ui.theme.White
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -62,9 +66,6 @@ fun Habit(habitId: Int, db: AppDatabase, navController: NavController) {
         )
         Button(
             onClick = {
-                println(habit.id)
-                println(habitName.text)
-                println(habit.title)
                 habitsDao.update(
                     com.example.goosebuddy.models.Habits(
                         habit.id,
@@ -74,7 +75,6 @@ fun Habit(habitId: Int, db: AppDatabase, navController: NavController) {
                         "Daily"
                     )
                 )
-                println(habit.title)
                 navController.navigate(BottomNavigationItem.Habits.screen_route)
             },
             colors = ButtonDefaults.buttonColors(backgroundColor = Black)
@@ -83,4 +83,71 @@ fun Habit(habitId: Int, db: AppDatabase, navController: NavController) {
             Text(text="Update Habit", color = White)
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, navController: NavController, habitId: Int) {
+    var habitsDao = db.habitsDao()
+    var habit = habitsDao.loadSingle(habitId)
+
+    // Form values
+    var habitName by remember { mutableStateOf(TextFieldValue(habit.title)) }
+    var habitDescription by remember { mutableStateOf(TextFieldValue(habit.description)) }
+
+    var schedule by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    var expanded by remember { mutableStateOf(false) }
+    Column {
+        SpeechBubble("Honk! Updating the habit $habitName...")
+        Goose(200.dp, 8f)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(25.dp)
+            ) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = habitName,
+                    onValueChange = { newText ->
+                        habitName = newText
+                    },
+                    label = { Text(text = "Name") },
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = habitDescription,
+                    onValueChange = { newText ->
+                        habitDescription = newText
+                    },
+                    label = { Text(text = "Description") },
+                )
+                Button(onClick = { scope.launch {
+                    // Update habit
+                    habitsDao.update(
+                        com.example.goosebuddy.models.Habits(
+                            habit.id,
+                            habitName.text,
+                            habitDescription.text,
+                            0,
+                            "Daily"
+                        )
+                    )
+                    sheetState.hide()
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                }  }) {
+                    Text("Add")
+                }
+            }
+        }
+    }
+
 }
