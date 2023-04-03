@@ -73,7 +73,7 @@ fun RootNavigationGraph(ctx: Context) {
     val calendarViewModel = CalendarViewModel(calendarState, navController)
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = "onboarding",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
@@ -143,13 +143,13 @@ fun RootNavigationGraph(ctx: Context) {
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, "welcome")
+            OnboardingFlow(navController = navController, db=db,"welcome")
         }
         composable(
             "onboarding/{step}",
             arguments = listOf(navArgument("step") { type = NavType.StringType })
         ) { backStackEntry ->
-            OnboardingFlow(navController = navController, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, backStackEntry.arguments?.getString("step"))
         }
     }
 }
