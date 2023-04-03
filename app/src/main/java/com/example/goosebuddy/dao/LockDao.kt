@@ -5,7 +5,7 @@ import com.example.goosebuddy.models.Lock
 
 @Dao
 interface LockDao {
-    @Query("SELECT * FROM Locks")
+    @Query("SELECT * FROM Lock")
     fun getAll(): List<Lock>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)

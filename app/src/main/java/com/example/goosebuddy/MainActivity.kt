@@ -18,7 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.room.Room
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
@@ -27,7 +26,6 @@ import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
-import kotlin.time.Duration
 
 import kotlin.time.Duration.Companion.seconds
 
@@ -73,7 +71,7 @@ fun RootNavigationGraph(ctx: Context) {
     val calendarViewModel = CalendarViewModel(calendarState, navController)
     NavHost(
         navController = navController,
-        startDestination = "onboarding",
+        startDestination = "lock",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
@@ -144,6 +142,11 @@ fun RootNavigationGraph(ctx: Context) {
             "onboarding"
         ) {
             OnboardingFlow(navController = navController, db=db,"welcome")
+        }
+        composable("lock"){
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                Lock(navController=navController, db=db)
+            }
         }
         composable(
             "onboarding/{step}",
