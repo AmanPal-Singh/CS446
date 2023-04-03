@@ -50,7 +50,6 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
             add(to.index, removeAt(from.index))
         }
     })
-    val data = remember { mutableStateOf(List(5) { it }) }
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
@@ -77,18 +76,6 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                     .reorderable(state)
                     .detectReorderAfterLongPress(state)
             ) {
-                /** items(data.value, { it }) { item ->
-                    ReorderableItem(state, key = item) { isDragging ->
-                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        Column(
-                            modifier = Modifier
-                                .shadow(elevation.value)
-                                .background(MaterialTheme.colors.surface)
-                        ) {
-                            Text(item)
-                        }
-                    }
-                } */
                 items(currentOrder.value, { it }) { name ->
                     ReorderableItem(state, key = name) { isDragging ->
                         val subroutine = subroutines.find { s -> s.name == name }
