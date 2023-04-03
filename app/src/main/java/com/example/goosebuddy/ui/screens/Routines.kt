@@ -2,6 +2,7 @@ package com.example.goosebuddy.ui.screens
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +28,7 @@ import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
@@ -94,6 +96,7 @@ fun Routines(navController: NavController) {
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
+            AddRoutineBlock()
             mockRoutines.forEach { item ->
                 RoutineBlock(item = item, navController = navController)
             }
@@ -156,6 +159,23 @@ fun RoutineWeeklyTracker() {
         }
     }
 
+}
+
+@Composable
+fun AddRoutineBlock() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .clickable {  }
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            text = "Add a routine",
+            modifier = Modifier
+                .padding(10.dp)
+        )
+    }
 }
 
 /** TODO: Put in componenets directory? */
