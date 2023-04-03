@@ -2,8 +2,6 @@ package com.example.goosebuddy
 
 import android.content.Context
 import androidx.room.AutoMigration
-import com.example.goosebuddy.dao.RoutinesDao
-import com.example.goosebuddy.dao.WeekdayDataDao
 import com.example.goosebuddy.dao.UserDataDao
 import androidx.room.Database
 import androidx.room.Room
@@ -12,11 +10,11 @@ import com.example.goosebuddy.dao.HabitsDao
 import com.example.goosebuddy.models.WeekdayData
 import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.models.Routines
+import com.example.goosebuddy.dao.RoutinesDao
+import com.example.goosebuddy.dao.WeekdayDataDao
 import com.example.goosebuddy.models.Habits
 
-
-
-@Database(entities = [Routines::class, WeekdayData::class, Habits::class, UserData::class], version = 2)
+@Database(entities = [Routines::class, WeekdayData::class, Habits::class, UserData::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routinesDao(): RoutinesDao;
     abstract fun weekdayDataDao(): WeekdayDataDao;
@@ -28,11 +26,12 @@ abstract class AppDatabase : RoomDatabase() {
 
         @Synchronized
         fun createInstance(context: Context): AppDatabase {
-            if(instance == null)
+            if(instance == null) {
                 instance = Room.databaseBuilder(
                     context,
                     AppDatabase::class.java, "database-name"
-                ).allowMainThreadQueries().fallbackToDestructiveMigrationFrom(1).build()
+                ).allowMainThreadQueries().fallbackToDestructiveMigration().build();
+            }
 
             return instance!!
 

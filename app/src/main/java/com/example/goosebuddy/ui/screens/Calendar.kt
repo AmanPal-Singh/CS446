@@ -45,6 +45,7 @@ val mockCalendarData = mapOf(
 
 @Composable
 fun Calendar(
+    calendarState: CalendarState<DynamicSelectionState>
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -59,10 +60,10 @@ fun Calendar(
         ) {
             Text("Calendar", fontSize = 24.sp)
         }
-        /** SelectableCalendar(calendarState = calendarState)
+        SelectableCalendar(calendarState = calendarState)
         calendarState.selectionState.selection.forEach{localDate -> ComposeCalendarBlocksForDate(
             localDate = localDate
-        ) } */
+        ) }
     }
 }
 

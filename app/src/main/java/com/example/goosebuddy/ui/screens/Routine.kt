@@ -1,15 +1,26 @@
 package com.example.goosebuddy.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Checkbox
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.goosebuddy.R
+import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 class Subroutine(
@@ -18,29 +29,46 @@ class Subroutine(
     var completed: Boolean
 )
 
-
-
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Routine(name: String, subroutines: Array<Subroutine>) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier
-            .fillMaxWidth()
+fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHostController) {
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetBackgroundColor = Color.Transparent,
+        sheetElevation = 0.dp,
+        sheetContent = {
+            AddSubroutine(scope, sheetState)
+        },
     ) {
-        Text(name)
-        Button(onClick = { }) {
-            Text("Resume")
-        }
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            subroutines.forEach { it ->
-                SubroutineCard(name = it.name , description = it.description, completed = it.completed)
+            Text(name)
+            Button(onClick = {navController.navigate("routines/1/timer") }) {
+                Text("Resume")
             }
-        }
-        Button(onClick = { }) {
-            Text("Add")
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                subroutines.forEach { it ->
+                    SubroutineCard(name = it.name , description = it.description, completed = it.completed)
+                }
+            }
+            Button(
+                onClick = {
+                    scope.launch {
+                        sheetState.show()
+                    }
+                }
+            ) {
+                Text("Add")
+            }
         }
     }
 }
@@ -67,18 +95,105 @@ fun SubroutineCard(name: String, description: String, completed: Boolean) {
             Checkbox(checked = completed, onCheckedChange = {})
         }
     }
-
 }
-
-@Preview
+// TODO: add icon picker: https://github.com/maltaisn/icondialoglib
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RoutinesPreview() {
-    val subroutines = arrayOf(
-        Subroutine(name = "part 1", description = "aaa", completed = true),
-        Subroutine(name = "part 2", description = "aaa", completed = true),
-        Subroutine(name = "part 3", description = "aaa", completed = false),
-        Subroutine(name = "part 4", description = "aaa", completed = false),
-        Subroutine(name = "part 5", description = "aaa", completed = true),
-    )
-    Routine(name = "Morning routine", subroutines = subroutines)
+fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
+    var name by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var description by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var durationNumber by remember {
+        mutableStateOf(TextFieldValue("60"))
+    }
+
+    var expanded by remember { mutableStateOf(false) }
+    val durationUnitOptions = listOf("s", "min", "hr")
+    var selectedUnit by remember { mutableStateOf(0) }
+    Column {
+        SpeechBubble("Honk! Adding a subroutine...")
+        Goose(200.dp, 8f)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(25.dp)
+            ) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = name,
+                    onValueChange = { newText ->
+                        name = newText
+                    },
+                    label = { Text(text = "Name") },
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = description,
+                    onValueChange = { newText ->
+                        description = newText
+                    },
+                    label = { Text(text = "Description") },
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextField(
+                        value = durationNumber,
+                        onValueChange = { newText ->
+                            durationNumber = newText
+                        },
+                        label = { Text(text = "Duration") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+                    TextField(
+                        value = durationUnitOptions[selectedUnit],
+                        onValueChange = { },
+                        enabled = false,
+                        modifier = Modifier
+                            .clickable(onClick = { expanded = true }),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            disabledTextColor = LocalContentColor.current.copy(LocalContentAlpha.current),
+                            backgroundColor = Color.Transparent,
+                            disabledBorderColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
+                            disabledLabelColor = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
+                        )
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        durationUnitOptions.forEachIndexed { index, s ->
+                            DropdownMenuItem(onClick = {
+                                selectedUnit = index
+                                expanded = false
+                            }) {
+                                Text(text = s)
+                            }
+                        }
+                    }
+                }
+                Button(onClick = { scope.launch {
+                    // Reset form
+                    name = TextFieldValue("")
+                    description = TextFieldValue("")
+                    durationNumber = TextFieldValue("60")
+                    selectedUnit = 0
+                    sheetState.hide()
+                }  }) {
+                    Text("Add")
+                }
+            }
+        }
+    }
+
 }
