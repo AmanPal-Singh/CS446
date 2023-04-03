@@ -143,13 +143,13 @@ fun RootNavigationGraph(ctx: Context) {
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, db=db,"welcome")
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, "welcome")
         }
         composable(
             "onboarding/{step}",
             arguments = listOf(navArgument("step") { type = NavType.StringType })
         ) { backStackEntry ->
-            OnboardingFlow(navController = navController, db=db, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, backStackEntry.arguments?.getString("step"))
         }
     }
 }
