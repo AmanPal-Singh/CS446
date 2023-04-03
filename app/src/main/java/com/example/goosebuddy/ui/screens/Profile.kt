@@ -31,8 +31,8 @@ fun Profile() {
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        UserField(value = name, enabled = editingEnabled, onChange = { new -> name = new})
-        UserField(value = year, enabled = editingEnabled, onChange = { new -> year = new})
+        UserField(name = "Name", value = name, enabled = editingEnabled, onChange = { new -> name = new})
+        UserField(name= "Year", value = year, enabled = editingEnabled, onChange = { new -> year = new})
         EditButtons(
             editingEnabled = editingEnabled,
             enableEditing = { editingEnabled = true},
@@ -42,10 +42,10 @@ fun Profile() {
 }
 
 @Composable
-fun UserField(value: TextFieldValue, enabled: Boolean, onChange: (new: TextFieldValue) -> Unit ) {
+fun UserField(name: String, value: TextFieldValue, enabled: Boolean, onChange: (new: TextFieldValue) -> Unit ) {
     OutlinedTextField(
         value = value,
-        label = { Text(text = "Name") },
+        label = { Text(text = name) },
         enabled = enabled,
         onValueChange = {
             onChange(it)
