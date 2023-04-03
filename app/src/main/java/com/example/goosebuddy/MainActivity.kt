@@ -18,7 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.room.Room
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
@@ -27,7 +26,6 @@ import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
-import kotlin.time.Duration
 
 import kotlin.time.Duration.Companion.seconds
 
@@ -123,7 +121,7 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Profile()
+                Greeting(name = "profile")
             }
         }
         composable(
@@ -136,6 +134,11 @@ fun RootNavigationGraph(ctx: Context) {
             arguments = listOf(navArgument("step") { type = NavType.StringType })
         ) { backStackEntry ->
             OnboardingFlow(navController = navController, db=db, backStackEntry.arguments?.getString("step"))
+        }
+        composable("lock"){
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                Lock(navController=navController, db=db)
+            }
         }
     }
 }
