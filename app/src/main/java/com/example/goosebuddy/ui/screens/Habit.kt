@@ -22,68 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-@Composable
-fun Habit(habitId: Int, db: AppDatabase, navController: NavController) {
-    // Query the habit we are editing.
-    var habitsDao = db.habitsDao()
-    var habit = habitsDao.loadSingle(habitId)
-
-    // Form values
-    var habitName by remember { mutableStateOf(TextFieldValue(habit.title)) }
-    var habitDescription by remember { mutableStateOf(TextFieldValue(habit.description)) }
-    var habitSchedule by remember { mutableStateOf(TextFieldValue(habit.schedule)) }
-
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        OutlinedTextField(
-            value = habitName,
-            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "emailIcon") },
-            onValueChange = {
-                habitName = it
-            },
-            label = { Text(text = "Habit Name") },
-            placeholder = { Text(text = "Update the habit name") },
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor= White
-            )
-        )
-        OutlinedTextField(
-            value = habitDescription,
-            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "emailIcon") },
-            onValueChange = {
-                habitDescription = it
-            },
-            label = { Text(text = "Habit Description") },
-            placeholder = { Text(text = "Update the habit description") },
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor= White
-            )
-        )
-        Button(
-            onClick = {
-                habitsDao.update(
-                    com.example.goosebuddy.models.Habits(
-                        habit.id,
-                        habitName.text,
-                        habitDescription.text,
-                        0,
-                        "Daily"
-                    )
-                )
-                navController.navigate(BottomNavigationItem.Habits.screen_route)
-            },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Black)
-        )
-        {
-            Text(text="Update Habit", color = White)
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -144,7 +82,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     sheetState.hide()
                     navController.navigate(BottomNavigationItem.Habits.screen_route)
                 }  }) {
-                    Text("Add")
+                    Text("Update Habit")
                 }
             }
         }
