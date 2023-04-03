@@ -2,6 +2,7 @@ package com.example.goosebuddy.ui.screens
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,9 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,10 +27,16 @@ import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
 import com.example.goosebuddy.ui.theme.Yellow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Routines
+import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 class WeekdayData(
@@ -50,9 +55,6 @@ val mockWeekdayData = arrayOf(
     WeekdayData("S", 0, 10),
 )
 
-
-/** TODO: Make the weekly tracker stick to top? and make vertical scroll only on list of routines */
-
 fun getColour(progress: Float): Color {
     if (progress == 1.0f) {
         return Green
@@ -62,6 +64,7 @@ fun getColour(progress: Float): Color {
         return Red
     }
 }
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Routines(navController: NavController, db: AppDatabase) {
     var routinesDao = db.routinesDao()
@@ -72,23 +75,37 @@ fun Routines(navController: NavController, db: AppDatabase) {
         Routines(4, "Cleaning", 5, 10),
         Routines(5, "Study", 25, 100),
         );
-    
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Grey)
-            .fillMaxHeight()
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetBackgroundColor = Color.Transparent,
+        sheetElevation = 0.dp,
+        sheetContent = {
+            AddRoutineForm(sheetState, scope, navController)
+        },
     ) {
-        RoutineWeeklyTracker()
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Grey)
+                .fillMaxHeight()
         ) {
-            routinesDao.getAll().forEach { item ->
-                RoutineBlock(item = item, navController = navController)
+            RoutineWeeklyTracker()
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                AddRoutineBlock(sheetState, scope)
+
+                routinesDao.getAll().forEach { item ->
+                    RoutineBlock(item = item, navController = navController)
+                }
             }
         }
     }
+
 }
 
 /** Make padding part of theme */
@@ -147,6 +164,92 @@ fun RoutineWeeklyTracker() {
     }
 
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .clickable(
+                onClick = {
+                    scope.launch {
+                        sheetState.show()
+                    }
+                }
+            )
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            text = "Add a routine",
+            modifier = Modifier
+                .padding(10.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun AddRoutineForm(
+    sheetState: ModalBottomSheetState,
+    scope: CoroutineScope,
+    navController: NavController
+) {
+    var name by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var description by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    Column {
+        SpeechBubble("Honk! Adding a new routine!")
+        Goose(200.dp, 8f)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(25.dp)
+            ) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = name,
+                    onValueChange = { newText ->
+                        name = newText
+                    },
+                    label = { Text(text = "Name") },
+                )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = description,
+                    onValueChange = { newText ->
+                        description = newText
+                    },
+                    label = { Text(text = "Description") },
+                )
+                Button(onClick = {
+                    scope.launch {
+                        // Reset form
+                        name = TextFieldValue("")
+                        description = TextFieldValue("")
+                        sheetState.hide()
+                        // Navigate to newly screen of newly created habit
+                        // navController.navigate("routine/{routine_id}")
+                    }
+                }) {
+                    Text("Add")
+                }
+            }
+        }
+    }
+}
+
 
 /** TODO: Put in componenets directory? */
 @Composable
@@ -207,9 +310,4 @@ fun RoutineBlock(item: Routines, navController: NavController) {
     }
 }
 
-@Preview
-@Composable
-fun RoutineBlockPreview() {
 
-    //RoutineBlock(mockRoutines[2])
-}
