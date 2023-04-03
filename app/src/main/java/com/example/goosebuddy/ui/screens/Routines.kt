@@ -26,31 +26,12 @@ import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import com.example.goosebuddy.ui.theme.White
+import com.example.goosebuddy.ui.theme.Yellow
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.ui.theme.Yellow
-
-
-class Routine(
-    // Represents a routine
-    var title: String,
-    var completedSteps: Int,
-    var totalSteps: Int,
-    var id: Int
-)
-
-// TODO: used to stub routines, will update for demo 2
-val mockRoutines = arrayOf(
-    Routine("Skincare", 10, 10, 1),
-    Routine("Fitness", 75, 100, 2),
-    Routine("Yoga", 0, 10, 3),
-    Routine("Cleaning", 5, 10, 4),
-    Routine("Study", 25, 100, 5),
-    Routine("Study2", 15, 90, 6),
-    Routine("Study3", 25, 100, 7),
-    Routine("Study4", 15, 30, 8),
-)
+import com.example.goosebuddy.models.Routines
 
 
 class WeekdayData(
@@ -60,7 +41,7 @@ class WeekdayData(
 )
 
 val mockWeekdayData = arrayOf(
-    WeekdayData("S", 1, mockRoutines.size),
+    WeekdayData("S", 1, 1),
     WeekdayData("M", 5, 10),
     WeekdayData("T", 3, 10),
     WeekdayData("W", 5, 9),
@@ -82,7 +63,16 @@ fun getColour(progress: Float): Color {
     }
 }
 @Composable
-fun Routines(navController: NavController) {
+fun Routines(navController: NavController, db: AppDatabase) {
+    var routinesDao = db.routinesDao()
+    routinesDao.insertAll(
+        Routines(1, "Skincare", 10, 10),
+        Routines(2, "Fitness", 75, 100),
+        Routines(3, "Yoga", 0, 10),
+        Routines(4, "Cleaning", 5, 10),
+        Routines(5, "Study", 25, 100),
+        );
+    
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -94,7 +84,7 @@ fun Routines(navController: NavController) {
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            mockRoutines.forEach { item ->
+            routinesDao.getAll().forEach { item ->
                 RoutineBlock(item = item, navController = navController)
             }
         }
@@ -160,7 +150,7 @@ fun RoutineWeeklyTracker() {
 
 /** TODO: Put in componenets directory? */
 @Composable
-fun RoutineBlock(item: Routine, navController: NavController) {
+fun RoutineBlock(item: Routines, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
