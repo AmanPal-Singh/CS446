@@ -34,27 +34,6 @@ import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Routines
 
 
-// class Routine(
-//     // Represents a routine
-//     var title: String,
-//     var completedSteps: Int,
-//     var totalSteps: Int,
-//     var id: Int
-// )
-
-// // TODO: used to stub routines, will update for demo 2
-// val mockRoutines = arrayOf(
-//     Routine("Skincare", 10, 10, 1),
-//     Routine("Fitness", 75, 100, 2),
-//     Routine("Yoga", 0, 10, 3),
-//     Routine("Cleaning", 5, 10, 4),
-//     Routine("Study", 25, 100, 5),
-//     Routine("Study2", 15, 90, 6),
-//     Routine("Study3", 25, 100, 7),
-//     Routine("Study4", 15, 30, 8),
-// )
-
-
 class WeekdayData(
     var weekday: String,
     var completedCount: Int,
@@ -62,7 +41,7 @@ class WeekdayData(
 )
 
 val mockWeekdayData = arrayOf(
-    // WeekdayData("S", 1, mockRoutines.size),
+    WeekdayData("S", 1, 1),
     WeekdayData("M", 5, 10),
     WeekdayData("T", 3, 10),
     WeekdayData("W", 5, 9),
