@@ -84,13 +84,6 @@ fun RootNavigationGraph(ctx: Context) {
                 Habits(navController = navController, db=db)
             }
         }
-        composable("habits/{habit_id}/edit") { backStackEntry ->
-            Habit(
-                habitId = backStackEntry.arguments?.getString("habit_id")!!.toInt(),
-                db=db,
-                navController = navController
-            )
-        }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routines(navController = navController, db=db)
@@ -113,13 +106,6 @@ fun RootNavigationGraph(ctx: Context) {
             }
         }
         composable("routines/{routine_id}/timer") {
-            val subroutines = arrayOf(
-                Subroutine(name = "part 1", description = "aaa", completed = true),
-                Subroutine(name = "part 2", description = "aaa", completed = true),
-                Subroutine(name = "part 3", description = "aaa", completed = false),
-                Subroutine(name = "part 4", description = "aaa", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = true),
-            )
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 RoutineTimer(name = "Morning Routine", duration = 10.seconds)
             }

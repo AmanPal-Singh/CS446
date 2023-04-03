@@ -1,40 +1,32 @@
 package com.example.goosebuddy.ui.screens
 
-
-import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.core.app.ActivityCompat.recreate
-import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.theme.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -42,7 +34,7 @@ import kotlinx.coroutines.launch
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
     habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily"), Habits(19382, "Fitness", "fitness yo yo", 0, "Weekly"))
-
+    var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
@@ -51,7 +43,7 @@ fun Habits(navController: NavController, db: AppDatabase) {
         sheetBackgroundColor = Color.Transparent,
         sheetElevation = 0.dp,
         sheetContent = {
-            AddHabit(scope, sheetState, db, navController)
+            sheetNewContent()
         },
     ) {
         Column(
@@ -66,13 +58,21 @@ fun Habits(navController: NavController, db: AppDatabase) {
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
                     habitsDao.getAll().forEach { item ->
-                        HabitBlock(item = item, navController = navController)
+                        HabitBlock(item = item, navController = navController, db, scope, sheetState,
+                            { new -> sheetNewContent = new })
                     }
                 }
                 Button(
                     onClick = {
+                        sheetNewContent = { AddHabit(
+                            scope = scope,
+                            sheetState = sheetState,
+                            db = db,
+                            navController = navController
+                        )}
                         scope.launch {
-                            sheetState.show()
+                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+
                         }
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = TransluenceBlack),
@@ -92,9 +92,9 @@ fun Habits(navController: NavController, db: AppDatabase) {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-
-fun HabitBlock(item: Habits, navController: NavController) {
+fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,8 +132,19 @@ fun HabitBlock(item: Habits, navController: NavController) {
                     .padding(vertical = 5.dp, horizontal = 16.dp)
             ) {
                 Button(onClick = {
-                    navController.navigate("habits/${item.id}/edit")
-                                 },
+                    composable {
+                        UpdateHabit(
+                            scope = scope,
+                            sheetState = sheetState,
+                            db = db,
+                            navController = navController,
+                            habitId = item.id
+                        )
+                    }
+                    scope.launch {
+                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        }
+                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
                     Text(text="Edit", color = White)
                 }
