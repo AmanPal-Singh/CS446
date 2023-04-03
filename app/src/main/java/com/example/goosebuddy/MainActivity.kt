@@ -90,7 +90,7 @@ fun RootNavigationGraph(ctx: Context) {
             }
         }
         composable("routines/{routine_id}") {
-            val subroutines = arrayOf(
+            val subroutines = listOf(
                 Subroutine(name = "part 1", description = "aaa", completed = true),
                 Subroutine(name = "part 2", description = "aaa", completed = true),
                 Subroutine(name = "part 3", description = "aaa", completed = false),
