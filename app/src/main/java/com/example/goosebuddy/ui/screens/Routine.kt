@@ -1,19 +1,25 @@
 package com.example.goosebuddy.ui.screens
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.R
@@ -21,6 +27,10 @@ import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 
 class Subroutine(
@@ -31,9 +41,16 @@ class Subroutine(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHostController) {
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostController) {
+    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.name }) }
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val state = rememberReorderableLazyListState(onMove = { from, to ->
+        currentOrder.value = currentOrder.value.toMutableList().apply {
+            add(to.index, removeAt(from.index))
+        }
+    })
+    val data = remember { mutableStateOf(List(5) { it }) }
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
@@ -53,32 +70,68 @@ fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHost
             Button(onClick = {navController.navigate("routines/1/timer") }) {
                 Text("Resume")
             }
-            Column(
+            LazyColumn(
+                state = state.listState,
                 verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .reorderable(state)
+                    .detectReorderAfterLongPress(state)
             ) {
-                subroutines.forEach { it ->
-                    SubroutineCard(name = it.name , description = it.description, completed = it.completed)
-                }
-            }
-            Button(
-                onClick = {
-                    scope.launch {
-                        sheetState.show()
+                /** items(data.value, { it }) { item ->
+                    ReorderableItem(state, key = item) { isDragging ->
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        Column(
+                            modifier = Modifier
+                                .shadow(elevation.value)
+                                .background(MaterialTheme.colors.surface)
+                        ) {
+                            Text(item)
+                        }
+                    }
+                } */
+                items(currentOrder.value, { it }) { name ->
+                    ReorderableItem(state, key = name) { isDragging ->
+                        val subroutine = subroutines.find { s -> s.name == name }
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        if (subroutine != null) {
+                            SubroutineCard(
+                                name = subroutine.name,
+                                description = subroutine.description,
+                                completed = subroutine.completed,
+                                elevation = elevation.value
+                            )
+                        }
                     }
                 }
-            ) {
-                Text("Add")
+
+
             }
+            Row {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        }
+                    }
+                ) {
+                    Text("Add")
+                }
+                Button(onClick = { /*TODO*/ }) {
+                    Text("Edit")
+                }
+            }
+
         }
     }
 }
 
 @Composable
-fun SubroutineCard(name: String, description: String, completed: Boolean) {
+fun SubroutineCard(name: String, description: String, completed: Boolean, elevation: Dp) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
+            .shadow(elevation)
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -182,16 +235,19 @@ fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
                         }
                     }
                 }
-                Button(onClick = { scope.launch {
-                    // Reset form
-                    name = TextFieldValue("")
-                    description = TextFieldValue("")
-                    durationNumber = TextFieldValue("60")
-                    selectedUnit = 0
-                    sheetState.hide()
-                }  }) {
-                    Text("Add")
+                Row{
+                    Button(onClick = { scope.launch {
+                        // Reset form
+                        name = TextFieldValue("")
+                        description = TextFieldValue("")
+                        durationNumber = TextFieldValue("60")
+                        selectedUnit = 0
+                        sheetState.hide()
+                    }  }) {
+                        Text("Add")
+                    }
                 }
+
             }
         }
     }
