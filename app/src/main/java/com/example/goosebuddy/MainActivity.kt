@@ -71,7 +71,7 @@ fun RootNavigationGraph(ctx: Context) {
     var db = createInstance(ctx)
     NavHost(
         navController = navController,
-        startDestination = "routines",
+        startDestination = "home",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
@@ -92,12 +92,13 @@ fun RootNavigationGraph(ctx: Context) {
         composable("habits/{habit_id}/edit") { backStackEntry ->
             Habit(
                 habitId = backStackEntry.arguments?.getString("habit_id")!!.toInt(),
-                db = db
+                db=db,
+                navController = navController
             )
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Routines(navController = navController)
+                Routines(navController = navController, db=db)
             }
         }
         composable("routines/{routine_id}") {

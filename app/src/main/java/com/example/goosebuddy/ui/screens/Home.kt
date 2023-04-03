@@ -22,6 +22,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.R
+import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.theme.Beige
 import com.example.goosebuddy.ui.theme.LightBlue
 import com.example.goosebuddy.ui.theme.LightGrey
@@ -51,7 +53,7 @@ fun Home() {
         Spacer(modifier = Modifier.size(30.dp))
         SpeechBubble()
         Spacer(modifier = Modifier.size(30.dp))
-        Goose()
+        Goose(225.dp)
         SpeechOptions(options = options)
     }
 }
@@ -86,70 +88,6 @@ fun DatedGreeting() {
     }
 }
 
-@Composable
-fun SpeechBubble(text: String = "Honk honk!\n" +
-        "It’s raining today so don’t forget to bring an umbrella!\n more text \n" ) {
-    val shape = RoundedCornerShape(50)
-    Row(
-        modifier = Modifier
-            .padding(10.dp)
-    ) {
-        Spacer(modifier = Modifier.size(120.dp))
-        Column() {
-            Card(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .border(shape = shape, width = 2.dp, color = Transparent)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .background(LightBlue)
-                        .padding(10.dp),
-                ) {
-                    Text(text)
-                }
-            }
-            SpeechBubbleTriangleArrow()
-        }
-        Spacer(modifier = Modifier.size(30.dp))
-    }
-
-}
-
-@Composable
-fun SpeechBubbleTriangleArrow(){
-    Canvas(modifier = Modifier, onDraw = {
-        val size = 20.dp.toPx()
-        val offsetFromLeft = 10.dp.toPx()
-        val trianglePath = Path().apply {
-            // Moves to top center position
-            moveTo(0f + offsetFromLeft, 0f)
-            // Add line to bottom right corner
-            lineTo(size + offsetFromLeft, 0f)
-            // Add line to bottom left corner
-            lineTo(size / 2f + offsetFromLeft, size)
-        }
-        drawPath(
-            color = LightBlue,
-            path = trianglePath
-        )
-    })
-
-}
-
-@Composable
-fun Goose() {
-    val imageModifier = Modifier
-        .size(size = 225.dp)
-    Image(
-        painter = painterResource(id = R.drawable.buddy),
-        contentDescription = "Goose Image",
-        contentScale = ContentScale.Fit,
-        modifier = imageModifier
-    )
-}
 
 @Composable
 fun SpeechOptions(options: Array<String>) {
