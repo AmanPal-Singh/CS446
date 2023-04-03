@@ -35,6 +35,7 @@ import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Routines
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -69,11 +70,11 @@ fun getColour(progress: Float): Color {
 fun Routines(navController: NavController, db: AppDatabase) {
     var routinesDao = db.routinesDao()
     routinesDao.insertAll(
-        Routines(1, "Skincare", 10, 10),
-        Routines(2, "Fitness", 75, 100),
-        Routines(3, "Yoga", 0, 10),
-        Routines(4, "Cleaning", 5, 10),
-        Routines(5, "Study", 25, 100),
+        Routines(1, "Skincare", "This is a description", 10, 10),
+        Routines(2, "Fitness", "This is a description", 75, 100),
+        Routines(3, "Yoga", "This is a description", 0, 10),
+        Routines(4, "Cleaning", "This is a description", 5, 10),
+        Routines(5, "Study", "This is a description", 25, 100),
         );
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -83,7 +84,7 @@ fun Routines(navController: NavController, db: AppDatabase) {
         sheetBackgroundColor = Color.Transparent,
         sheetElevation = 0.dp,
         sheetContent = {
-            AddRoutineForm(sheetState, scope, navController)
+            AddRoutineForm(sheetState, scope, navController, db)
         },
     ) {
         Column(
@@ -194,8 +195,10 @@ fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
 fun AddRoutineForm(
     sheetState: ModalBottomSheetState,
     scope: CoroutineScope,
-    navController: NavController
+    navController: NavController,
+    db: AppDatabase
 ) {
+    var routinesDao = db.routinesDao()
     var name by remember {
         mutableStateOf(TextFieldValue(""))
     }
@@ -235,11 +238,13 @@ fun AddRoutineForm(
                 )
                 Button(onClick = {
                     scope.launch {
+                        // Add routine
+                        routinesDao.insertAll(Routines(0, name.text, description.text, 0, 0))
                         // Reset form
                         name = TextFieldValue("")
                         description = TextFieldValue("")
                         sheetState.hide()
-                        // Navigate to newly screen of newly created habit
+                        navController.navigate(BottomNavigationItem.DailyRoutines.screen_route)
                         // navController.navigate("routine/{routine_id}")
                     }
                 }) {
