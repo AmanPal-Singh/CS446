@@ -94,8 +94,6 @@ fun OnboardingStepComponent(
                 if (progress == onboardingSteps.size - 1) {
                     // save all the user data into dao
                     var userdataDao = db.userdataDao()
-                    println("inserting user data")
-                    println(userData)
                     userdataDao.insertAll(userData)
                     navController.navigate("home")
                 } else {
@@ -150,7 +148,7 @@ fun BottomButtons(
             Text("$buttonText")
         }
         if (skippable) {
-            Button(onClick = { println("skip") }) {
+            Button(onClick = {}) {
                 Text(text = "Skip for now")
             }
         }
@@ -259,7 +257,6 @@ fun ResidencePage(userData: UserData) {
                     onCheckedChange = { checked_ ->
                         isChecked = checked_
                         // update model
-                        println(it)
                         if (it == "roommates") {
                             userData.hasRoommates = checked_
                         } else if (it == "student_res") {
