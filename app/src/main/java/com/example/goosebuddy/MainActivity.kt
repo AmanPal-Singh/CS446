@@ -84,11 +84,6 @@ fun RootNavigationGraph(ctx: Context) {
                 Habits(navController = navController, db=db)
             }
         }
-        composable("habits/create") {
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                AddHabit(navController = navController, db=db)
-            }
-        }
         composable("habits/{habit_id}/edit") { backStackEntry ->
             Habit(
                 habitId = backStackEntry.arguments?.getString("habit_id")!!.toInt(),
