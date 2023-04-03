@@ -14,7 +14,9 @@ import com.example.goosebuddy.dao.RoutinesDao
 import com.example.goosebuddy.dao.WeekdayDataDao
 import com.example.goosebuddy.models.Habits
 
-@Database(entities = [Routines::class, WeekdayData::class, Habits::class, UserData::class], version = 3)
+
+@Database(entities = [Routines::class, WeekdayData::class, Habits::class, UserData::class], version = 4)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routinesDao(): RoutinesDao;
     abstract fun weekdayDataDao(): WeekdayDataDao;
