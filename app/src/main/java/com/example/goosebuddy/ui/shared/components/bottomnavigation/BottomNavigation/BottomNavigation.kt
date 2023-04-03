@@ -105,6 +105,7 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
         .border(3.dp, LightGrey, RoundedCornerShape(18.dp))
     var modifier: Modifier =  if (isHomeButton) homeModifier else defaultModifier
 
+    // TODO: change to begins with
     if (currentDestination?.route == item.screen_route) {
         modifier = if (item.title !== "Home") {
             modifier.then(selectedModifier)
