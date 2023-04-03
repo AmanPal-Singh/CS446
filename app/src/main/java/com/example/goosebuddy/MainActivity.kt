@@ -26,6 +26,7 @@ import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNaviga
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
+import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,15 +67,16 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 fun RootNavigationGraph(ctx: Context) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
+    var calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
     NavHost(
         navController = navController,
-        startDestination = "routines",
+        startDestination = "home",
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "home")
+                Home()
             }
         }
         composable(BottomNavigationItem.Habits.screen_route) {
@@ -96,7 +98,7 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Routines(navController = navController)
+                Routines(navController = navController, db=db)
             }
         }
         composable("routines/{routine_id}") {
@@ -107,14 +109,29 @@ fun RootNavigationGraph(ctx: Context) {
                 Subroutine(name = "part 4", description = "aaa", completed = false),
                 Subroutine(name = "part 5", description = "aaa", completed = true),
             )
-            Routine(
-                name = "Morning Routine",
-                subroutines = subroutines,
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                Routine(
+                    name = "Morning Routine",
+                    subroutines = subroutines,
+                    navController = navController
+                )
+            }
+        }
+        composable("routines/{routine_id}/timer") {
+            val subroutines = arrayOf(
+                Subroutine(name = "part 1", description = "aaa", completed = true),
+                Subroutine(name = "part 2", description = "aaa", completed = true),
+                Subroutine(name = "part 3", description = "aaa", completed = false),
+                Subroutine(name = "part 4", description = "aaa", completed = false),
+                Subroutine(name = "part 5", description = "aaa", completed = true),
             )
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                RoutineTimer(name = "Morning Routine", duration = 10.seconds)
+            }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "calendar")
+                Calendar(calendarState = calendarState)
             }
         }
         composable(BottomNavigationItem.Profile.screen_route) {
@@ -133,7 +150,6 @@ fun RootNavigationGraph(ctx: Context) {
         ) { backStackEntry ->
             OnboardingFlow(navController = navController, backStackEntry.arguments?.getString("step"))
         }
-
     }
 }
 

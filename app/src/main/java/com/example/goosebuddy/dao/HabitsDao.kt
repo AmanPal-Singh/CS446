@@ -3,7 +3,6 @@ package com.example.goosebuddy.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.goosebuddy.models.Habits
-import com.example.goosebuddy.models.Routines
 
 @Dao
 interface HabitsDao {
