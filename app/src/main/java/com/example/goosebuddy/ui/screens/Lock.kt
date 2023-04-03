@@ -1,11 +1,7 @@
 package com.example.goosebuddy.ui.screens
 
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -18,11 +14,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.goosebuddy.OnboardingActivity
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.theme.*
 
@@ -54,8 +48,6 @@ fun LoginCard() {
             )
             Button(
                 onClick = {
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Green)
             ) {
