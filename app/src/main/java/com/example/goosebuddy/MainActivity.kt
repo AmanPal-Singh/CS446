@@ -46,7 +46,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
             drawerContent = {
                 Text("hello this is a drawer")
             },
-            topBar = { TopBar(scaffoldState) },
+            topBar = { TopBar(scaffoldState, navController) },
             bottomBar = { BottomNavigation(navController = navController) }
         ) { padding ->
             Surface(
