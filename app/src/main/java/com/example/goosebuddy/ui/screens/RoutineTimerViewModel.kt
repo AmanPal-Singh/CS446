@@ -44,12 +44,9 @@ class RoutineTimerViewModel(duration: Duration): ViewModel() {
     val isPlaying: LiveData<Boolean> = _isPlaying
 
     fun handleCountdownTimer() {
-        println("HELLO")
         if (isPlaying.value == true) {
-            println("pause")
             pauseTimer()
         } else {
-            println("start timer")
             startTimer()
         }
     }

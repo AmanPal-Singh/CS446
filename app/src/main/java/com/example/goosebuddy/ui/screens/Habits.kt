@@ -1,5 +1,6 @@
 package com.example.goosebuddy.ui.screens
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.*
 import androidx.compose.foundation.background
@@ -8,6 +9,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -17,27 +20,42 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Habits
+import com.example.goosebuddy.ui.shared.components.DeleteButton
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily"), Habits(19382, "Fitness", "fitness yo yo", 0, "Weekly"))
+    // habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
+
+    val editingEnabled = remember { mutableStateOf(false) }
+    val currentOrder = remember { mutableStateOf(habitsDao.getAll())}
+    val orderState = rememberReorderableLazyGridState(dragCancelledAnimation = NoDragCancelledAnimation(),
+        onMove = { from, to ->
+            currentOrder.value = currentOrder.value.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
+        })
 
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
@@ -58,43 +76,97 @@ fun Habits(navController: NavController, db: AppDatabase) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Beige)
+                .background(LightGrey)
                 .fillMaxHeight()
         ) {
-            Box {
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    habitsDao.getAll().forEach { item ->
-                        HabitBlock(item = item, navController = navController, db, scope, sheetState,
-                            { new -> sheetNewContent = new })
-                    }
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp)
+                    .height(intrinsicSize = IntrinsicSize.Max)
+            ) {
                 Button(
                     onClick = {
-                        sheetNewContent = { AddHabit(
-                            scope = scope,
-                            sheetState = sheetState,
-                            db = db,
-                            navController = navController
-                        )}
+                        // toggle the editing enabled state
+                        editingEnabled.value = !editingEnabled.value
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.pencil),
+                        contentDescription = "Edit Habits",
+                        tint = Black
+                    )
+                }
+                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                Button(
+                    onClick = {
+                        sheetNewContent = {
+                            AddHabit(
+                                scope = scope,
+                                sheetState = sheetState,
+                                db = db,
+                                navController = navController
+                            )
+                        }
                         scope.launch {
                             sheetState.animateTo(ModalBottomSheetValue.Expanded)
 
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = TransluenceBlack),
-                    modifier = Modifier.align(Alignment.TopCenter)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
                 )
                 {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "emailIcon",
-                        tint = White
+                        contentDescription = "plusIcon",
+                        tint = Black
                     )
-                    Text(text = "Add Habit", color = White)
+                    Text(text = "Add Habit", color = Black)
                 }
             }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .reorderable(orderState)
+                    .fillMaxWidth()
+                    .background(LightGrey)
+                    .fillMaxHeight(),
+                // content padding
+                contentPadding = PaddingValues(
+                    start = 12.dp,
+                    top = 16.dp,
+                    end = 12.dp,
+                    bottom = 16.dp
+                ),
+                state = orderState.gridState
+            ) {
+                items(currentOrder.value.size) { index ->
+                    ReorderableItem(
+                        orderState,
+                        key = index,
+                        defaultDraggingModifier = Modifier
+                    ) { isDragging ->
+                        println(index)
+                        println(habitsDao.getAll().toString())
+                        val habit = currentOrder.value[index]
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        HabitBlock(item = habit!!,
+                            navController = navController,
+                            db,
+                            scope,
+                            sheetState,
+                            { new -> sheetNewContent = new },
+                            Modifier.detectReorderAfterLongPress(orderState),
+                            editingEnabled
+                        )
+
+                    }
+                }
+            }
+
 
         }
     }
@@ -102,11 +174,11 @@ fun Habits(navController: NavController, db: AppDatabase) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit ) {
+fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit , modifier: Modifier, editingEnabled: MutableState<Boolean>) {
     var habitsDao = db.habitsDao()
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(5.dp),
     ) { Column(
@@ -118,25 +190,81 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
         ){
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.Start,
                 ) {
                     Text(item.schedule, color = Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Text(item.title, color = Black,  fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(item.description,  fontSize = 12.sp, color = Grey)
                 }
+                if (editingEnabled.value) {
+                    Column(
+                        modifier = Modifier
+                            .padding(2.dp),
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        DeleteButton(
+                            onDelete = {
+                                habitsDao.delete(item)
+                                navController.navigate(BottomNavigationItem.Habits.screen_route)
+                            }
+                        )
+                    }
+                }
             }
+        val isVisible = if (item.streak != 0) 1f else 0f
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(isVisible)
+        ){
+            Icon(
+                painter = painterResource(id = R.drawable.fire),
+                contentDescription = "Streak Fire",
+                tint= Color.Unspecified
+            )
+            Text("${item.streak}")
+        }
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Button(onClick = {
+                    item.completionSteps -= 1
+                    habitsDao.update(item)
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="-1", color = White)
+                }
+                CircularProgressIndicator(
+                    progress = (item.completionSteps.toFloat() / item.completed.toFloat()),
+                    color = LightBlue,
+                )
+                Button(onClick = {
+                    item.completionSteps += 1
+                    habitsDao.update(item)
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="+1", color = White)
+                }
+            }
+            Text("${item.completionSteps} / ${item.completed}", color = LightBlue)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 5.dp, horizontal = 16.dp)
@@ -158,10 +286,11 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
                     Text(text="Edit", color = White)
                 }
-                Spacer(modifier = Modifier.padding(10.dp))
+                Spacer(modifier = Modifier.padding(5.dp))
                 Button(
                     onClick = {
                               item.completed = 1
+                              item.completionSteps += 1
                               habitsDao.update(item)
                               navController.navigate(BottomNavigationItem.Habits.screen_route)
                     },
