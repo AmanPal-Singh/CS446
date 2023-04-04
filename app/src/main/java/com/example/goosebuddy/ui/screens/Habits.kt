@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
@@ -212,6 +213,19 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     Text(item.description,  fontSize = 12.sp, color = Grey)
                 }
             }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                CircularProgressIndicator(
+                    progress = (item.completionSteps.toFloat() / item.completed.toFloat()),
+                    color = LightBlue,
+                )
+            }
+            Text("${item.completionSteps} / ${item.completed}", color = LightBlue)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
