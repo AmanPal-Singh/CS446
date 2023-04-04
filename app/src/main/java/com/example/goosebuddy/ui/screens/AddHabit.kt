@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, navController: NavController) {
+fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, onHabitChange: () -> Unit) {
     var habitsDao = db.habitsDao()
 
     var habitName by remember {
@@ -116,7 +116,7 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     habitDescription = TextFieldValue("")
                     habitCompletionSteps = TextFieldValue("1")
                     sheetState.hide()
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                    onHabitChange()
                 }  }) {
                     Text("Add")
                 }
