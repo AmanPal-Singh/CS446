@@ -1,5 +1,6 @@
 package com.example.goosebuddy.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -19,8 +21,7 @@ import androidx.room.Database
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.CalendarItem
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.Grey
+import com.example.goosebuddy.ui.theme.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.squareup.moshi.JsonAdapter
@@ -173,6 +174,11 @@ class CalendarViewModel(
         dao.update(updatedItem)
     }
 
+    fun updateCalendarItem(item: CalendarItem) {
+        val dao = db.CalendarItemDao()
+        dao.update(item)
+    }
+
     fun deleteCalendarItem(item: CalendarItem) {
         val dao = db.CalendarItemDao()
         dao.delete(item)
@@ -189,26 +195,36 @@ fun Calendar(
             .fillMaxWidth()
             .fillMaxHeight()
             .verticalScroll(rememberScrollState())
+            .background(LightGrey)
+            .padding(10.dp)
     ) {
         Row(
             modifier = Modifier
                 .padding(10.dp)
         ) {
-            Text("Calendar", fontSize = 24.sp)
+            Text("Calendar", fontSize = 40.sp)
         }
-        SelectableCalendar(calendarState = cvm.calendarState)
+        Button(
+            onClick = {
+                cvm.navController.navigate(calendarImportRoute)
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
+        ) {
+            Text("Add course to schedule", color = Black)
+        }
+        SelectableCalendar(
+            calendarState = cvm.calendarState,
+        )
+        Divider(
+            modifier = Modifier
+                .padding(0.dp, 15.dp)
+        )
         cvm.calendarState.selectionState.selection.forEach { localDate ->
             val kLocalDate = localDate.toKotlinLocalDate()
             ComposeCalendarBlocksForDate(
                 cvm = cvm,
                 localDate = kLocalDate
             )
-        }
-        Button(
-            onClick = {
-                cvm.navController.navigate(calendarImportRoute)
-            }) {
-            Text("Add course to schedule")
         }
     }
 }
@@ -217,10 +233,19 @@ fun Calendar(
 private fun ComposeCalendarBlocksForDate(cvm: CalendarViewModel, localDate: LocalDate) {
     val dao = cvm.db.CalendarItemDao()
     val items = dao.getOnDate(localDate)
-    items.forEach { item ->
-        val checked = mutableStateOf(item.checked)
-        CalendarBlock(cvm = cvm, item = item, checked = checked)
+    
+    Column() {
+        Text(
+            text = "${localDate.month} ${localDate.dayOfMonth}",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Left,
+        )
+        items.forEach { item ->
+            val checked = mutableStateOf(item.checked)
+            CalendarBlock(cvm = cvm, item = item, checked = checked)
+        }
     }
+    
 }
 
 // We pass in checked as a mutable state so when we check the checkbox we can recompose the card without
@@ -230,7 +255,7 @@ private fun CalendarBlock(cvm: CalendarViewModel, item: CalendarItem, checked: M
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(0.dp, 10.dp),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -265,21 +290,23 @@ private fun CalendarBlock(cvm: CalendarViewModel, item: CalendarItem, checked: M
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(15.dp)
+                    .padding(15.dp, 0.dp, 15.dp, 15.dp)
             ) {
                 Button(
-                    onClick = { println("calendar item edit not implemented yet") }
+                    onClick = { println("calendar item edit not implemented yet") },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey)
                 ) {
-                    Text("Edit")
+                    Text("Edit", color = Black)
                 }
                 Button(
                     onClick = {
                         cvm.deleteCalendarItem(item)
                         // Navigate to Calendar (ourself) to recompose stuff
                         cvm.navController.navigate(BottomNavigationItem.Calendar.screen_route)
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey)
                 ) {
-                    Text("Delete")
+                    Text("Delete", color = Black)
                 }
             }
         }
