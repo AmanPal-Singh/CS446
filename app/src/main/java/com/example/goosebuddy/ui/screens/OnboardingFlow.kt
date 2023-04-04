@@ -68,6 +68,7 @@ val suggestedHabit = mapOf(
 val onboardingSteps = arrayOf(
     OnboardingStep("welcome", false),
     OnboardingStep("name", false),
+    OnboardingStep("wat", false),
     OnboardingStep("year", false),
     OnboardingStep("residence", true),
     OnboardingStep("schedule", true),
@@ -90,12 +91,12 @@ fun OnboardingStepComponent(
             .background(color = Beige)
     ) {
 
-        val userData = remember{mutableStateOf(UserData())}
-        val updateName = {name: String -> userData.value.name = name}
+        val userData = UserData()
         when (step.name) {
             "welcome" -> WelcomePage(userData)
-            "name" -> NamePage(updateName)
-            "year" -> YearPage(userData, )
+            "name" -> NamePage(userData)
+            "wat" -> WatPage(userData)
+            "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
             "schedule" -> SchedulePage(userData, navController, cvm)
             "submit" -> SubmitPage(userData)
@@ -109,7 +110,7 @@ fun OnboardingStepComponent(
                 if (progress == onboardingSteps.size - 1) {
                     // save all the user data into dao
                     val userdataDao = db.userdataDao()
-                    userdataDao.insertAll(userData.value)
+                    userdataDao.insertAll(userData)
 
                     println(userData)
                     //TODO: add suggested habits properly
@@ -183,7 +184,7 @@ fun BottomButtons(
 
 
 @Composable
-fun WelcomePage(userData: MutableState<UserData>) {
+fun WelcomePage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -202,7 +203,7 @@ fun WelcomePage(userData: MutableState<UserData>) {
 }
 
 @Composable
-fun NamePage(updateName: (String) -> Unit) {
+fun NamePage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -217,7 +218,7 @@ fun NamePage(updateName: (String) -> Unit) {
             onValueChange = {
                 text.value = it
                 // update model
-                updateName(it)
+                userData.name = it
             },
             label = { Text(text = "Name") },
             placeholder = { Text(text = "Enter your name") },
@@ -226,7 +227,34 @@ fun NamePage(updateName: (String) -> Unit) {
 }
 
 @Composable
-fun YearPage(userData: MutableState<UserData>) {
+fun WatPage(userData: UserData) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val nameMsg = "Enter your WAT number below. You can find it on your WAT card."
+        Text(nameMsg, textAlign = TextAlign.Center)
+
+        // text input field for name
+        var text = remember { mutableStateOf("") }
+        TextField(
+            value = text.value,
+            onValueChange = {
+                text.value = it
+                // update model
+                userData.wat = it.toIntOrNull() ?: 0
+            },
+            label = { Text(text = "WAT number") },
+            placeholder = { Text(text = "Enter your WAT number") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        )
+    }
+}
+
+
+
+@Composable
+fun YearPage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -241,7 +269,7 @@ fun YearPage(userData: MutableState<UserData>) {
             onValueChange = {
                 text.value = it
                 // update model
-                userData.value.year = it.toInt()
+                userData.year = it.toIntOrNull() ?: 0
             },
             label = { Text(text = "Year") },
             placeholder = { Text(text = "Enter your year as an integer") },
@@ -252,7 +280,7 @@ fun YearPage(userData: MutableState<UserData>) {
 
 
 @Composable
-fun ResidencePage(userData: MutableState<UserData>) {
+fun ResidencePage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -283,11 +311,11 @@ fun ResidencePage(userData: MutableState<UserData>) {
                         isChecked = checked_
                         // update model
                         if (it == "roommates") {
-                            userData.value.hasRoommates = checked_
+                            userData.hasRoommates = checked_
                         } else if (it == "student_res") {
-                            userData.value.onStudentRes = checked_
+                            userData.onStudentRes = checked_
                         } else if (it == "first_time") {
-                            userData.value.firstTimeAlone = checked_
+                            userData.firstTimeAlone = checked_
                         }
                     },
                     colors = CheckboxDefaults.colors(
@@ -300,7 +328,7 @@ fun ResidencePage(userData: MutableState<UserData>) {
 }
 
 @Composable
-fun SchedulePage(userData: MutableState<UserData>, navController: NavHostController, cvm: CalendarViewModel) {
+fun SchedulePage(userData: UserData, navController: NavHostController, cvm: CalendarViewModel) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -322,7 +350,7 @@ fun SchedulePage(userData: MutableState<UserData>, navController: NavHostControl
 
 
 @Composable
-fun SubmitPage(userData: MutableState<UserData>) {
+fun SubmitPage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
