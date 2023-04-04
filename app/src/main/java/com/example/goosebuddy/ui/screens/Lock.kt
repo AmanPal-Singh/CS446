@@ -126,15 +126,16 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         if(lockDao.getAll().isEmpty()){
                             lockDao.insert(Lock(0, pin.toInt()))
                         }else{
-                            if (!canSubmit && lockDao.getAll().isNotEmpty()) return@Button;
-                            println("hi")
-                            val valid_pin = lockDao.getAll()
-                            if(valid_pin[0].value == pin.toInt()){
-                                println("OK")
-                                navController.navigate("home")
-                            }else{
-                                isError = true
-                                println("wrong pin")
+                            if (pin.isNotEmpty()) {
+                                println("hi")
+                                val valid_pin = lockDao.getAll()
+                                if (valid_pin[0].value == pin.toInt()) {
+                                    println("OK")
+                                    navController.navigate("home")
+                                } else {
+                                    isError = true
+                                    println("wrong pin")
+                                }
                             }
                         }
                     },
