@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +31,7 @@ import com.example.goosebuddy.ui.shared.components.DeleteButton
 
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.Grey
-import com.example.goosebuddy.ui.theme.LightGrey
+import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
@@ -98,7 +98,6 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                     tint = Color.DarkGray
                 )
             }
-
             LazyColumn(
                 state = state.listState,
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -138,32 +137,60 @@ fun ActionButtons(
     scope: CoroutineScope
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
-            .padding(10.dp)
             .fillMaxWidth()
+            .padding(horizontal = 5.dp)
+            .height(intrinsicSize = IntrinsicSize.Max)
     ) {
         if (editingEnabled.value) {
-            OutlinedButton(onClick = { editingEnabled.value = false }) {
+            Button(
+                onClick = { editingEnabled.value = false },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
+            ) {
                 Text("Cancel")
             }
-            Spacer(modifier = Modifier.size(20.dp))
-            Button(onClick = { editingEnabled.value = false }) {
+            Spacer(modifier = Modifier.size(5.dp))
+            Button(
+                onClick = { editingEnabled.value = false },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.save),
+                    contentDescription = "save icon",
+                    tint = Black,
+                    modifier = Modifier
+                        .height(20.dp)
+                )
                 Text("Save")
             }
         } else {
+            Button(
+                onClick = { editingEnabled.value = true },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.pencil),
+                        contentDescription = "Edit Routine",
+                        tint = Black
+                    )
+                }
+            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
             Button(
                 onClick = {
                     scope.launch {
                         sheetState.animateTo(ModalBottomSheetValue.Expanded)
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
             ) {
-                Text("Add")
-            }
-            Spacer(modifier = Modifier.size(20.dp))
-            Button(onClick = { editingEnabled.value = true }) {
-                Text("Edit")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "plusIcon",
+                    tint = Black
+                )
+                Text(text = "Add step to routine", color = Black)
             }
         }
     }
