@@ -43,7 +43,7 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    // habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
+    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -87,44 +87,54 @@ fun Habits(navController: NavController, db: AppDatabase) {
                     .padding(horizontal = 5.dp)
                     .height(intrinsicSize = IntrinsicSize.Max)
             ) {
-                Button(
-                    onClick = {
-                        // toggle the editing enabled state
-                        editingEnabled.value = !editingEnabled.value
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.pencil),
-                        contentDescription = "Edit Habits",
-                        tint = Black
-                    )
-                }
-                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-                Button(
-                    onClick = {
-                        sheetNewContent = {
-                            AddHabit(
-                                scope = scope,
-                                sheetState = sheetState,
-                                db = db,
-                                navController = navController
-                            )
-                        }
-                        scope.launch {
-                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                if (editingEnabled.value) {
+                    OutlinedButton(onClick = { editingEnabled.value = false }) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.size(20.dp))
+                    Button(onClick = { editingEnabled.value = false }) {
+                        Text("Save")
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            // toggle the editing enabled state
+                            editingEnabled.value = true
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.pencil),
+                            contentDescription = "Edit Habits",
+                            tint = Black
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(20.dp))
+                    Button(
+                        onClick = {
+                            sheetNewContent = {
+                                AddHabit(
+                                    scope = scope,
+                                    sheetState = sheetState,
+                                    db = db,
+                                    navController = navController
+                                )
+                            }
+                            scope.launch {
+                                sheetState.animateTo(ModalBottomSheetValue.Expanded)
 
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
-                )
-                {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "plusIcon",
-                        tint = Black
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
                     )
-                    Text(text = "Add Habit", color = Black)
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "plusIcon",
+                            tint = Black
+                        )
+                        Text(text = "Add Habit", color = Black)
+                    }
                 }
             }
             LazyVerticalGrid(
@@ -199,7 +209,6 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                         .padding(8.dp),
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    Text(item.schedule, color = Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Text(item.title, color = Black,  fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(item.description,  fontSize = 12.sp, color = Grey)
                 }
@@ -240,28 +249,41 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     .fillMaxWidth()
                     .padding(vertical = 10.dp)
             ) {
-                Button(onClick = {
-                    item.completionSteps -= 1
-                    habitsDao.update(item)
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
-                },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
-                    Text(text="-1", color = White)
+                if (!editingEnabled.value) {
+
+                    Button(
+                        enabled = item.currentlyCompletedSteps != 0,
+                        onClick = {
+                            item.currentlyCompletedSteps -= 1
+                            habitsDao.update(item)
+                            navController.navigate(BottomNavigationItem.Habits.screen_route)
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Black)
+                    ) {
+                        Text(text = "-1", color = White)
+                    }
                 }
                 CircularProgressIndicator(
-                    progress = (item.completionSteps.toFloat() / item.completed.toFloat()),
+                    progress = (item.currentlyCompletedSteps.toFloat() / item.completionSteps.toFloat()),
                     color = LightBlue,
                 )
-                Button(onClick = {
-                    item.completionSteps += 1
-                    habitsDao.update(item)
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
-                },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
-                    Text(text="+1", color = White)
+            if (!editingEnabled.value) {
+                Button(
+                    onClick = {
+                        item.currentlyCompletedSteps += 1
+                        if (item.currentlyCompletedSteps == item.completionSteps){
+                            item.streak += 1
+                        }
+                        habitsDao.update(item)
+                        navController.navigate(BottomNavigationItem.Habits.screen_route)
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black)
+                ) {
+                    Text(text = "+1", color = White)
                 }
             }
-            Text("${item.completionSteps} / ${item.completed}", color = LightBlue)
+            }
+            Text("${item.currentlyCompletedSteps} / ${item.completionSteps}", color = LightBlue)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,

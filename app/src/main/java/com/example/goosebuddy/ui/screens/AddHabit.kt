@@ -61,8 +61,8 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
     var habitDescription by remember {
         mutableStateOf(TextFieldValue(""))
     }
-    var schedule by remember {
-        mutableStateOf(TextFieldValue(""))
+    var habitCompletionSteps by remember {
+        mutableStateOf(TextFieldValue("1"))
     }
 
     var expanded by remember { mutableStateOf(false) }
@@ -96,12 +96,25 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     },
                     label = { Text(text = "Description") },
                 )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = habitCompletionSteps,
+                    onValueChange = { newText ->
+                        habitCompletionSteps = newText
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                    ),
+                    label = { Text(text = "Times Daily") },
+                )
                 Button(onClick = { scope.launch {
                     // Insert habit
-                    habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily"))
+                    var num = habitCompletionSteps.text.toInt()
+                    habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily", completionSteps = num))
                     // Reset form
                     habitName = TextFieldValue("")
                     habitDescription = TextFieldValue("")
+                    habitCompletionSteps = TextFieldValue("1")
                     sheetState.hide()
                     navController.navigate(BottomNavigationItem.Habits.screen_route)
                 }  }) {
