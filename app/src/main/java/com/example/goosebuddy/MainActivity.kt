@@ -81,7 +81,7 @@ fun RootNavigationGraph(ctx: Context) {
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Home()
+                Home(db=db)
             }
         }
         composable(BottomNavigationItem.Habits.screen_route) {
@@ -106,7 +106,7 @@ fun RootNavigationGraph(ctx: Context) {
                 Routine(
                     name = "Morning Routine",
                     subroutines = subroutines,
-                    navController = navController
+                    navController = navController,
                 )
             }
         }
