@@ -1,6 +1,8 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,17 +15,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.shared.components.DeleteButton
 
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.theme.Green
+import com.example.goosebuddy.ui.theme.Grey
+import com.example.goosebuddy.ui.theme.LightGrey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
@@ -69,11 +77,28 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
             verticalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
+                .background(LightGrey)
         ) {
-            Text(name)
-            Button(onClick = {navController.navigate("routines/1/timer") }) {
-                Text("Resume")
+            Text(name, fontSize = 24.sp)
+            OutlinedButton(
+                onClick = { navController.navigate("routines/1/timer")  },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Green,
+                ),
+                border = BorderStroke(0.dp, Color.Transparent),
+                modifier = Modifier
+                    .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                    .height(40.dp)
+            ) {
+                Text("Start", fontSize = 16.sp)
+                Icon(
+                    painter =  painterResource(id = R.drawable.play_arrow),
+                    contentDescription = "",
+                    tint = Color.DarkGray
+                )
             }
+
             LazyColumn(
                 state = state.listState,
                 verticalArrangement = Arrangement.SpaceEvenly,
