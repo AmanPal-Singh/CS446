@@ -180,7 +180,7 @@ fun ActionButtons(
             Button(
                 onClick = {
                     scope.launch {
-                        sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        sheetState.show()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
