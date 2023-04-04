@@ -81,23 +81,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                 .background(LightGrey)
         ) {
             Text(name, fontSize = 24.sp)
-            OutlinedButton(
-                onClick = { navController.navigate("routines/1/timer")  },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Green,
-                ),
-                border = BorderStroke(0.dp, Color.Transparent),
-                modifier = Modifier
-                    .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-                    .height(40.dp)
-            ) {
-                Text("Start", fontSize = 16.sp)
-                Icon(
-                    painter =  painterResource(id = R.drawable.play_arrow),
-                    contentDescription = "",
-                    tint = Color.DarkGray
-                )
-            }
+            TopActionButtons(editingEnabled = editingEnabled, navController = navController)
             LazyColumn(
                 state = state.listState,
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -128,6 +112,49 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
     }
 }
 
+@Composable
+fun TopActionButtons(
+    editingEnabled: MutableState<Boolean>,
+    navController: NavHostController
+) {
+    if (editingEnabled.value) {
+        OutlinedButton(
+            onClick = { /** TODO: delete routine  and navigate back to routines page */  },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Red,
+            ),
+            border = BorderStroke(0.dp, Color.Transparent),
+            modifier = Modifier
+                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                .height(40.dp)
+        ) {
+            Text("Delete routine", fontSize = 16.sp)
+            Icon(
+                painter =  painterResource(id = R.drawable.delete),
+                contentDescription = "",
+                tint = Color.DarkGray
+            )
+        }
+    } else {
+        OutlinedButton(
+            onClick = { navController.navigate("routines/1/timer")  },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Green,
+            ),
+            border = BorderStroke(0.dp, Color.Transparent),
+            modifier = Modifier
+                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                .height(40.dp)
+        ) {
+            Text("Start", fontSize = 16.sp)
+            Icon(
+                painter =  painterResource(id = R.drawable.play_arrow),
+                contentDescription = "",
+                tint = Color.DarkGray
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
