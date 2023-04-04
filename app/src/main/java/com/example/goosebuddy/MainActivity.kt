@@ -95,12 +95,12 @@ fun RootNavigationGraph(ctx: Context) {
             }
         }
         composable("routines/{routine_id}") {
-            val subroutines = arrayOf(
-                Subroutine(name = "part 1", description = "aaa", completed = true),
-                Subroutine(name = "part 2", description = "aaa", completed = true),
-                Subroutine(name = "part 3", description = "aaa", completed = false),
-                Subroutine(name = "part 4", description = "aaa", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = true),
+            val subroutines = listOf(
+                Subroutine(name = "Part 1", description = "This is a description", completed = true),
+                Subroutine(name = "part 2", description = "This is a longer description", completed = true),
+                Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
+                Subroutine(name = "part 4", description = "This description has \nmultiple lines", completed = false),
+                Subroutine(name = "part 5", description = "aaa", completed = false),
             )
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routine(
@@ -132,13 +132,13 @@ fun RootNavigationGraph(ctx: Context) {
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, db=db,"welcome")
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, "welcome")
         }
         composable(
             "onboarding/{step}",
             arguments = listOf(navArgument("step") { type = NavType.StringType })
         ) { backStackEntry ->
-            OnboardingFlow(navController = navController, db=db, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, backStackEntry.arguments?.getString("step"))
         }
         composable("lock"){
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
