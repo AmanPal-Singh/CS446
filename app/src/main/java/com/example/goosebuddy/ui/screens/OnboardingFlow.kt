@@ -15,13 +15,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.ui.theme.*
 import java.lang.Integer.min
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.models.UserData
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 @Composable
 fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, step: String?) {
@@ -53,6 +52,13 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
 class OnboardingStep(
     var name: String,
     var skippable: Boolean,
+)
+
+val suggestedHabit = mapOf(
+   "hasRoommates" to listOf(
+       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
+       Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
+   )
 )
 
 val onboardingSteps = arrayOf(
@@ -97,8 +103,16 @@ fun OnboardingStepComponent(
                 // if user is on the last step and clicks submit
                 if (progress == onboardingSteps.size - 1) {
                     // save all the user data into dao
-                    var userdataDao = db.userdataDao()
+                    val userdataDao = db.userdataDao()
                     userdataDao.insertAll(userData)
+
+                    //TODO: add suggested habits properly
+                    if (userData.hasRoommates){
+                        val habitsDao = db.habitsDao()
+                        for( habits in suggestedHabit["hasRoommates"]!!){
+                            habitsDao.update(habits)
+                        }
+                    }
                     navController.navigate("lock")
                 } else {
                     val step = onboardingSteps[min(
