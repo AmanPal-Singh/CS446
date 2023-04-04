@@ -32,6 +32,7 @@ import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Habits
+import com.example.goosebuddy.ui.shared.components.DeleteButton
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +43,7 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
+    // habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -88,24 +89,14 @@ fun Habits(navController: NavController, db: AppDatabase) {
             ) {
                 Button(
                     onClick = {
-                        sheetNewContent = {
-                            AddHabit(
-                                scope = scope,
-                                sheetState = sheetState,
-                                db = db,
-                                navController = navController
-                            )
-                        }
-                        scope.launch {
-                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
-
-                        }
+                        // toggle the editing enabled state
+                        editingEnabled.value = !editingEnabled.value
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.pencil),
-                        contentDescription = "plusIcon",
+                        contentDescription = "Edit Habits",
                         tint = Black
                     )
                 }
@@ -168,7 +159,8 @@ fun Habits(navController: NavController, db: AppDatabase) {
                             scope,
                             sheetState,
                             { new -> sheetNewContent = new },
-                            Modifier.detectReorderAfterLongPress(orderState)
+                            Modifier.detectReorderAfterLongPress(orderState),
+                            editingEnabled
                         )
 
                     }
@@ -182,7 +174,7 @@ fun Habits(navController: NavController, db: AppDatabase) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit , modifier: Modifier) {
+fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit , modifier: Modifier, editingEnabled: MutableState<Boolean>) {
     var habitsDao = db.habitsDao()
 
     Card(
@@ -198,19 +190,32 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
         ){
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.Start,
                 ) {
                     Text(item.schedule, color = Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Text(item.title, color = Black,  fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(item.description,  fontSize = 12.sp, color = Grey)
+                }
+                if (editingEnabled.value) {
+                    Column(
+                        modifier = Modifier
+                            .padding(2.dp),
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        DeleteButton(
+                            onDelete = {
+                                habitsDao.delete(item)
+                                navController.navigate(BottomNavigationItem.Habits.screen_route)
+                            }
+                        )
+                    }
                 }
             }
         val isVisible = if (item.streak != 0) 1f else 0f
