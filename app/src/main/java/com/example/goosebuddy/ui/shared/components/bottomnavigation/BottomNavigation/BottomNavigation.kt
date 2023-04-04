@@ -33,7 +33,6 @@ sealed class BottomNavigationItem(var title: String, var icon: Int, var color: C
     object Habits: BottomNavigationItem("Habits",  R.drawable.check_circle_outline, Green, "habits")
     object Calendar: BottomNavigationItem("Calendar", R.drawable.calendar_today, Red, "calendar")
     object Profile: BottomNavigationItem("Profile", R.drawable.person, Beige,"profile")
-
 }
 
 val items = listOf(
