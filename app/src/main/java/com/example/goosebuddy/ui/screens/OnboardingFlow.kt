@@ -109,11 +109,12 @@ fun OnboardingStepComponent(
                     val userdataDao = db.userdataDao()
                     userdataDao.insertAll(userData)
 
+                    println(userData)
                     //TODO: add suggested habits properly
-                    if (userData.hasRoommates){
+                    if (userData.hasRoommates || true){
                         val habitsDao = db.habitsDao()
                         for( habits in suggestedHabit["hasRoommates"]!!){
-                            habitsDao.update(habits)
+                            habitsDao.insertAll(habits)
                         }
                     }
                     navController.navigate("lock")
