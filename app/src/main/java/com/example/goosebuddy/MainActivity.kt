@@ -69,9 +69,14 @@ fun RootNavigationGraph(ctx: Context) {
     val calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController)
+    val testingLock = false
+    var startDestination = "home"
+    if (testingLock) {
+        startDestination = "lock"
+    }
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = startDestination,
         route = "main"
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
