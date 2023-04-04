@@ -68,7 +68,7 @@ fun GooseText(db: AppDatabase){
     run breaking@
         {
             calendarItemsToday.forEach { calendarItem ->
-                SpeechBubble("Honk! You have ${calendarItem.title} from \n ${calendarItem.startTime} - ${calendarItem.endTime}")
+                SpeechBubble("Honk! You have ${calendarItem.title} from \n ${calendarItem.startTime} to ${calendarItem.endTime}")
                 return@breaking
             }
         }
