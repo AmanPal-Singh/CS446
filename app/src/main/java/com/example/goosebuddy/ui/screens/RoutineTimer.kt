@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import android.graphics.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
 import androidx.compose.material.*
@@ -19,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.screens.Utility.formatTime
+import com.example.goosebuddy.ui.theme.Green
+import com.example.goosebuddy.ui.theme.Grey
 import com.example.goosebuddy.ui.theme.Red
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
@@ -48,7 +51,7 @@ fun RoutineTimer(name: String, duration: Duration) {
                 modifier = Modifier
                     .height(300.dp)
                     .width(300.dp),
-                color = Red,
+                color = Green,
                 stroke = 15
             )
             CircularProgressIndicator(
@@ -56,11 +59,32 @@ fun RoutineTimer(name: String, duration: Duration) {
                 modifier = Modifier
                     .height(300.dp)
                     .width(300.dp),
-                strokeWidth = 15.dp
+                strokeWidth = 15.dp,
+                color = Grey
             )
         }
 
         ControlButtons(viewModel = viewModel, isPlaying = isPlaying)
+    }
+}
+
+@Composable
+fun TimerControlButton(onClick: () -> Unit, drawableId: Int) {
+    OutlinedButton(
+        onClick = { onClick() },
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Transparent,
+            contentColor = Grey,
+        ),
+        border = BorderStroke(0.dp, Color.Transparent),
+        modifier =Modifier
+            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+    ) {
+        Icon(
+            painter =  painterResource(id = drawableId),
+            contentDescription = "",
+            tint = Color.DarkGray
+        )
     }
 }
 
@@ -72,28 +96,18 @@ fun ControlButtons(viewModel: RoutineTimerViewModel, isPlaying: Boolean) {
         modifier = Modifier
             .padding(10.dp)
     ) {
-        Button(onClick = {   }) {
-            Icon(
-                painter = painterResource(id = R.drawable.skip_previous),
-                contentDescription = "Back"
-            )
-        }
-        Button(onClick = {
-            viewModel.handleCountdownTimer()
-        }) {
-            Icon(
-                painter = painterResource(
-                    id = if (isPlaying) R.drawable.pause else R.drawable.play_arrow
-                ),
-                contentDescription = "Back"
-            )
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Icon(
-                painter = painterResource(id = R.drawable.skip_next),
-                contentDescription = "Back"
-            )
-        }
+        TimerControlButton(
+            onClick = { /*TODO*/ },
+            drawableId = R.drawable.skip_previous
+        )
+        TimerControlButton(
+            onClick = { viewModel.handleCountdownTimer() },
+            drawableId = if (isPlaying) R.drawable.pause else R.drawable.play_arrow
+        )
+        TimerControlButton(
+            onClick = { /*TODO*/ },
+            drawableId = R.drawable.skip_next
+        )
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.ui.shared.components.DeleteButton
+
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import kotlinx.coroutines.CoroutineScope
@@ -101,6 +103,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
