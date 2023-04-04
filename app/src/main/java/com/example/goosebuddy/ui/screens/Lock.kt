@@ -127,14 +127,11 @@ fun Lock(db: AppDatabase, navController: NavController) {
                             lockDao.insert(Lock(0, pin.toInt()))
                         }else{
                             if (pin.isNotEmpty()) {
-                                println("hi")
                                 val valid_pin = lockDao.getAll()
                                 if (valid_pin[0].value == pin.toInt()) {
-                                    println("OK")
                                     navController.navigate("home")
                                 } else {
                                     isError = true
-                                    println("wrong pin")
                                 }
                             }
                         }
