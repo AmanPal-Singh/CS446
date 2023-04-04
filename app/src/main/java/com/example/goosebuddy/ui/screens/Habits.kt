@@ -240,7 +240,7 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                 Button(
                     onClick = {
                               item.completed = 1
-
+                              item.completionSteps += 1
                               habitsDao.update(item)
                               navController.navigate(BottomNavigationItem.Habits.screen_route)
                     },
