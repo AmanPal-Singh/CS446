@@ -11,6 +11,7 @@ import android.graphics.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -22,6 +23,7 @@ import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
+import com.example.goosebuddy.ui.theme.LightGrey
 import com.example.goosebuddy.ui.theme.Red
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
@@ -43,6 +45,8 @@ fun RoutineTimer(name: String, duration: Duration) {
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
+            .background(LightGrey)
     ) {
         Text(text = name)
         Text(text = time)
