@@ -69,7 +69,7 @@ fun RootNavigationGraph(ctx: Context) {
     val calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController)
-    val testingLock = falsebb
+    val testingLock = false
     var startDestination = "home"
     if (testingLock) {
         startDestination = "lock"
