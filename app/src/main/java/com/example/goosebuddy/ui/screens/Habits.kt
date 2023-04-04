@@ -49,6 +49,9 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
+
+    var habits = remember { mutableStateOf(habitsDao.getAll()) }
+
     habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -172,16 +175,18 @@ fun Habits(navController: NavController, db: AppDatabase) {
                 items(currentOrder.value, { it }) { item ->
                     ReorderableItem(orderState, key = item,) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        val habit = habitsDao.getAll().find { h -> h.id == item }
+                        val habit = habits.value.find { h -> h.id == item }
                         if (habit != null) {
-                            HabitBlock(item = habit,
+                            HabitBlock(
+                                item = habit,
                                 navController = navController,
                                 db,
                                 scope,
                                 sheetState,
                                 { new -> sheetNewContent = new },
                                 Modifier.shadow(elevation.value),
-                                editingEnabled
+                                editingEnabled,
+                                onHabitChange = { habits.value = habitsDao.getAll() }
                             )
                         }
                     }
@@ -193,7 +198,16 @@ fun Habits(navController: NavController, db: AppDatabase) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit , modifier: Modifier, editingEnabled: MutableState<Boolean>) {
+fun HabitBlock(
+    item: Habits,
+    navController: NavController,
+    db: AppDatabase,
+    scope: CoroutineScope,
+    sheetState: ModalBottomSheetState,
+    composable: (it: @Composable (() -> Unit)) -> Unit ,
+    modifier: Modifier, editingEnabled: MutableState<Boolean>,
+    onHabitChange: () -> Unit
+) {
     var habitsDao = db.habitsDao()
 
     Card(
@@ -252,7 +266,8 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                         onClick = {
                             item.currentlyCompletedSteps -= 1
                             habitsDao.update(item)
-                            navController.navigate(BottomNavigationItem.Habits.screen_route)
+                            onHabitChange()
+                           // navController.navigate(BottomNavigationItem.Habits.screen_route)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
                         modifier = Modifier
@@ -281,7 +296,7 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                                 item.streak += 1
                             }
                             habitsDao.update(item)
-                            navController.navigate(BottomNavigationItem.Habits.screen_route)
+                            onHabitChange()
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Green),
                         modifier = Modifier
@@ -311,7 +326,8 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                         DeleteButton(
                             onDelete = {
                                 habitsDao.delete(item)
-                                navController.navigate(BottomNavigationItem.Habits.screen_route)
+                                onHabitChange()
+                                //navController.navigate(BottomNavigationItem.Habits.screen_route)
                             }
                         )
                     }
