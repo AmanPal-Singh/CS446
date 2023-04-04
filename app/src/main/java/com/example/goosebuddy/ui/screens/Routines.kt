@@ -301,7 +301,6 @@ fun RoutineBlock(item: Routines, navController: NavController) {
                     backgroundColor = Grey,
                 )
             }
-
             IconButton(onClick = { navController.navigate("routines/${item.id}") }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
