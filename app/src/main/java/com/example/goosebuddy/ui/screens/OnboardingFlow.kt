@@ -67,6 +67,7 @@ val suggestedHabit = mapOf(
 val onboardingSteps = arrayOf(
     OnboardingStep("welcome", false),
     OnboardingStep("name", false),
+    OnboardingStep("wat", false),
     OnboardingStep("year", false),
     OnboardingStep("residence", true),
     OnboardingStep("schedule", true),
@@ -93,6 +94,7 @@ fun OnboardingStepComponent(
         when (step.name) {
             "welcome" -> WelcomePage(userData)
             "name" -> NamePage(userData)
+            "wat" -> WatPage(userData)
             "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
             "schedule" -> SchedulePage(userData, navController, cvm)
@@ -222,6 +224,33 @@ fun NamePage(userData: UserData) {
 }
 
 @Composable
+fun WatPage(userData: UserData) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val nameMsg = "Enter your WAT number below. You can find it on your WAT card."
+        Text(nameMsg, textAlign = TextAlign.Center)
+
+        // text input field for name
+        var text = remember { mutableStateOf("") }
+        TextField(
+            value = text.value,
+            onValueChange = {
+                text.value = it
+                // update model
+                userData.wat = it.toIntOrNull() ?: 0
+            },
+            label = { Text(text = "WAT number") },
+            placeholder = { Text(text = "Enter your WAT number") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        )
+    }
+}
+
+
+
+@Composable
 fun YearPage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -237,7 +266,7 @@ fun YearPage(userData: UserData) {
             onValueChange = {
                 text.value = it
                 // update model
-                userData.year = it.toInt()
+                userData.year = it.toIntOrNull() ?: 0
             },
             label = { Text(text = "Year") },
             placeholder = { Text(text = "Enter your year as an integer") },
