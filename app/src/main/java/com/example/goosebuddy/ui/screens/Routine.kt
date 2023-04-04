@@ -11,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -21,12 +23,15 @@ import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 class Subroutine(
     var name: String,
     var description: String,
-    var completed: Boolean
+    var completed: Boolean,
+    var duration: Duration = 60.seconds
 )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -57,7 +62,12 @@ fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHost
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 subroutines.forEach { it ->
-                    SubroutineCard(name = it.name , description = it.description, completed = it.completed)
+                    SubroutineCard(
+                        name = it.name ,
+                        description = it.description,
+                        completed = it.completed,
+                        duration = it.duration
+                    )
                 }
             }
             Button(
@@ -74,7 +84,8 @@ fun Routine(name: String, subroutines: Array<Subroutine>, navController: NavHost
 }
 
 @Composable
-fun SubroutineCard(name: String, description: String, completed: Boolean) {
+fun SubroutineCard(name: String, description: String, duration: Duration, completed: Boolean) {
+    val textStyle = if (completed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,11 +99,19 @@ fun SubroutineCard(name: String, description: String, completed: Boolean) {
             ,
         ) {
             Column() {
-                Text(name)
+                Text(
+                    name,
+                    style = textStyle
+                )
                 Spacer(Modifier.height(10.dp))
-                Text(description)
+                Text(
+                    description,
+                    style = textStyle
+                )
             }
-            Checkbox(checked = completed, onCheckedChange = {})
+            Text(
+                duration.toString(),
+            )
         }
     }
 }
