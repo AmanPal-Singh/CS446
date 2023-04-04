@@ -2,10 +2,6 @@ package com.example.goosebuddy.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ProgressIndicatorDefaults
-import androidx.compose.material.Text
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,11 +10,14 @@ import androidx.compose.ui.geometry.Size
 import android.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import com.example.goosebuddy.ui.theme.Red
 import kotlinx.coroutines.delay
@@ -61,22 +60,39 @@ fun RoutineTimer(name: String, duration: Duration) {
             )
         }
 
-        // TODO: Replace these buttons with icons later
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = {   }) {
-                Text("Back")
-            }
-            Button(onClick = {
-                viewModel.handleCountdownTimer()
-            }) {
-                Text(if (isPlaying) "Pause" else "Play")
-            }
-            Button(onClick = { /*TODO*/ }) {
-                Text("Next")
-            }
+        ControlButtons(viewModel = viewModel, isPlaying = isPlaying)
+    }
+}
+
+@Composable
+fun ControlButtons(viewModel: RoutineTimerViewModel, isPlaying: Boolean) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(10.dp)
+    ) {
+        Button(onClick = {   }) {
+            Icon(
+                painter = painterResource(id = R.drawable.skip_previous),
+                contentDescription = "Back"
+            )
+        }
+        Button(onClick = {
+            viewModel.handleCountdownTimer()
+        }) {
+            Icon(
+                painter = painterResource(
+                    id = if (isPlaying) R.drawable.pause else R.drawable.play_arrow
+                ),
+                contentDescription = "Back"
+            )
+        }
+        Button(onClick = { /*TODO*/ }) {
+            Icon(
+                painter = painterResource(id = R.drawable.skip_next),
+                contentDescription = "Back"
+            )
         }
     }
 }
