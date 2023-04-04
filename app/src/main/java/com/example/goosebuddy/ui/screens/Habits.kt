@@ -220,10 +220,26 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     .fillMaxWidth()
                     .padding(vertical = 10.dp)
             ) {
+                Button(onClick = {
+                    item.completionSteps -= 1
+                    habitsDao.update(item)
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="-1", color = White)
+                }
                 CircularProgressIndicator(
                     progress = (item.completionSteps.toFloat() / item.completed.toFloat()),
                     color = LightBlue,
                 )
+                Button(onClick = {
+                    item.completionSteps += 1
+                    habitsDao.update(item)
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="+1", color = White)
+                }
             }
             Text("${item.completionSteps} / ${item.completed}", color = LightBlue)
             Row(
