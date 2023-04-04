@@ -94,7 +94,11 @@ fun RootNavigationGraph(ctx: Context) {
                 Routines(navController = navController, db=db)
             }
         }
-        composable("routines/{routine_id}") {
+        composable(
+            "routines/{routine_id}",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routine_id = backStackEntry.arguments?.getString("routine_id")
             val subroutines = listOf(
                 Subroutine(name = "Part 1", description = "This is a description", completed = true),
                 Subroutine(name = "part 2", description = "This is a longer description", completed = true),
