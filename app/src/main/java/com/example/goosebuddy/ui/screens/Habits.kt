@@ -1,5 +1,6 @@
 package com.example.goosebuddy.ui.screens
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.*
 import androidx.compose.foundation.background
@@ -8,6 +9,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -20,15 +23,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -38,6 +44,15 @@ fun Habits(navController: NavController, db: AppDatabase) {
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
+
+    val editingEnabled = remember { mutableStateOf(false) }
+    val currentOrder = remember { mutableStateOf(habitsDao.getAll())}
+    val orderState = rememberReorderableLazyGridState(dragCancelledAnimation = NoDragCancelledAnimation(),
+        onMove = { from, to ->
+            currentOrder.value = currentOrder.value.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
+        })
 
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
@@ -58,43 +73,106 @@ fun Habits(navController: NavController, db: AppDatabase) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Beige)
+                .background(LightGrey)
                 .fillMaxHeight()
         ) {
-            Box {
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    habitsDao.getAll().forEach { item ->
-                        HabitBlock(item = item, navController = navController, db, scope, sheetState,
-                            { new -> sheetNewContent = new })
-                    }
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 5.dp)
+                    .height(intrinsicSize = IntrinsicSize.Max)
+            ) {
                 Button(
                     onClick = {
-                        sheetNewContent = { AddHabit(
-                            scope = scope,
-                            sheetState = sheetState,
-                            db = db,
-                            navController = navController
-                        )}
+                        sheetNewContent = {
+                            AddHabit(
+                                scope = scope,
+                                sheetState = sheetState,
+                                db = db,
+                                navController = navController
+                            )
+                        }
                         scope.launch {
                             sheetState.animateTo(ModalBottomSheetValue.Expanded)
 
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = TransluenceBlack),
-                    modifier = Modifier.align(Alignment.TopCenter)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.pencil),
+                        contentDescription = "plusIcon",
+                        tint = Black
+                    )
+                }
+                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                Button(
+                    onClick = {
+                        sheetNewContent = {
+                            AddHabit(
+                                scope = scope,
+                                sheetState = sheetState,
+                                db = db,
+                                navController = navController
+                            )
+                        }
+                        scope.launch {
+                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
                 )
                 {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "emailIcon",
-                        tint = White
+                        contentDescription = "plusIcon",
+                        tint = Black
                     )
-                    Text(text = "Add Habit", color = White)
+                    Text(text = "Add Habit", color = Black)
                 }
             }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .reorderable(orderState)
+                    .fillMaxWidth()
+                    .background(LightGrey)
+                    .fillMaxHeight(),
+                // content padding
+                contentPadding = PaddingValues(
+                    start = 12.dp,
+                    top = 16.dp,
+                    end = 12.dp,
+                    bottom = 16.dp
+                ),
+                state = orderState.gridState
+            ) {
+                items(currentOrder.value.size) { index ->
+                    ReorderableItem(
+                        orderState,
+                        key = index,
+                        defaultDraggingModifier = Modifier
+                    ) { isDragging ->
+                        println(index)
+                        println(habitsDao.getAll().toString())
+                        val habit = currentOrder.value[index]
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        HabitBlock(item = habit!!,
+                            navController = navController,
+                            db,
+                            scope,
+                            sheetState,
+                            { new -> sheetNewContent = new },
+                            Modifier.detectReorderAfterLongPress(orderState)
+                        )
+
+                    }
+                }
+            }
+
 
         }
     }
@@ -102,11 +180,11 @@ fun Habits(navController: NavController, db: AppDatabase) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit ) {
+fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scope: CoroutineScope, sheetState: ModalBottomSheetState, composable: (it: @Composable (() -> Unit)) -> Unit , modifier: Modifier) {
     var habitsDao = db.habitsDao()
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(5.dp),
     ) { Column(
@@ -136,7 +214,7 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 5.dp, horizontal = 16.dp)
@@ -158,10 +236,11 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
                     Text(text="Edit", color = White)
                 }
-                Spacer(modifier = Modifier.padding(10.dp))
+                Spacer(modifier = Modifier.padding(5.dp))
                 Button(
                     onClick = {
                               item.completed = 1
+                              item.completionSteps += 1
                               habitsDao.update(item)
                               navController.navigate(BottomNavigationItem.Habits.screen_route)
                     },
