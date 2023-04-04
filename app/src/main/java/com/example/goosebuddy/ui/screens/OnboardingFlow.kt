@@ -56,7 +56,10 @@ class OnboardingStep(
 
 val suggestedHabit = mapOf(
    "hasRoommates" to listOf(
-       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
+       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"
+
+
+       ),
        Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
    )
 )

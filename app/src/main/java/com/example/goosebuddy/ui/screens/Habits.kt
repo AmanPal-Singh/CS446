@@ -49,7 +49,7 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
+
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
