@@ -43,7 +43,7 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    // habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
+    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -87,44 +87,67 @@ fun Habits(navController: NavController, db: AppDatabase) {
                     .padding(horizontal = 5.dp)
                     .height(intrinsicSize = IntrinsicSize.Max)
             ) {
-                Button(
-                    onClick = {
-                        // toggle the editing enabled state
-                        editingEnabled.value = !editingEnabled.value
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.pencil),
-                        contentDescription = "Edit Habits",
-                        tint = Black
-                    )
-                }
-                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-                Button(
-                    onClick = {
-                        sheetNewContent = {
-                            AddHabit(
-                                scope = scope,
-                                sheetState = sheetState,
-                                db = db,
-                                navController = navController
-                            )
-                        }
-                        scope.launch {
-                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                if (editingEnabled.value) {
+                    OutlinedButton(
+                        onClick = { editingEnabled.value = false },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
+                    ) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.size(20.dp))
+                    Button(
+                        onClick = { editingEnabled.value = false },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.save),
+                            contentDescription = "Save",
+                            tint = Black,
+                            modifier = Modifier
+                                .height(20.dp)
+                        )
+                        Text("Save")
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            // toggle the editing enabled state
+                            editingEnabled.value = true
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.pencil),
+                            contentDescription = "Edit Habits",
+                            tint = Black
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(20.dp))
+                    Button(
+                        onClick = {
+                            sheetNewContent = {
+                                AddHabit(
+                                    scope = scope,
+                                    sheetState = sheetState,
+                                    db = db,
+                                    navController = navController
+                                )
+                            }
+                            scope.launch {
+                                sheetState.animateTo(ModalBottomSheetValue.Expanded)
 
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
-                )
-                {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "plusIcon",
-                        tint = Black
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
                     )
-                    Text(text = "Add Habit", color = Black)
+                    {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "plusIcon",
+                            tint = Black
+                        )
+                        Text(text = "Add Habit", color = Black)
+                    }
                 }
             }
             LazyVerticalGrid(
@@ -181,13 +204,14 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
         modifier = modifier
             .fillMaxWidth()
             .padding(5.dp),
-    ) { Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(White)
-            .fillMaxHeight()
-        ){
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .fillMaxHeight()
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -199,9 +223,8 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                         .padding(8.dp),
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    Text(item.schedule, color = Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    Text(item.title, color = Black,  fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text(item.description,  fontSize = 12.sp, color = Grey)
+                    Text(item.title, color = Black, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(item.description, fontSize = 12.sp, color = Grey)
                 }
                 if (editingEnabled.value) {
                     Column(
@@ -218,88 +241,93 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     }
                 }
             }
-        val isVisible = if (item.streak != 0) 1f else 0f
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .alpha(isVisible)
-        ){
-            Icon(
-                painter = painterResource(id = R.drawable.fire),
-                contentDescription = "Streak Fire",
-                tint= Color.Unspecified
-            )
-            Text("${item.streak}")
-        }
-        Row(
+            val isVisible = if (item.streak != 0) 1f else 0f
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(isVisible)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.fire),
+                    contentDescription = "Streak Fire",
+                    tint = Color.Unspecified
+                )
+                Text("${item.streak}")
+            }
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp)
             ) {
-                Button(onClick = {
-                    item.completionSteps -= 1
-                    habitsDao.update(item)
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
-                },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
-                    Text(text="-1", color = White)
-                }
-                CircularProgressIndicator(
-                    progress = (item.completionSteps.toFloat() / item.completed.toFloat()),
-                    color = LightBlue,
-                )
-                Button(onClick = {
-                    item.completionSteps += 1
-                    habitsDao.update(item)
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
-                },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
-                    Text(text="+1", color = White)
-                }
-            }
-            Text("${item.completionSteps} / ${item.completed}", color = LightBlue)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp, horizontal = 16.dp)
-            ) {
-                Button(onClick = {
-                    composable {
-                        UpdateHabit(
-                            scope = scope,
-                            sheetState = sheetState,
-                            db = db,
-                            navController = navController,
-                            habitId = item.id
-                        )
-                    }
-                    scope.launch {
-                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
-                        }
-                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
-                    Text(text="Edit", color = White)
-                }
-                Spacer(modifier = Modifier.padding(5.dp))
-                Button(
-                    onClick = {
-                              item.completed = 1
-                              item.completionSteps += 1
-                              habitsDao.update(item)
-                              navController.navigate(BottomNavigationItem.Habits.screen_route)
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black)){
-                    Text(text="Done", color = White)
-                }
-            }
-        }
+                    if (!editingEnabled.value) {
 
+                        Button(
+                            enabled = item.currentlyCompletedSteps != 0,
+                            onClick = {
+                                item.currentlyCompletedSteps -= 1
+                                habitsDao.update(item)
+                                navController.navigate(BottomNavigationItem.Habits.screen_route)
+                            },
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Black)
+                        ) {
+                            Text(text = "-1", color = White)
+                        }
+                    }
+                    CircularProgressIndicator(
+                        progress = (item.currentlyCompletedSteps.toFloat() / item.completionSteps.toFloat()),
+                        color = LightBlue,
+                    )
+                    if (!editingEnabled.value) {
+                        Button(
+                            onClick = {
+                                item.currentlyCompletedSteps += 1
+                                if (item.currentlyCompletedSteps == item.completionSteps) {
+                                    item.streak += 1
+                                }
+                                habitsDao.update(item)
+                                navController.navigate(BottomNavigationItem.Habits.screen_route)
+                            },
+                            colors = ButtonDefaults.buttonColors(backgroundColor = Black)
+                        ) {
+                            Text(text = "+1", color = White)
+                        }
+                    }
+                }
+
+                Text("${item.currentlyCompletedSteps} / ${item.completionSteps}", color = LightBlue)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp, horizontal = 16.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            composable {
+                                UpdateHabit(
+                                    scope = scope,
+                                    sheetState = sheetState,
+                                    db = db,
+                                    navController = navController,
+                                    habitId = item.id
+                                )
+                            }
+                            scope.launch {
+                                sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Black)
+                    ) {
+                        Text(text = "Edit", color = White)
+                    }
+                }
+            }
+
+        }
     }
-}
 

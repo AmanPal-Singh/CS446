@@ -2,6 +2,7 @@ package com.example.goosebuddy.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.sql.Date
 
 @Entity
 data class Habits (
@@ -15,5 +16,4 @@ data class Habits (
     var streak: Int = 0, // used to track how long a habit has been kept up!
     var completionSteps: Int = 1, // Steps to complete a habit
     var currentlyCompletedSteps: Int = 0, // Steps completed so far by a day
-
 )
