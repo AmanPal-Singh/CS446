@@ -10,6 +10,7 @@ data class Habits (
     val id: Int,
     var title: String,
     var description: String,
-    var completed: Int,
-    var schedule: String,
+    var completed: Int = 0,
+    var schedule: String = "Daily",
+    var streak: Int = 0, // used to track how long a habit has been kept up!
 )

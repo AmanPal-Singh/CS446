@@ -21,9 +21,10 @@ import com.example.goosebuddy.ui.theme.*
 import java.lang.Integer.min
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.UserData
+import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 @Composable
-fun OnboardingFlow(navController: NavHostController, db: AppDatabase, step: String?) {
+fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, step: String?) {
     val onboardingStep = onboardingSteps.find { s -> s.name == step }
     val completed = onboardingSteps.indexOf(onboardingStep) + 1
     GooseBuddyTheme {
@@ -40,7 +41,8 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, step: Stri
                     OnboardingStepComponent(
                         step = onboardingStep,
                         navController = navController,
-                        db = db
+                        db = db,
+                        cvm = cvm
                     )
                 }
             }
@@ -66,7 +68,8 @@ val onboardingSteps = arrayOf(
 fun OnboardingStepComponent(
     step: OnboardingStep,
     navController: NavHostController,
-    db: AppDatabase
+    db: AppDatabase,
+    cvm: CalendarViewModel
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
@@ -83,6 +86,7 @@ fun OnboardingStepComponent(
             "name" -> NamePage(userData)
             "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
+            "schedule" -> SchedulePage(userData, navController, cvm)
             "submit" -> SubmitPage(userData)
         }
 
@@ -271,6 +275,27 @@ fun ResidencePage(userData: UserData) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun SchedulePage(userData: UserData, navController: NavHostController, cvm: CalendarViewModel) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val residenceMsg = "Import your schedule"
+        Text(residenceMsg, textAlign = TextAlign.Center)
+
+        fun onImportSchedule(subject: String, courseNumber: String, classNumber: String) {
+            cvm.importSchedule(subject, courseNumber, classNumber)
+
+            // navigate back to onboarding page
+            navController.navigate("onboarding/schedule")
+        }
+
+        val sivm = ScheduleImportViewModel()
+        ScheduleImport(sivm = sivm, onSubmit = ::onImportSchedule)
     }
 }
 

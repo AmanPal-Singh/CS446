@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 data class Lock (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val value: Int,
+    var value: Int,
 )

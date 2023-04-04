@@ -18,7 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.room.Room
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
@@ -27,7 +26,6 @@ import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
-import kotlin.time.Duration
 
 import kotlin.time.Duration.Companion.seconds
 
@@ -92,7 +90,7 @@ fun RootNavigationGraph(ctx: Context) {
             }
         }
         composable("routines/{routine_id}") {
-            val subroutines = arrayOf(
+            val subroutines = listOf(
                 Subroutine(name = "Part 1", description = "This is a description", completed = true),
                 Subroutine(name = "part 2", description = "This is a longer description", completed = true),
                 Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
@@ -123,19 +121,24 @@ fun RootNavigationGraph(ctx: Context) {
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Profile()
+                Greeting(name = "profile")
             }
         }
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, db=db,"welcome")
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, "welcome")
         }
         composable(
             "onboarding/{step}",
             arguments = listOf(navArgument("step") { type = NavType.StringType })
         ) { backStackEntry ->
-            OnboardingFlow(navController = navController, db=db, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, backStackEntry.arguments?.getString("step"))
+        }
+        composable("lock"){
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                Lock(navController=navController, db=db)
+            }
         }
     }
 }
