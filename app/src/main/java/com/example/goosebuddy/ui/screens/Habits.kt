@@ -20,9 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
@@ -40,7 +42,7 @@ import org.burnoutcrew.reorderable.*
 @Composable
 fun Habits(navController: NavController, db: AppDatabase) {
     var habitsDao = db.habitsDao()
-    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily"), Habits(19382, "Fitness", "fitness yo yo", 0, "Weekly"))
+    habitsDao.insertAll(Habits(13201392, "Skincare", "skincare yo", 1, "Daily", streak = 1), Habits(19382, "Fitness", "fitness yo yo", 4, "Weekly"))
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -199,7 +201,6 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -212,6 +213,50 @@ fun HabitBlock(item: Habits, navController: NavController, db: AppDatabase, scop
                     Text(item.description,  fontSize = 12.sp, color = Grey)
                 }
             }
+        val isVisible = if (item.streak != 0) 1f else 0f
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(isVisible)
+        ){
+            Icon(
+                painter = painterResource(id = R.drawable.fire),
+                contentDescription = "Streak Fire",
+                tint= Color.Unspecified
+            )
+            Text("${item.streak}")
+        }
+        Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Button(onClick = {
+                    item.completionSteps -= 1
+                    habitsDao.update(item)
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="-1", color = White)
+                }
+                CircularProgressIndicator(
+                    progress = (item.completionSteps.toFloat() / item.completed.toFloat()),
+                    color = LightBlue,
+                )
+                Button(onClick = {
+                    item.completionSteps += 1
+                    habitsDao.update(item)
+                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Black))  {
+                    Text(text="+1", color = White)
+                }
+            }
+            Text("${item.completionSteps} / ${item.completed}", color = LightBlue)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
