@@ -1,7 +1,6 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +19,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.goosebuddy.ui.shared.components.DeleteButton
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import kotlinx.coroutines.CoroutineScope
@@ -90,6 +90,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                                 description = subroutine.description,
                                 completed = subroutine.completed,
                                 duration = subroutine.duration,
+                                editingEnabled = editingEnabled,
                                 elevation = elevation.value
                             )
                         }
@@ -146,6 +147,7 @@ fun SubroutineCard(
     description: String,
     duration: Duration,
     completed: Boolean,
+    editingEnabled: MutableState<Boolean>,
     elevation: Dp
 ) {
     val textStyle = if (completed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle()
@@ -159,8 +161,7 @@ fun SubroutineCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-            ,
+                .padding(10.dp),
         ) {
             Column() {
                 Text(
@@ -173,9 +174,14 @@ fun SubroutineCard(
                     style = textStyle
                 )
             }
-            Text(
-                duration.toString(),
-            )
+            if (!editingEnabled.value) {
+                Text(
+                    duration.toString(),
+                )
+            } else {
+                DeleteButton(onDelete = { /** TODO */ })
+            }
+
         }
     }
 }
