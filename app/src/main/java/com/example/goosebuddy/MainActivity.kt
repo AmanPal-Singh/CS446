@@ -141,9 +141,7 @@ fun RootNavigationGraph(ctx: Context) {
             OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, backStackEntry.arguments?.getString("step"))
         }
         composable("lock"){
-            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Lock(navController=navController, db=db)
-            }
+            Lock(navController=navController, db=db)
         }
     }
 }
