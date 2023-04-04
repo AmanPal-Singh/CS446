@@ -68,7 +68,7 @@ fun RootNavigationGraph(ctx: Context) {
     val scaffoldState = rememberScaffoldState()
     val calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
-    val calendarViewModel = CalendarViewModel(calendarState, navController)
+    val calendarViewModel = CalendarViewModel(calendarState, navController, db)
     val testingLock = false
     var startDestination = "onboarding"
     if (testingLock) {

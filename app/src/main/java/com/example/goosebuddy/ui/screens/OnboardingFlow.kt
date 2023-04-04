@@ -57,7 +57,10 @@ class OnboardingStep(
 
 val suggestedHabit = mapOf(
    "hasRoommates" to listOf(
-       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
+       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"
+
+
+       ),
        Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
    )
 )
@@ -108,13 +111,13 @@ fun OnboardingStepComponent(
                     val userdataDao = db.userdataDao()
                     userdataDao.insertAll(userData.value)
 
+                    println(userData)
                     //TODO: add suggested habits properly
-                    Log.d("onboarding", userData.toString())
-                    if (userData.value.firstTimeAlone){
+
+                    if (userData.hasRoommates || true){
                         val habitsDao = db.habitsDao()
                         for( habits in suggestedHabit["hasRoommates"]!!){
-                            habitsDao.update(habits)
-                            Log.d("onboarding", habits.toString())
+                            habitsDao.insertAll(habits)
                         }
                     }
                     navController.navigate("lock")
