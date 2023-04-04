@@ -105,6 +105,8 @@ fun OnboardingStepComponent(
                     // save all the user data into dao
                     val userdataDao = db.userdataDao()
                     userdataDao.insertAll(userData)
+
+                    //TODO: add suggested habits properly
                     if (userData.hasRoommates){
                         val habitsDao = db.habitsDao()
                         for( habits in suggestedHabit["hasRoommates"]!!){
