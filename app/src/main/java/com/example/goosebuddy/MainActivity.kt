@@ -70,7 +70,7 @@ fun RootNavigationGraph(ctx: Context) {
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController)
     val testingLock = false
-    var startDestination = "home"
+    var startDestination = "onboarding"
     if (testingLock) {
         startDestination = "lock"
     }
