@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,6 +15,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.room.Database
+import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.models.CalendarItem
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.Grey
@@ -32,14 +36,8 @@ import kotlinx.datetime.LocalDateTime.Companion.parse
 
 const val calendarImportRoute = "calendar/import"
 
-class CalendarItem(
-    var title: String,
-    var time: String, // TODO: Maybe change this to Time type or a begin & end
-    var checked: MutableState<Boolean> = mutableStateOf(false)
-)
-
-// NOTE this is not a "mutableStateOf", this is just a map I can write to
-val mockCalendarData: MutableMap<LocalDate, MutableList<CalendarItem>> = mutableMapOf()
+// NOTE this is not a "mutableStateOf", this is just a map I can write to for testing
+//val mockCalendarData: MutableMap<LocalDate, MutableList<CalendarItem>> = mutableMapOf()
 
 data class TermData(
     val termCode: String
@@ -61,9 +59,8 @@ data class ScheduleData(
 class CalendarViewModel(
     val calendarState: CalendarState<DynamicSelectionState>,
     val navController: NavController,
+    val db: AppDatabase
 ) : ViewModel() {
-    // Test Waterloo API
-    // Need async https://developer.android.com/kotlin/coroutines
     private suspend fun getScheduleInfo(subject: String, courseNumber: String, classNumber: String) : ScheduleData {
         // First, get current term code
         val termUrl = "https://openapi.data.uwaterloo.ca/v3/Terms/current"
@@ -135,19 +132,15 @@ class CalendarViewModel(
                 val daysOfWeek = scheduleData.classMeetingWeekPatternCode
 
                 var weekDate = startDate
+                val calendarItemDao = db.CalendarItemDao()
                 while (weekDate < endDate) {
                     for ((index, c) in daysOfWeek.withIndex()) {
                         if (c == 'Y') {
                             val newDate = weekDate.plus(index, DateTimeUnit.DAY)
-                            if (mockCalendarData.containsKey(newDate)) {
-                                mockCalendarData[newDate]?.add(
-                                    CalendarItem("$subject $courseNumber", "${startTime} - ${endTime}")
-                                )
-                            } else {
-                                mockCalendarData[newDate] = mutableListOf(
-                                    CalendarItem("$subject $courseNumber", "${startTime} - ${endTime}")
-                                )
-                            }
+
+                            val course = "$subject $courseNumber"
+                            val newCalendarItem = CalendarItem(0, course, newDate, startTime, endTime, false)
+                            calendarItemDao.insertAll(newCalendarItem)
                         }
                     }
 
@@ -165,6 +158,24 @@ class CalendarViewModel(
 
         // With calendar import happening in background, navigate back to calendar screen
         navController.navigate(BottomNavigationItem.Calendar.screen_route)
+    }
+
+    fun persistCheckbox(item: CalendarItem, checked: Boolean) {
+        val updatedItem = CalendarItem(
+            id = item.id,
+            title = item.title,
+            date = item.date,
+            startTime = item.startTime,
+            endTime = item.endTime,
+            checked = checked
+        )
+        val dao = db.CalendarItemDao()
+        dao.update(updatedItem)
+    }
+
+    fun deleteCalendarItem(item: CalendarItem) {
+        val dao = db.CalendarItemDao()
+        dao.delete(item)
     }
 }
 
@@ -189,6 +200,7 @@ fun Calendar(
         cvm.calendarState.selectionState.selection.forEach { localDate ->
             val kLocalDate = localDate.toKotlinLocalDate()
             ComposeCalendarBlocksForDate(
+                cvm = cvm,
                 localDate = kLocalDate
             )
         }
@@ -202,39 +214,73 @@ fun Calendar(
 }
 
 @Composable
-private fun ComposeCalendarBlocksForDate(localDate: LocalDate) {
-    mockCalendarData[localDate]?.forEach { item -> CalendarBlock(item = item) }
+private fun ComposeCalendarBlocksForDate(cvm: CalendarViewModel, localDate: LocalDate) {
+    val dao = cvm.db.CalendarItemDao()
+    val items = dao.getOnDate(localDate)
+    items.forEach { item ->
+        val checked = mutableStateOf(item.checked)
+        CalendarBlock(cvm = cvm, item = item, checked = checked)
+    }
 }
 
+// We pass in checked as a mutable state so when we check the checkbox we can recompose the card without
+// Having to recompose the whole page. It is much smoother this way
 @Composable
-private fun CalendarBlock(item: CalendarItem) {
+private fun CalendarBlock(cvm: CalendarViewModel, item: CalendarItem, checked: MutableState<Boolean>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(15.dp)
         ) {
-            Column {
-                Text(item.title)
-                Text(item.time)
-            }
-            Column {
-                Checkbox(
-                    checked = item.checked.value,
-                    onCheckedChange = {
-                        item.checked.value = it
-                    },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = Green,
-                        uncheckedColor = Grey,
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(15.dp)
+            ) {
+                Column {
+                    Text(item.title)
+                    Text(item.startTime.toString() + " - " + item.endTime.toString())
+                }
+                Column {
+                    Checkbox(
+                        checked = checked.value,
+                        onCheckedChange = {
+                            cvm.persistCheckbox(item, it)
+                            checked.value = it
+                        },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Green,
+                            uncheckedColor = Grey,
+                        )
                     )
-                )
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(15.dp)
+            ) {
+                Button(
+                    onClick = { println("calendar item edit not implemented yet") }
+                ) {
+                    Text("Edit")
+                }
+                Button(
+                    onClick = {
+                        cvm.deleteCalendarItem(item)
+                        // Navigate to Calendar (ourself) to recompose stuff
+                        cvm.navController.navigate(BottomNavigationItem.Calendar.screen_route)
+                    }
+                ) {
+                    Text("Delete")
+                }
             }
         }
     }
