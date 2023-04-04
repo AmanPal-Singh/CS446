@@ -2,6 +2,7 @@ package com.example.goosebuddy.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -27,6 +28,7 @@ import com.example.goosebuddy.ui.theme.*
 @Composable
 fun Lock(db: AppDatabase, navController: NavController) {
     val lockDao = db.lockDao()
+    val btnModifier = Modifier.size(75.dp)
 
     GooseBuddyTheme() {
         Column(
@@ -38,7 +40,40 @@ fun Lock(db: AppDatabase, navController: NavController) {
         ){
             var pin by remember { mutableStateOf("") }
             var isError by rememberSaveable { mutableStateOf(false) }
+            var canSubmit by rememberSaveable { mutableStateOf(false) }
 
+
+            fun addDigitToPin(digit: String){
+                pin += digit
+                canSubmit = pin.isNotEmpty()
+            }
+
+            @Composable
+            fun drawPinRow(digits: Array<String>){
+                return Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement =  Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Button(
+                        shape = CircleShape,
+                        onClick = { addDigitToPin(digits[0]) },
+                        modifier = btnModifier,
+                    ) {Text(digits[0])}
+                    Button(
+                        shape = CircleShape,
+                        onClick = { addDigitToPin(digits[1]) },
+                        modifier = btnModifier,
+                    ) {Text(digits[1])}
+                    Button(
+                        shape = CircleShape,
+                        onClick = { addDigitToPin(digits[2]) },
+                        modifier = btnModifier,
+                    ) {Text(digits[2])}
+                }
+
+            }
             if(lockDao.getAll().isEmpty()) {
                 Text(
                     "Welcome !\nPlease enter your pin to register it.",
@@ -50,50 +85,62 @@ fun Lock(db: AppDatabase, navController: NavController) {
                     textAlign = TextAlign.Center,
                 )
             }
-            Image(
-                painter = painterResource(id = R.drawable.goose),
-                contentDescription = "Goose.",
-                modifier = Modifier
-                    .size(200.dp),
-                colorFilter = ColorFilter.tint(Yellow)
-            )
-            TextField(
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                placeholder = { Text("PIN") },
-                value = pin,
-                isError = isError,
-                onValueChange = { newText -> pin = newText.trim() },
-                visualTransformation = PasswordVisualTransformation()
+
+            Text(
+                pin,
+                textAlign= TextAlign.Center
             )
             if (isError){
                 Text("PIN Invalid")
             }
-            Button(
-                onClick = {
-                    if(lockDao.getAll().isEmpty()){
-                        lockDao.insert(Lock(0, pin.toInt()))
-                    }else{
-                        val valid_pin = lockDao.getAll()
-                        if(valid_pin[0].value == pin.toInt()){
-                            println("OK")
-                            navController.navigate("onboarding")
-                        }else{
-                            isError = true
-                            println("wrong pin")
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+
+            drawPinRow(digits = arrayOf("1", "2", "3"))
+            drawPinRow(digits = arrayOf("4", "5", "6"))
+            drawPinRow(digits = arrayOf("7", "8", "9"))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement =  Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                Text(
-                    text="Login",
-                )
+                Button(
+                    shape = CircleShape,
+                    onClick = {
+                        if (pin.isNotEmpty()) {
+                            pin = pin.substring(0, pin.length - 1)
+                        }
+                        if (pin.isBlank()) {
+                            canSubmit = false
+                        }
+                    },
+                    modifier = btnModifier,
+                ) {Text("x")}
+                Button(
+                    shape = CircleShape,
+                    onClick = { addDigitToPin("0") },
+                    modifier = btnModifier,
+                ) {Text("0")}
+                Button(
+                    shape = CircleShape,
+                    onClick = {
+                        if(lockDao.getAll().isEmpty()){
+                            lockDao.insert(Lock(0, pin.toInt()))
+                        }else{
+                            if (!canSubmit && lockDao.getAll().isNotEmpty()) return@Button;
+                            println("hi")
+                            val valid_pin = lockDao.getAll()
+                            if(valid_pin[0].value == pin.toInt()){
+                                println("OK")
+                                navController.navigate("home")
+                            }else{
+                                isError = true
+                                println("wrong pin")
+                            }
+                        }
+                    },
+                    modifier = btnModifier
+                ) {Text("Submit")}
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewMessageCard() {
 }
