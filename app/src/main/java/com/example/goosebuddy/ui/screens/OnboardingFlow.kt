@@ -99,7 +99,7 @@ fun OnboardingStepComponent(
                     // save all the user data into dao
                     var userdataDao = db.userdataDao()
                     userdataDao.insertAll(userData)
-                    navController.navigate("home")
+                    navController.navigate("lock")
                 } else {
                     val step = onboardingSteps[min(
                         progress + 1,
