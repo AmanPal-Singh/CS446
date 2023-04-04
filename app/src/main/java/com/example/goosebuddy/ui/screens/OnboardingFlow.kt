@@ -114,7 +114,7 @@ fun OnboardingStepComponent(
                     println(userData)
                     //TODO: add suggested habits properly
 
-                    if (userData.hasRoommates || true){
+                    if (true){
                         val habitsDao = db.habitsDao()
                         for( habits in suggestedHabit["hasRoommates"]!!){
                             habitsDao.insertAll(habits)
