@@ -16,8 +16,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,6 +29,8 @@ import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
@@ -36,18 +40,22 @@ import org.burnoutcrew.reorderable.reorderable
 class Subroutine(
     var name: String,
     var description: String,
-    var completed: Boolean
+    var completed: Boolean,
+    var duration: Duration = 60.seconds
 )
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostController) {
+    val editingEnabled = remember { mutableStateOf(false) }
     val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.name }) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val state = rememberReorderableLazyListState(onMove = { from, to ->
-        currentOrder.value = currentOrder.value.toMutableList().apply {
-            add(to.index, removeAt(from.index))
+        if (editingEnabled.value) {
+            currentOrder.value = currentOrder.value.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
         }
     })
 
@@ -76,6 +84,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                     .reorderable(state)
                     .detectReorderAfterLongPress(state)
             ) {
+
                 items(currentOrder.value, { it }) { name ->
                     ReorderableItem(state, key = name) { isDragging ->
                         val subroutine = subroutines.find { s -> s.name == name }
@@ -85,35 +94,66 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                                 name = subroutine.name,
                                 description = subroutine.description,
                                 completed = subroutine.completed,
+                                duration = subroutine.duration,
                                 elevation = elevation.value
                             )
                         }
                     }
                 }
-
-
             }
-            Row {
-                Button(
-                    onClick = {
-                        scope.launch {
-                            sheetState.animateTo(ModalBottomSheetValue.Expanded)
-                        }
+            ActionButtons(editingEnabled = editingEnabled, sheetState, scope)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ActionButtons(
+    editingEnabled: MutableState<Boolean>,
+    sheetState: ModalBottomSheetState,
+    scope: CoroutineScope
+) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxWidth()
+    ) {
+        if (editingEnabled.value) {
+            OutlinedButton(onClick = { editingEnabled.value = false }) {
+                Text("Cancel")
+            }
+            Spacer(modifier = Modifier.size(20.dp))
+            Button(onClick = { editingEnabled.value = false }) {
+                Text("Save")
+            }
+        } else {
+            Button(
+                onClick = {
+                    scope.launch {
+                        sheetState.animateTo(ModalBottomSheetValue.Expanded)
                     }
-                ) {
-                    Text("Add")
                 }
-                Button(onClick = { /*TODO*/ }) {
-                    Text("Edit")
-                }
+            ) {
+                Text("Add")
             }
-
+            Spacer(modifier = Modifier.size(20.dp))
+            Button(onClick = { editingEnabled.value = true }) {
+                Text("Edit")
+            }
         }
     }
 }
 
 @Composable
-fun SubroutineCard(name: String, description: String, completed: Boolean, elevation: Dp) {
+fun SubroutineCard(
+    name: String,
+    description: String,
+    duration: Duration,
+    completed: Boolean,
+    elevation: Dp
+) {
+    val textStyle = if (completed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,11 +168,19 @@ fun SubroutineCard(name: String, description: String, completed: Boolean, elevat
             ,
         ) {
             Column() {
-                Text(name)
+                Text(
+                    name,
+                    style = textStyle
+                )
                 Spacer(Modifier.height(10.dp))
-                Text(description)
+                Text(
+                    description,
+                    style = textStyle
+                )
             }
-            Checkbox(checked = completed, onCheckedChange = {})
+            Text(
+                duration.toString(),
+            )
         }
     }
 }
