@@ -73,7 +73,11 @@ fun RoutineTimer(name: String, duration: Duration) {
 }
 
 @Composable
-fun TimerControlButton(onClick: () -> Unit, drawableId: Int) {
+fun TimerControlButton(
+    onClick: () -> Unit,
+    drawableId: Int,
+    modifier: Modifier = Modifier
+) {
     OutlinedButton(
         onClick = { onClick() },
         colors = ButtonDefaults.buttonColors(
@@ -81,7 +85,7 @@ fun TimerControlButton(onClick: () -> Unit, drawableId: Int) {
             contentColor = Grey,
         ),
         border = BorderStroke(0.dp, Color.Transparent),
-        modifier =Modifier
+        modifier = modifier
             .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
     ) {
         Icon(
