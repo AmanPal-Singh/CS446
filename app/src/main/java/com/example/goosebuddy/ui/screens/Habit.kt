@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, navController: NavController, habitId: Int) {
+fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, onHabitChange: () -> Unit, habitId: Int) {
     var habitsDao = db.habitsDao()
     var habit = habitsDao.loadSingle(habitId)
 
@@ -90,7 +90,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                         habit
                     )
                     sheetState.hide()
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                    onHabitChange()
                 }  }) {
                     Text("Update Habit")
                 }

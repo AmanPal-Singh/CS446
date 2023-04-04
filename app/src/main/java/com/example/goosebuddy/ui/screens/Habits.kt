@@ -138,7 +138,7 @@ fun Habits(navController: NavController, db: AppDatabase) {
                                     scope = scope,
                                     sheetState = sheetState,
                                     db = db,
-                                    navController = navController
+                                    onHabitChange = { habits.value = habitsDao.getAll() }
                                 )
                             }
                             scope.launch {
@@ -326,7 +326,6 @@ fun HabitBlock(
                             onDelete = {
                                 habitsDao.delete(item)
                                 onHabitChange()
-                                //navController.navigate(BottomNavigationItem.Habits.screen_route)
                             }
                         )
                     }
@@ -338,7 +337,7 @@ fun HabitBlock(
                                 scope = scope,
                                 sheetState = sheetState,
                                 db = db,
-                                navController = navController,
+                                onHabitChange = onHabitChange,
                                 habitId = item.id
                             )
                         }
