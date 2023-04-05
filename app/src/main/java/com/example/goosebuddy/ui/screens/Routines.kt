@@ -97,7 +97,7 @@ fun Routines(navController: NavController, db: AppDatabase) {
                 .background(Grey)
                 .fillMaxHeight()
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
@@ -114,16 +114,18 @@ fun Routines(navController: NavController, db: AppDatabase) {
                             onClick = { showHelpfulGoose.value = !showHelpfulGoose.value }
                         )
                 )
+                Text("Learn more about routines", color = Green)
                 Spacer(modifier = Modifier.width(10.dp))
             }
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth(1f)
             ) {
-                Column(Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
                 ) {
-                    RoutineWeeklyTracker()
+                    DailyRoutineCompletionVisualization()
                 }
                 if (showHelpfulGoose.value) {
                     Card(
@@ -150,7 +152,6 @@ fun Routines(navController: NavController, db: AppDatabase) {
                     }
                 }
             }
-
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
@@ -166,7 +167,38 @@ fun Routines(navController: NavController, db: AppDatabase) {
 
 @Composable
 fun DailyRoutineCompletionVisualization() {
-
+    Card(
+        shape = RoundedCornerShape(7.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+            CircularProgressIndicator(
+                // TODO: actually have accurate progress instead of mock
+                progress = 0.25f,
+                color = Green,
+                backgroundColor = LightGrey,
+                strokeWidth = 15.dp,
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(100.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                "Great job! \nYou've completed 4 out of 5 of your routines today.",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .width(200.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    }
 }
 
 /** Make padding part of theme */
