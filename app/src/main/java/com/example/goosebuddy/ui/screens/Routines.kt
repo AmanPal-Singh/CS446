@@ -74,7 +74,7 @@ fun Routines(navController: NavController, db: AppDatabase) {
         Routines(4, "Cleaning", "This is a description", 5, 10),
         Routines(5, "Study", "This is a description", 25, 100),
         );
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
     val scope = rememberCoroutineScope()
 
     val showHelpfulGoose = remember { mutableStateOf(false) }
