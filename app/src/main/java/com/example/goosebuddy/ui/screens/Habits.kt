@@ -148,7 +148,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                             }
                             notificationManager.notify(0, notif)
                         },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Green),
                     )
                     {
                         Icon(
