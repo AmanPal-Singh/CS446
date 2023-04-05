@@ -189,7 +189,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "profile")
+                Profile(db=db)
             }
         }
         composable(
