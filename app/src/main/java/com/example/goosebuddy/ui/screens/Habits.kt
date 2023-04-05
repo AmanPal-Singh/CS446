@@ -176,7 +176,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                     items(currentOrder.value, { it }) { item ->
                         ReorderableItem(orderState, key = item,) { isDragging ->
                             val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                            val habit = remember { mutableStateOf( habits.value.find { h -> h.id == item }) }
+                            val habit = remember { mutableStateOf(habitsDao.loadSingle(item)) }
                             if (habit.value != null) {
                                 HabitBlock(
                                     item = habit.value!!,
@@ -211,7 +211,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                     editingEnabled,
                                     onHabitChange = {
                                         habits.value = habitsDao.getAll()
-                                        habit.value = habitsDao.getAll().find { h -> h.id == item }
+                                        habit.value = habitsDao.loadSingle(item)
                                         currentOrder.value = currentOrder.value
                                     }
                                 )
