@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 data class UserData(
     @PrimaryKey(autoGenerate = true) val key: Int = 0,
     var name: String = "",
-    val wat: Int = 0,
+    var wat: Int = 0,
     var year: Int = 0,
-    val hasRoommates: Boolean = false,
-    val onStudentRes: Boolean = false,
-    val firstTimeAlone: Boolean = false,
+    var hasRoommates: Boolean = false,
+    var onStudentRes: Boolean = false,
+    var firstTimeAlone: Boolean = true,
 )
 {
     override fun toString(): String {
