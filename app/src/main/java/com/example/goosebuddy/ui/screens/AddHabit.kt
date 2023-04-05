@@ -45,6 +45,8 @@ import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseAccessory
+import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import kotlinx.coroutines.CoroutineScope
@@ -68,7 +70,12 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
     var expanded by remember { mutableStateOf(false) }
     Column {
         SpeechBubble("Honk! Adding a habit...")
-        Goose(size = 200.dp, rotationZ = 8f)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Clipboard,
+            accessoryPlacement = Pair(-120.dp, 10.dp),
+            size = 200.dp, rotationZ = 8f
+        )
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,7 +87,7 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     .fillMaxWidth()
                     .padding(25.dp)
             ) {
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitName,
                     onValueChange = { newText ->
@@ -88,7 +95,7 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     },
                     label = { Text(text = "Name") },
                 )
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitDescription,
                     onValueChange = { newText ->
@@ -96,7 +103,7 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     },
                     label = { Text(text = "Description") },
                 )
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitCompletionSteps,
                     onValueChange = { newText ->
@@ -121,7 +128,6 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                             onHabitChange()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                 ) {
                     Text("Add")
                 }

@@ -172,7 +172,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
 
     // skip onboarding if there is already a user
     val userDataDao = db.userdataDao()
-    var startDestination = if (userDataDao.getNumUsers() == 0) "onboarding" else "lock"
+    var startDestination = if (userDataDao.getNumUsers() == 0) "onboarding" else "onboarding"
 
     if (testingLock) {
         startDestination = "lock"

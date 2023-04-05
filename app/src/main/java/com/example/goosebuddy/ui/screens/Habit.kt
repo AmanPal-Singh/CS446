@@ -21,6 +21,7 @@ import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.Black
+import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -61,7 +62,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     .fillMaxWidth()
                     .padding(25.dp)
             ) {
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitName,
                     onValueChange = { newText ->
@@ -69,7 +70,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     },
                     label = { Text(text = "Name") },
                 )
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitDescription,
                     onValueChange = { newText ->
@@ -77,7 +78,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     },
                     label = { Text(text = "Description") },
                 )
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitCompletionSteps,
                     onValueChange = { newText ->
@@ -88,7 +89,9 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     ),
                     label = { Text(text = "Steps") },
                 )
-                Button(onClick = { scope.launch {
+                Button(
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green),
+                    onClick = { scope.launch {
                     // Update habit
                     habit.title = habitName.text
                     habit.description = habitDescription.text
