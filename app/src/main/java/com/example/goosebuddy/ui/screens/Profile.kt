@@ -1,6 +1,7 @@
 package com.example.goosebuddy.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -12,6 +13,8 @@ import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.theme.Green
+import com.example.goosebuddy.ui.theme.Purple200
+import com.example.goosebuddy.ui.theme.Teal200
 
 @Composable
 fun Profile(db: AppDatabase) {
@@ -43,7 +46,9 @@ fun Profile(db: AppDatabase) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(Purple200)
+        ,
     ) {
         Goose(size=225.dp, honkSound = true)
         Spacer(modifier = Modifier.size(30.dp))
