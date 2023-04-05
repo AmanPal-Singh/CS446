@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -33,6 +34,7 @@ enum class GooseAccessory {
     None,
     Flag
 }
+
 
 fun getGooseResource(variation: GooseVariation): Int {
     if (variation == GooseVariation.Default) {
@@ -56,6 +58,7 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
 fun Goose(
     variation: GooseVariation = GooseVariation.Default,
     accessory: GooseAccessory = GooseAccessory.None,
+    acessoryPlacement: Pair<Dp, Dp> = Pair(-120.dp, 0.dp),
     size: Dp,
     rotationZ: Float = 0f,
     honkSound: Boolean = false,
@@ -107,8 +110,9 @@ fun Goose(
                 contentDescription = "Goose Image",
                 contentScale = ContentScale.Fit,
                 modifier = imageModifier
-                    .offset(x = -120.dp)
-                    .size(size.times(0.25f))
+                    .offset(acessoryPlacement.first, acessoryPlacement.second)
+                    .size(size)
+                    .scale(0.4f)
             )
         }
     }
