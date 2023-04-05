@@ -99,13 +99,6 @@ fun RootNavigationGraph(ctx: Context) {
             arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
         ) { backStackEntry ->
             val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
-            // val subroutines = listOf(
-            //     Subroutine(name = "Part 1", description = "This is a description", completed = true),
-            //     Subroutine(name = "part 2", description = "This is a longer description", completed = true),
-            //     Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
-            //     Subroutine(name = "part 4", description = "This description has \nmultiple lines", completed = false),
-            //     Subroutine(name = "part 5", description = "aaa", completed = false),
-            // )
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routine(
                     id = routineId,
@@ -114,9 +107,16 @@ fun RootNavigationGraph(ctx: Context) {
                 )
             }
         }
-        composable("routines/{routine_id}/timer") {
+        composable(
+            "routines/{routine_id}/timer",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                RoutineTimer(name = "Morning Routine", duration = 10.seconds)
+                RoutineTimer(
+                    routineId,
+                    db = db
+                )
             }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
