@@ -67,13 +67,6 @@ fun getColour(progress: Float): Color {
 @Composable
 fun Routines(navController: NavController, db: AppDatabase) {
     var routinesDao = db.routinesDao()
-    routinesDao.insertAll(
-        Routines(1, "Skincare", "This is a description", 10, 10),
-        Routines(2, "Fitness", "This is a description", 75, 100),
-        Routines(3, "Yoga", "This is a description", 0, 10),
-        Routines(4, "Cleaning", "This is a description", 5, 10),
-        Routines(5, "Study", "This is a description", 25, 100),
-        );
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
     val scope = rememberCoroutineScope()
 
