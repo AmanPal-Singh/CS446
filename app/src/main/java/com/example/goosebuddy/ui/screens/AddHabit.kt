@@ -67,7 +67,7 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
 
     var expanded by remember { mutableStateOf(false) }
     Column {
-        SpeechBubble("Honk! Adding a Habit...")
+        SpeechBubble("Honk! Adding a habit...")
         Goose(size = 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
@@ -107,17 +107,20 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     ),
                     label = { Text(text = "Times Daily") },
                 )
-                Button(onClick = { scope.launch {
-                    // Insert habit
-                    var num = habitCompletionSteps.text.toInt()
-                    habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily", completionSteps = num))
-                    // Reset form
-                    habitName = TextFieldValue("")
-                    habitDescription = TextFieldValue("")
-                    habitCompletionSteps = TextFieldValue("1")
-                    sheetState.hide()
-                    onHabitChange()
-                     }  },
+                Button(
+                    onClick = {
+                        scope.launch {
+                            // Insert habit
+                            var num = habitCompletionSteps.text.toInt()
+                            habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily", completionSteps = num))
+                            // Reset form
+                            habitName = TextFieldValue("")
+                            habitDescription = TextFieldValue("")
+                            habitCompletionSteps = TextFieldValue("1")
+                            sheetState.hide()
+                            onHabitChange()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                 ) {
                     Text("Add")
