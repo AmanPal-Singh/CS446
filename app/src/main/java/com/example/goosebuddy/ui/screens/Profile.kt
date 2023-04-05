@@ -12,10 +12,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.shared.components.Goose
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.LightBlue
-import com.example.goosebuddy.ui.theme.Purple200
-import com.example.goosebuddy.ui.theme.Teal200
+import com.example.goosebuddy.ui.theme.*
 
 @Composable
 fun Profile(db: AppDatabase) {
@@ -31,9 +28,9 @@ fun Profile(db: AppDatabase) {
 
     var editingEnabled by remember { mutableStateOf(false) }
 
-    val checkBoxStates by remember { mutableStateOf( mutableMapOf<String, MutableState<Boolean>>(
-        "roommate" to mutableStateOf<Boolean>(userData.hasRoommates),
-        "res" to mutableStateOf<Boolean>(userData.onStudentRes),
+    val checkBoxStates by remember { mutableStateOf( mutableMapOf(
+        "roommate" to mutableStateOf(userData.hasRoommates),
+        "res" to mutableStateOf(userData.onStudentRes),
         "alone" to mutableStateOf(userData.firstTimeAlone)
     ))}
 
@@ -48,7 +45,7 @@ fun Profile(db: AppDatabase) {
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .background(LightBlue)
+            .background(LightGrey)
         ,
     ) {
         Goose(size=225.dp, honkSound = true)
