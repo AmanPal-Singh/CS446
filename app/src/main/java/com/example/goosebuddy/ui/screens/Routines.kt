@@ -396,8 +396,8 @@ fun RoutineBlock(item: Routines, navController: NavController) {
                         .background(Color.Transparent)
                         .clip(CircleShape)
                         .height(8.dp),
-                    progress = item.completedSteps.toFloat()/item.totalSteps,
-                    color = getColour(item.completedSteps.toFloat()/item.totalSteps),
+                    progress = if (item.totalSteps == 0) 0f else item.completedSteps.toFloat()/item.totalSteps,
+                    color = getColour(if (item.totalSteps == 0) 0f else item.completedSteps.toFloat()/item.totalSteps),
                     backgroundColor = Grey,
                 )
             }
