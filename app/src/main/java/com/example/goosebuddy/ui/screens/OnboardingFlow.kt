@@ -93,6 +93,9 @@ fun BottomButtons(
     Column(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Beige)
     ) {
         Button(
             modifier = Modifier.padding(50.dp),
@@ -128,24 +131,8 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
 
     GooseBuddyTheme {
         Scaffold(
-            topBar = { ProgressIndicator(completed = step.value + 1, total = onboardingSteps.size) }
-        ) { padding ->
-            Surface(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize()
-                    .fillMaxHeight()
-            ) {
-                // the onboarding content shown to user based on which step
-                OnboardingStepComponent(
-                    userData,
-                    step,
-                    navController = navController,
-                    db = db,
-                    cvm = cvm
-                )
-
-                // the buttons for navigation throughout onboarding
+            topBar = { ProgressIndicator(completed = step.value + 1, total = onboardingSteps.size) },
+            bottomBar = {
                 BottomButtons(
                     step = step,
                     onClick = {
@@ -187,10 +174,33 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                             // add pomodoro for everyone
                             val routinesDao = db.routinesDao()
                             routinesDao.insert(pomodoroRoutine, subroutines = listOf(pomodoroSub1, pomodoroSub2, pomodoroSub3, pomodoroSub4, pomodoroSub5))
-
                         }
                     },
                 )
+            }
+        ) { padding ->
+            Surface(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .fillMaxHeight()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .background(color = Beige)
+                ) {
+                    OnboardingStepComponent(
+                        userData,
+                        step,
+                        navController = navController,
+                        db = db,
+                        cvm = cvm
+                    )
+                }
             }
         }
     }
@@ -208,8 +218,9 @@ fun OnboardingStepComponent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(color = Beige)
-            .padding(50.dp),
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(50.dp)
     ) {
         // determine what content to show user based on which step
         val onboardingStep = onboardingSteps[step.value]
@@ -223,6 +234,7 @@ fun OnboardingStepComponent(
             "recommendations" -> RecommendationsPage(db)
             "schedule" -> SchedulePage(navController, cvm)
         }
+        // the buttons for navigation throughout onboarding
     }
 }
 
@@ -234,7 +246,7 @@ fun WelcomePage() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val welcomeMsg = "Welcome to GooseBuddy!\nAre you ready to get started on your journey?"
-        SpeechBubble(welcomeMsg)
+        SpeechBubble(welcomeMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
     }
 }
@@ -246,7 +258,7 @@ fun NamePage(userData: MutableState<UserData>) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val nameMsg = "My name is Mr. Goose!\nWhat's your name?"
-        SpeechBubble(nameMsg)
+        SpeechBubble(nameMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
 
         // text input field for name
@@ -270,7 +282,7 @@ fun WatPage(userData: MutableState<UserData>) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val watMsg = "Hey ${userData.value.name}! Enter your WAT number below.\nYou can find it on your WAT card."
-        SpeechBubble(watMsg)
+        SpeechBubble(watMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
 
         // text input field for name
@@ -297,8 +309,8 @@ fun YearPage(userData: MutableState<UserData>) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val yearMsg = "What year are you in?"
-        SpeechBubble(yearMsg)
+        val yearMsg = "What year are you in? \nPlease enter your year as an integer"
+        SpeechBubble(yearMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
 
         // text input field for name
@@ -311,7 +323,6 @@ fun YearPage(userData: MutableState<UserData>) {
                 userData.value = userData.value.copy(year = it.toIntOrNull() ?: 0)
             },
             label = { Text(text = "Year") },
-            placeholder = { Text(text = "Enter your year as an integer") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         )
     }
@@ -324,8 +335,8 @@ fun ResidencePage(userData: MutableState<UserData>) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val residenceMsg = "Describe your residence situation"
-        SpeechBubble(residenceMsg)
+        val residenceMsg = "What is your living situation like? \nPlease select all that apply."
+        SpeechBubble(residenceMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
 
         val livingSituations = mapOf(
@@ -342,11 +353,10 @@ fun ResidencePage(userData: MutableState<UserData>) {
 
             Row (
                 verticalAlignment = CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .width(500.dp)
             ) {
-                Text(
-                    modifier = Modifier.padding(start = 2.dp),
-                    text = livingSituations.getValue(it)
-                )
                 Checkbox(
                     checked = isChecked,
                     onCheckedChange = { checked_ ->
@@ -362,6 +372,10 @@ fun ResidencePage(userData: MutableState<UserData>) {
                         checkedColor = Green
                     )
                 )
+                Text(
+                    modifier = Modifier.padding(start = 1.dp),
+                    text = livingSituations.getValue(it)
+                )
             }
         }
     }
@@ -374,7 +388,7 @@ fun SubmitPage() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val submitMsg = "Congrats, you are all set!\nSubmit whenever you are ready!"
-        SpeechBubble(submitMsg)
+        SpeechBubble(submitMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
     }
 }
@@ -390,7 +404,7 @@ fun RecommendationsPage(db: AppDatabase,) {
         val habitsMsg = habits.joinToString(", ") { "\"${it.title}\"" }
 
         val recomendationMsg = "We have made a few recommendations based on your submission!\n\n\nWe have added ${habitsMsg}! You can review them in Habits!\n\n\nWe also added a pomodoro routine to help you with studying!"
-        SpeechBubble(recomendationMsg)
+        SpeechBubble(recomendationMsg, includeLeftSpacing = false)
         Goose(size=200.dp)
     }
 }
