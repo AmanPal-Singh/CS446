@@ -183,10 +183,12 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                             HabitBlock(
                                 item = habit,
                                 navController = navController,
-                                db,
-                                scope,
-                                sheetState,
-                                Modifier
+                                onHabitChange = { habits.value = habitsDao.getAll() },
+                                db = db,
+                                scope = scope,
+                                sheetState = sheetState,
+                                editingEnabled = editingEnabled,
+                                modifier = Modifier
                                     .shadow(elevation.value)
                                     .clickable(
                                         onClick = {
@@ -201,8 +203,14 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                                     habitId = habit.id
                                                 )
                                             }
-
-            if (habits.value.size == 0){
+                                        }
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+            if (habits.value.size == 0) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
                     "There are no habits here yet. \n Click the buttons above to add a new habit!",
