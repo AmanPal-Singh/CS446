@@ -325,7 +325,7 @@ fun ResidencePage(userData: MutableState<UserData>) {
                         }
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = Yellow
+                        checkedColor = Green
                     )
                 )
             }
