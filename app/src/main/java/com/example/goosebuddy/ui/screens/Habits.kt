@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.core.app.NotificationCompat
 import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
@@ -88,12 +90,12 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                 .background(LightGrey)
                 .fillMaxHeight()
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 5.dp)
                     .height(intrinsicSize = IntrinsicSize.Max)
             ) {
                 if (editingEnabled.value) {
@@ -181,10 +183,12 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                             HabitBlock(
                                 item = habit,
                                 navController = navController,
-                                db,
-                                scope,
-                                sheetState,
-                                Modifier
+                                onHabitChange = { habits.value = habitsDao.getAll() },
+                                db = db,
+                                scope = scope,
+                                sheetState = sheetState,
+                                editingEnabled = editingEnabled,
+                                modifier = Modifier
                                     .shadow(elevation.value)
                                     .clickable(
                                         onClick = {
@@ -199,15 +203,69 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                                     habitId = habit.id
                                                 )
                                             }
-
-                                            scope.launch {
-                                                sheetState.show()
-                                            }
                                         }
-                                    ),
-                                editingEnabled,
-                                onHabitChange = { habits.value = habitsDao.getAll() }
+                                    )
                             )
+                        }
+                    }
+                }
+            }
+            if (habits.value.size == 0) {
+                Spacer(modifier = Modifier.height(80.dp))
+                Text(
+                    "There are no habits here yet. \n Click the buttons above to add a new habit!",
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                LazyColumn(
+                    state = orderState.listState,
+                    modifier = Modifier
+                        .reorderable(orderState)
+                        .detectReorderAfterLongPress(orderState),
+                    // content padding
+                    contentPadding = PaddingValues(
+                        start = 12.dp,
+                        top = 16.dp,
+                        end = 12.dp,
+                        bottom = 16.dp
+                    ),
+                ) {
+                    items(currentOrder.value, { it }) { item ->
+                        ReorderableItem(orderState, key = item,) { isDragging ->
+                            val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                            val habit = habits.value.find { h -> h.id == item }
+                            if (habit != null) {
+                                HabitBlock(
+                                    item = habit,
+                                    navController = navController,
+                                    db,
+                                    scope,
+                                    sheetState,
+                                    Modifier
+                                        .shadow(elevation.value)
+                                        .clickable(
+                                            onClick = {
+                                                sheetNewContent = {
+                                                    UpdateHabit(
+                                                        scope = scope,
+                                                        sheetState = sheetState,
+                                                        db = db,
+                                                        onHabitChange = {
+                                                            habits.value = habitsDao.getAll()
+                                                        },
+                                                        habitId = habit.id
+                                                    )
+                                                }
+
+                                                scope.launch {
+                                                    sheetState.show()
+                                                }
+                                            }
+                                        ),
+                                    editingEnabled,
+                                    onHabitChange = { habits.value = habitsDao.getAll() }
+                                )
+                            }
                         }
                     }
                 }
