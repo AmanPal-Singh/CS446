@@ -59,7 +59,10 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
     val editingEnabled = remember { mutableStateOf(false) }
     val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.title }) }
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val sheetState = rememberModalBottomSheetState(
+        ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         if (editingEnabled.value) {
             currentOrder.value = currentOrder.value.toMutableList().apply {

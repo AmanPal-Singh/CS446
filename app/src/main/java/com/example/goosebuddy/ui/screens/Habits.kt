@@ -48,7 +48,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
     var habits = remember { mutableStateOf(habitsDao.getAll()) }
 
     var sheetNewContent: @Composable (() -> Unit)  by remember { mutableStateOf({ Text("NULL") }) }
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
     val scope = rememberCoroutineScope()
 
     val editingEnabled = remember { mutableStateOf(false) }
