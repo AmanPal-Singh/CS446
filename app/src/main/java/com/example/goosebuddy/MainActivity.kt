@@ -94,19 +94,23 @@ fun RootNavigationGraph(ctx: Context) {
                 Routines(navController = navController, db=db)
             }
         }
-        composable("routines/{routine_id}") {
-            val subroutines = listOf(
-                Subroutine(name = "Part 1", description = "This is a description", completed = true),
-                Subroutine(name = "part 2", description = "This is a longer description", completed = true),
-                Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
-                Subroutine(name = "part 4", description = "This description has \nmultiple lines", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = false),
-            )
+        composable(
+            "routines/{routine_id}",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
+            // val subroutines = listOf(
+            //     Subroutine(name = "Part 1", description = "This is a description", completed = true),
+            //     Subroutine(name = "part 2", description = "This is a longer description", completed = true),
+            //     Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
+            //     Subroutine(name = "part 4", description = "This description has \nmultiple lines", completed = false),
+            //     Subroutine(name = "part 5", description = "aaa", completed = false),
+            // )
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routine(
-                    name = "Morning Routine",
-                    subroutines = subroutines,
-                    navController = navController
+                    id = routineId,
+                    navController = navController,
+                    db = db
                 )
             }
         }
