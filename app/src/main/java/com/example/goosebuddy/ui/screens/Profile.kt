@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.theme.Green
+import com.example.goosebuddy.ui.theme.LightBlue
 import com.example.goosebuddy.ui.theme.Purple200
 import com.example.goosebuddy.ui.theme.Teal200
 
@@ -47,7 +48,7 @@ fun Profile(db: AppDatabase) {
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .background(Purple200)
+            .background(LightBlue)
         ,
     ) {
         Goose(size=225.dp, honkSound = true)
