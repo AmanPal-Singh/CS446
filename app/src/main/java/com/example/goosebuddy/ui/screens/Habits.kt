@@ -38,8 +38,11 @@ import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.shared.components.DeleteButton
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
+import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.minus
 import org.burnoutcrew.reorderable.*
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -275,9 +278,18 @@ fun HabitBlock(
                         enabled = item.currentlyCompletedSteps != 0,
                         onClick = {
                             item.currentlyCompletedSteps -= 1
+
+                            if (item.currentlyCompletedSteps < item.completionSteps){
+                                item.streak -= 1
+                                if (item.streak == 0) {
+                                    item.lastCompletedDate = null
+                                } else {
+                                    item.lastCompletedDate = item.lastCompletedDate!!.minus(1, DateTimeUnit.DAY)
+                                }
+                            }
+
                             habitsDao.update(item)
                             onHabitChange()
-                           // navController.navigate(BottomNavigationItem.Habits.screen_route)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
                         modifier = Modifier
@@ -303,7 +315,11 @@ fun HabitBlock(
                         onClick = {
                             item.currentlyCompletedSteps += 1
                             if (item.currentlyCompletedSteps == item.completionSteps) {
-                                item.streak += 1
+                                // potentially update the streak if it not set for today.
+                                if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()){
+                                    item.streak += 1;
+                                }
+
                             }
                             habitsDao.update(item)
                             onHabitChange()

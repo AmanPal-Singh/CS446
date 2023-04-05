@@ -21,12 +21,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.theme.Beige
 import com.example.goosebuddy.ui.theme.LightBlue
 import com.example.goosebuddy.ui.theme.LightGrey
+import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -40,7 +42,7 @@ val options = arrayOf(
 
 @Composable
 @Preview
-fun Home() {
+fun Home(db:AppDatabase) {
     Column(
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier
@@ -51,11 +53,25 @@ fun Home() {
         Spacer(modifier = Modifier.size(30.dp))
         DatedGreeting()
         Spacer(modifier = Modifier.size(70.dp))
-        SpeechBubble("beautiful honk honk")
+        GooseText(db)
         Spacer(modifier = Modifier.size(30.dp))
         Goose(225.dp, honkSound = true)
         SpeechOptions(options = options)
     }
+}
+
+@Composable
+fun GooseText(db: AppDatabase){
+    var calendarDao = db.CalendarItemDao()
+    var current = kotlinx.datetime.LocalDate.now()
+    var calendarItemsToday = calendarDao.getOnDate(current)
+    run breaking@
+        {
+            calendarItemsToday.forEach { calendarItem ->
+                SpeechBubble("Honk! You have ${calendarItem.title} from \n ${calendarItem.startTime} to ${calendarItem.endTime}")
+                return@breaking
+            }
+        }
 }
 
 @Composable
@@ -66,7 +82,7 @@ fun DatedGreeting() {
     val formatted = current.format(formatter)
 
     var greeting = "Good Morning!"
-
+    println(hour)
     if (hour in 0..11){
         greeting = "Good Morning!"
     } else if(hour in 12..16){
