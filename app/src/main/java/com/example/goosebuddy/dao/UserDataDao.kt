@@ -11,8 +11,7 @@ interface UserDataDao {
     fun getAll(): UserData
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(vararg userData: UserData)
-
-    @Delete
-    fun delete(userData: UserData)
+    fun insert(userData: UserData)
+    @Update
+    fun update(userData: UserData)
 }
