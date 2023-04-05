@@ -38,7 +38,7 @@ fun Profile(db: AppDatabase) {
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        Goose(225.dp, honkSound = true)
+        Goose(size=225.dp, honkSound = true)
         Spacer(modifier = Modifier.size(30.dp))
         UserField(name = "Name", value = name, enabled = editingEnabled, onChange = { new -> name = new })
         UserField(name= "Year", value = year, enabled = editingEnabled, onChange = { new -> year = new})
@@ -53,7 +53,7 @@ fun Profile(db: AppDatabase) {
             updateData = {
                 userData.name = name.text
                 userData.year = year.text.toInt()
-                profileDao.insertAll(userData)
+                profileDao.update(userData)
                 Log.i("profile", "user data updated to ${userData.toString()}")
                 Log.i("profile.userDao", "userDao: ${profileDao.getAll()}")
             }
