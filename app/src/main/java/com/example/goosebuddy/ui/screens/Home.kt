@@ -1,38 +1,27 @@
 package com.example.goosebuddy.ui.screens
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.theme.Beige
-import com.example.goosebuddy.ui.theme.LightBlue
 import com.example.goosebuddy.ui.theme.LightGrey
 import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
+import kotlin.random.Random
 
 val options = arrayOf(
     "Got it.",
@@ -40,8 +29,18 @@ val options = arrayOf(
     "..."
 )
 
+val defaultMessages = listOf(
+    "Honk Honk Honk!",
+    "I may look cute but we are dangerous creatues! \n Respect our space",
+    "Don't Policy 71!",
+    "Physics has a lot of study spaces!",
+    "Don't forget your iClicker!",
+    "Be nice!",
+    "Thank Mr. Goose",
+    "Be sure to try different clubs! \n There is a variety of things to try!",
+)
+
 @Composable
-@Preview
 fun Home(db:AppDatabase) {
     Column(
         verticalArrangement = Arrangement.Bottom,
@@ -53,25 +52,31 @@ fun Home(db:AppDatabase) {
         Spacer(modifier = Modifier.size(30.dp))
         DatedGreeting()
         Spacer(modifier = Modifier.size(70.dp))
-        GooseText(db)
+        val text = remember { mutableStateOf(getDefaultGooseMessage(db)) }
+        GooseText(text.value)
         Spacer(modifier = Modifier.size(30.dp))
         Goose(size = 225.dp, honkSound = true)
-        SpeechOptions(options = options)
+        SpeechOptions(options = options, text, defaultMessages)
     }
 }
 
-@Composable
-fun GooseText(db: AppDatabase){
+private fun getDefaultGooseMessage(db: AppDatabase): String {
     var calendarDao = db.CalendarItemDao()
     var current = kotlinx.datetime.LocalDate.now()
     var calendarItemsToday = calendarDao.getOnDate(current)
+    var text = "Honk Honk!"
     run breaking@
-        {
-            calendarItemsToday.forEach { calendarItem ->
-                SpeechBubble("Honk! You have ${calendarItem.title} from \n ${calendarItem.startTime} to ${calendarItem.endTime}")
-                return@breaking
-            }
+    {
+        calendarItemsToday.forEach { calendarItem ->
+            text = "Honk! You have ${calendarItem.title} from \n ${calendarItem.startTime} - ${calendarItem.endTime}"
+            return@breaking
         }
+    }
+    return text
+}
+@Composable
+fun GooseText(text: String){
+    SpeechBubble(text)
 }
 
 @Composable
@@ -94,7 +99,7 @@ fun DatedGreeting() {
     }
 
     Column(
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
@@ -105,7 +110,7 @@ fun DatedGreeting() {
 }
 
 @Composable
-fun SpeechOptions(options: Array<String>) {
+fun SpeechOptions(options: Array<String>, text: MutableState<String>, defaultMessages: List<String>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,7 +118,10 @@ fun SpeechOptions(options: Array<String>) {
     ) {
         options.forEach { it ->
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val randomIndex = Random.nextInt(defaultMessages.size);
+                    text.value = defaultMessages[randomIndex]
+                  },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
                 modifier = Modifier
                     .fillMaxWidth()

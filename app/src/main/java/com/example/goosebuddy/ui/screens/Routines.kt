@@ -29,6 +29,7 @@ import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Routines
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseAccessory
 import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -307,7 +308,12 @@ fun AddRoutineForm(
 
     Column {
         SpeechBubble("Honk! Adding a new routine!")
-        Goose(size = 200.dp, rotationZ = 8f)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Flag,
+            size = 200.dp,
+            rotationZ = 8f
+        )
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -345,7 +351,9 @@ fun AddRoutineForm(
                         sheetState.hide()
                         navController.navigate(BottomNavigationItem.DailyRoutines.screen_route)
                     }
-                }) {
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                    ) {
                     Text("Add")
                 }
             }
