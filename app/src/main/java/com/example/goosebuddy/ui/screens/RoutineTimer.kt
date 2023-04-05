@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import com.example.goosebuddy.ui.theme.Green
@@ -28,9 +29,16 @@ import com.example.goosebuddy.ui.theme.Red
 import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Composable
-fun RoutineTimer(name: String, duration: Duration) {
+fun RoutineTimer(id: Int, db: AppDatabase) {
+    var routinesDao = db.routinesDao()
+    val routine = routinesDao.get(id)
+    val subroutine = routine.subroutines.find{ !it.completed }
+    val name = subroutine!!.title
+    val duration = subroutine.duration.toDuration(DurationUnit.SECONDS)
 
     val viewModel by remember {
         mutableStateOf(RoutineTimerViewModel(duration))
