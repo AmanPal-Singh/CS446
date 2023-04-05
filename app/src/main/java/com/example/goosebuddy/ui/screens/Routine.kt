@@ -46,7 +46,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 import com.example.goosebuddy.models.Subroutines
-
+import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -54,8 +54,8 @@ import com.example.goosebuddy.models.Subroutines
 fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
     var subroutinesDao = db.subroutinesDao()
     var routinesDao = db.routinesDao()
-    val routine = routinesDao.get(id)
-    val subroutines = routine.subroutines;
+    var routine = routinesDao.get(id)
+    var subroutines = routine.subroutines;
 
     val editingEnabled = remember { mutableStateOf(false) }
     val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.subId }) }
@@ -89,7 +89,7 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
                 .background(LightGrey)
         ) {
             Text(routine.routines.title, fontSize = 24.sp)
-            TopActionButtons(editingEnabled = editingEnabled, navController = navController)
+            TopActionButtons(editingEnabled = editingEnabled, navController = navController, db = db, routine = routine)
             LazyColumn(
                 state = state.listState,
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -103,12 +103,12 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         if (subroutine != null) {
                             SubroutineCard(
-                                name = subroutine.title,
-                                description = subroutine.description,
-                                completed = subroutine.completed,
-                                duration =  subroutine.duration.seconds,
+                                id = routine.routines.id,
+                                subroutine = subroutine,
                                 editingEnabled = editingEnabled,
-                                elevation = elevation.value
+                                elevation = elevation.value,
+                                navController = navController,
+                                db = db
                             )
                         }
                     }
@@ -122,11 +122,18 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
 @Composable
 fun TopActionButtons(
     editingEnabled: MutableState<Boolean>,
-    navController: NavHostController
+    navController: NavHostController,
+    db: AppDatabase,
+    routine: RoutineWithSubroutine
 ) {
+    var routinesDao = db.routinesDao()
+    val id = routine.routines.id
     if (editingEnabled.value) {
         OutlinedButton(
-            onClick = { /** TODO: delete routine  and navigate back to routines page */  },
+            onClick = {
+                routinesDao.deleteRoutine(routine.routines.id)
+                navController.navigate(BottomNavigationItem.DailyRoutines.screen_route)
+            },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = Red,
             ),
@@ -232,14 +239,15 @@ fun ActionButtons(
 
 @Composable
 fun SubroutineCard(
-    name: String,
-    description: String,
-    duration: Duration,
-    completed: Boolean,
+    id: Int,
+    subroutine: Subroutines,
     editingEnabled: MutableState<Boolean>,
-    elevation: Dp
+    elevation: Dp,
+    navController: NavController,
+    db: AppDatabase
 ) {
-    val textStyle = if (completed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle()
+    val subroutinesDao = db.subroutinesDao()
+    val textStyle = if (subroutine.completed) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,21 +262,24 @@ fun SubroutineCard(
         ) {
             Column() {
                 Text(
-                    name,
+                    subroutine.title,
                     style = textStyle
                 )
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    description,
+                    subroutine.description,
                     style = textStyle
                 )
             }
             if (!editingEnabled.value) {
                 Text(
-                    duration.toString(),
+                    subroutine.duration.toString(),
                 )
             } else {
-                DeleteButton(onDelete = { /** TODO */ })
+                DeleteButton(onDelete = {
+                    subroutinesDao.delete(subroutine)
+                    navController.navigate("routines/${id}")
+                })
             }
 
         }
