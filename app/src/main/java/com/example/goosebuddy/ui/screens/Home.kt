@@ -54,8 +54,7 @@ fun Home(db:AppDatabase) {
         Spacer(modifier = Modifier.size(70.dp))
         val text = remember { mutableStateOf(getDefaultGooseMessage(db)) }
         GooseText(text.value)
-        Spacer(modifier = Modifier.size(30.dp))
-        Goose(size = 225.dp, honkSound = true)
+
         SpeechOptions(options = options, text, defaultMessages)
     }
 }
@@ -76,7 +75,17 @@ private fun getDefaultGooseMessage(db: AppDatabase): String {
 }
 @Composable
 fun GooseText(text: String){
-    SpeechBubble(text)
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        SpeechBubble(text, includeLeftSpacing = false)
+        Spacer(modifier = Modifier.size(30.dp))
+        Goose(size = 225.dp, honkSound = true)
+    }
+
 }
 
 @Composable
