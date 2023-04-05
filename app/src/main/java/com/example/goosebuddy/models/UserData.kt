@@ -7,7 +7,7 @@ data class UserData(
     @PrimaryKey(autoGenerate = true) val key: Int = 0,
     var name: String = "",
     val wat: Int = 0,
-    var year: Int = 0,
+    val year: Int = 0,
     val hasRoommates: Boolean = false,
     val onStudentRes: Boolean = false,
     val firstTimeAlone: Boolean = true,
