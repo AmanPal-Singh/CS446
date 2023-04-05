@@ -18,8 +18,8 @@ interface RoutinesDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg routines: Routines)
 
-    @Delete
-    fun delete(routines: Routines)
+    @Query("DELETE FROM routines WHERE id = :id")
+    fun deleteRoutine(id: Int)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
