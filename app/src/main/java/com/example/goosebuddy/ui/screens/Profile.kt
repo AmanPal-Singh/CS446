@@ -1,24 +1,30 @@
 package com.example.goosebuddy.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import android.util.Log
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.ui.shared.components.Goose
 
 @Composable
-fun Profile() {
+fun Profile(db: AppDatabase) {
+    val profileDao = db.userdataDao()
+
+    val userData = profileDao.getAll()
+    Log.i("profile", userData.toString())
+
     var name by remember {
-        mutableStateOf(TextFieldValue("John Smi"))
+        mutableStateOf(TextFieldValue(userData.name))
     }
 
     var year by remember {
-        mutableStateOf(TextFieldValue("2024"))
+        mutableStateOf(TextFieldValue("${userData.year}"))
     }
 
     var editingEnabled by remember {
@@ -31,12 +37,25 @@ fun Profile() {
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        UserField(name = "Name", value = name, enabled = editingEnabled, onChange = { new -> name = new})
+        Goose(size=225.dp, honkSound = true)
+        Spacer(modifier = Modifier.size(30.dp))
+        UserField(name = "Name", value = name, enabled = editingEnabled, onChange = { new -> name = new })
         UserField(name= "Year", value = year, enabled = editingEnabled, onChange = { new -> year = new})
         EditButtons(
             editingEnabled = editingEnabled,
             enableEditing = { editingEnabled = true},
-            disableEditing = { editingEnabled = false}
+            disableEditing = { editingEnabled = false},
+            revertChanges = {
+                name = TextFieldValue(userData.name)
+                year = TextFieldValue(userData.year.toString())
+            },
+            updateData = {
+                userData.name = name.text
+                userData.year = year.text.toInt()
+                profileDao.update(userData)
+                Log.i("profile", "user data updated to ${userData.toString()}")
+                Log.i("profile.userDao", "userDao: ${profileDao.getAll()}")
+            }
         )
     }
 }
@@ -61,7 +80,7 @@ fun UserField(name: String, value: TextFieldValue, enabled: Boolean, onChange: (
 }
 
 @Composable
-fun EditButtons(editingEnabled: Boolean, enableEditing: () -> Unit, disableEditing: () -> Unit) {
+fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditing: () -> Unit, disableEditing: () -> Unit, updateData: () -> Unit) {
     Row() {
         if (!editingEnabled) {
             Button(onClick = {  enableEditing() }) {
@@ -70,13 +89,14 @@ fun EditButtons(editingEnabled: Boolean, enableEditing: () -> Unit, disableEditi
         } else {
             Row () {
                 Button(onClick = {
-                    // TODO: revert to previous state
+                    revertChanges()
                     disableEditing()
                 }) {
                     Text("Cancel")
                 }
                 Button(onClick = {
                     // TODO: save new
+                    updateData()
                     disableEditing()
                 }) {
                     Text("Save")

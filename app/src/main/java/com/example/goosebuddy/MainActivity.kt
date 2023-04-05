@@ -3,8 +3,10 @@ package com.example.goosebuddy
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.Global.getString
@@ -27,14 +29,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
+import com.example.goosebuddy.receivers.HabitsReceiver
 import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.screens.*
+import com.example.goosebuddy.ui.screens.Calendar
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
+import java.util.*
 
 import kotlin.time.Duration.Companion.seconds
 
@@ -97,6 +102,24 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
     }
 }
 
+private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
+    //
+    val updateTime: Calendar = Calendar.getInstance()
+    updateTime.setTimeZone(TimeZone.getTimeZone("EST"))
+    updateTime.set(Calendar.HOUR_OF_DAY, 11)
+    updateTime.set(Calendar.MINUTE, 0)
+    val intent = Intent(ctx, HabitsReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(
+        ctx,
+        0, intent, PendingIntent.FLAG_IMMUTABLE
+    )
+    alarmManager.setInexactRepeating(
+        AlarmManager.RTC_WAKEUP,
+        updateTime.getTimeInMillis(),
+        AlarmManager.INTERVAL_DAY, pendingIntent
+    )
+}
+
 @Composable
 fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notificationManager: NotificationManager, alarmManager: AlarmManager) {
     val navController = rememberNavController()
@@ -109,6 +132,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
     if (testingLock) {
         startDestination = "lock"
     }
+    setHabitsAlarm(alarmManager, ctx)
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -165,7 +189,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "profile")
+                Profile(db=db)
             }
         }
         composable(

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
@@ -24,7 +25,13 @@ enum class GooseState { Pressed, Idle }
 
 enum class GooseVariation {
     Default,
-    Waving
+    Waving,
+    Holding,
+}
+
+enum class GooseAccessory {
+    None,
+    Flag
 }
 
 fun getGooseResource(variation: GooseVariation): Int {
@@ -32,13 +39,23 @@ fun getGooseResource(variation: GooseVariation): Int {
         return R.drawable.buddy
     } else if (variation == GooseVariation.Waving) {
         return  R.drawable.waving_goose
+    } else if (variation == GooseVariation.Holding) {
+        return R.drawable.holding_goose
     }
     return R.drawable.buddy
+}
+
+fun getAccessoryResource(accessory: GooseAccessory): Int? {
+    if (accessory == GooseAccessory.Flag) {
+        return R.drawable.flag
+    }
+    return null
 }
 
 @Composable
 fun Goose(
     variation: GooseVariation = GooseVariation.Default,
+    accessory: GooseAccessory = GooseAccessory.None,
     size: Dp,
     rotationZ: Float = 0f,
     honkSound: Boolean = false,
@@ -75,10 +92,25 @@ fun Goose(
                 }
             }
         }
-    Image(
-        painter = painterResource(id = getGooseResource(variation)),
-        contentDescription = "Goose Image",
-        contentScale = ContentScale.Fit,
-        modifier = imageModifier
-    )
+
+    Row() {
+        Image(
+            painter = painterResource(id = getGooseResource(variation)),
+            contentDescription = "Goose Image",
+            contentScale = ContentScale.Fit,
+            modifier = imageModifier
+        )
+        val accessoryId = getAccessoryResource(accessory)
+        if (accessoryId != null) {
+            Image(
+                painter = painterResource(id = accessoryId),
+                contentDescription = "Goose Image",
+                contentScale = ContentScale.Fit,
+                modifier = imageModifier
+                    .offset(x = -120.dp)
+                    .size(size.times(0.25f))
+            )
+        }
+    }
+
 }
