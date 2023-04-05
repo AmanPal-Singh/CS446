@@ -27,16 +27,16 @@ fun Profile(db: AppDatabase) {
 
     var editingEnabled by remember { mutableStateOf(false) }
 
-    var checkBoxStates by remember { mutableStateOf( mutableMapOf(
-        "roommate" to userData.hasRoommates,
-        "res" to userData.onStudentRes,
-        "alone" to userData.firstTimeAlone
+    val checkBoxStates by remember { mutableStateOf( mutableMapOf<String, MutableState<Boolean>>(
+        "roommate" to mutableStateOf<Boolean>(userData.hasRoommates),
+        "res" to mutableStateOf<Boolean>(userData.onStudentRes),
+        "alone" to mutableStateOf(userData.firstTimeAlone)
     ))}
 
     val checkBoxFns by remember { mutableStateOf(mapOf<String, (Boolean) -> Unit>(
-        "roommate" to { checkBoxStates["roommates"] = it},
-        "res" to { checkBoxStates["res"] = it},
-        "alone" to { checkBoxStates["alone"] = it},
+        "roommate" to { checkBoxStates["roommate"]!!.value = it},
+        "res" to { checkBoxStates["res"]!!.value = it},
+        "alone" to { checkBoxStates["alone"]!!.value = it},
     ))}
 
     Column(
@@ -64,10 +64,10 @@ fun Profile(db: AppDatabase) {
                 userData.name = name.text
                 userData.year = year.text.toInt()
                 userData.wat = wat.text.toInt()
+                userData.hasRoommates = checkBoxStates["roommate"]?.value == true
+                userData.firstTimeAlone = checkBoxStates["alone"]?.value == true
+                userData.onStudentRes = checkBoxStates["res"]?.value == true
                 profileDao.update(userData)
-                userData.hasRoommates = checkBoxStates["roommate"] == true
-                userData.firstTimeAlone = checkBoxStates["alone"] == true
-                userData.onStudentRes = checkBoxStates["res"] == true
                 Log.i("profile", "user data updated to ${userData}")
                 Log.i("profile.userDao", "userDao: ${profileDao.getAll()}")
             }
@@ -76,7 +76,7 @@ fun Profile(db: AppDatabase) {
 }
 
 @Composable
-fun CheckboxFields(checkBoxFns: Map<String, (Boolean) -> Unit>, state: MutableMap<String, Boolean>, enabled: Boolean) {
+fun CheckboxFields(checkBoxFns: Map<String, (Boolean) -> Unit>, state: MutableMap<String, MutableState<Boolean>>, enabled: Boolean) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -86,10 +86,10 @@ fun CheckboxFields(checkBoxFns: Map<String, (Boolean) -> Unit>, state: MutableMa
                 text = it
             )
             Checkbox(
-                checked = state[it] == true,
+                checked = state[it]?.value ?: false,
                 onCheckedChange = { checked_ ->
+                    state[it]!!.value = checked_
                     checkBoxFns[it]!!(checked_)
-                    state[it] = checked_
                     Log.i("profile", state[it].toString())
                 },
                 colors = CheckboxDefaults.colors(
