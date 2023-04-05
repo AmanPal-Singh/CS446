@@ -23,25 +23,33 @@ import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 
 class OnboardingStep(
-    var name: String,
-    var skippable: Boolean,
+    var name: String
 )
 
 val suggestedHabit = mapOf(
     "hasRoommates" to listOf(
-        Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
-        Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
+        Habits(0, "Chore schedule", "Set up a chore schedule with your roommates and stick with it!", schedule = "Weekly"),
+        Habits(1, "Hang out with roommates", "It's important to have a good relationship with your roommates!", schedule = "Weekly"),
+    ),
+    "onStudentRes" to listOf(
+        Habits(2, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
+        Habits(3, "Shower", "Being clean is an important for your (and your friends') health!"),
+        ),
+    "firstTimeAlone" to listOf(
+        Habits(4, "Call your parents", "Your parents miss you! Let them know how you are doing!"),
+        Habits(5, "Go on a walk", "Get your daily steps in!"),
     )
 )
 
 val onboardingSteps = arrayOf(
-    OnboardingStep("welcome", false),
-    OnboardingStep("name", false),
-    OnboardingStep("wat", false),
-    OnboardingStep("year", false),
-    OnboardingStep("residence", true),
-    OnboardingStep("schedule", true),
-    OnboardingStep("submit", false)
+    OnboardingStep("welcome"),
+    OnboardingStep("name"),
+    OnboardingStep("wat"),
+    OnboardingStep("year"),
+    OnboardingStep("residence"),
+    OnboardingStep("schedule"),
+    OnboardingStep("submit"),
+    OnboardingStep("recommendations")
 )
 
 @Composable
@@ -140,7 +148,6 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                             userDataDao.insert(userData.value)
 
                             // make recommendations based on user data
-                            //TODO: add suggested habits properly
                             if (userData.value.hasRoommates) {
                                 val habitsDao = db.habitsDao()
                                 for( habits in suggestedHabit["hasRoommates"]!!) {
@@ -188,6 +195,7 @@ fun OnboardingStepComponent(
             "residence" -> ResidencePage(userData)
             "schedule" -> SchedulePage(navController, cvm)
             "submit" -> SubmitPage()
+            "recommendations" -> RecommendationsPage()
         }
     }
 }
@@ -361,8 +369,21 @@ fun SubmitPage() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val submitMsg = "Congrats, you are all set!\n Submit whenever you are ready!"
+        val submitMsg = "Congrats, you are all set!\nSubmit whenever you are ready!"
         SpeechBubble(submitMsg)
+        Goose(size=200.dp)
+    }
+}
+
+@Composable
+fun RecommendationsPage() {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val recomendationMsg = "We have made a few recommendations based on your submission!"
+
+        SpeechBubble(recomendationMsg)
         Goose(size=200.dp)
     }
 }
