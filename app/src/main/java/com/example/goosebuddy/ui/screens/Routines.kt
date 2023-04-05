@@ -351,7 +351,9 @@ fun AddRoutineForm(
                         sheetState.hide()
                         navController.navigate(BottomNavigationItem.DailyRoutines.screen_route)
                     }
-                }) {
+                },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                    ) {
                     Text("Add")
                 }
             }

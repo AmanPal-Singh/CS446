@@ -117,7 +117,9 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                     habitCompletionSteps = TextFieldValue("1")
                     sheetState.hide()
                     onHabitChange()
-                }  }) {
+                     }  },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                ) {
                     Text("Add")
                 }
             }
