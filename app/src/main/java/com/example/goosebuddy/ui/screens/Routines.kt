@@ -13,29 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.Grey
-import com.example.goosebuddy.ui.theme.Red
-import com.example.goosebuddy.ui.theme.White
-import com.example.goosebuddy.ui.theme.Yellow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
-import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Routines
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
+import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -79,6 +76,8 @@ fun Routines(navController: NavController, db: AppDatabase) {
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
+    val showHelpfulGoose = remember { mutableStateOf(false) }
+
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetBackgroundColor = Color.Transparent,
@@ -94,19 +93,108 @@ fun Routines(navController: NavController, db: AppDatabase) {
                 .background(Grey)
                 .fillMaxHeight()
         ) {
-            RoutineWeeklyTracker()
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.info_outline),
+                    contentDescription = "info button",
+                    tint = Green,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable(
+                            onClick = { showHelpfulGoose.value = !showHelpfulGoose.value }
+                        )
+                )
+                Text("Learn more about routines", color = Green)
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth(1f)
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                ) {
+                    DailyRoutineCompletionVisualization()
+                }
+                if (showHelpfulGoose.value) {
+                    Card(
+                        shape = RoundedCornerShape(7.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    ){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Beige)
+                                .align(Alignment.TopStart)
+                                .offset(x = -125.dp)
+                        ) {
+                            Goose(
+                                variation = GooseVariation.Waving,
+                                size = 200.dp,
+                                rotationZ = 30f,
+                            )
+                            Text("Honk honk! \nEstablishing routines are a great way to stay on top of your goals!")
+                        }
+                    }
+                }
+            }
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 AddRoutineBlock(sheetState, scope)
-
                 routinesDao.getAll().forEach { item ->
-                    RoutineBlock(item = item, navController = navController)
+                    RoutineBlock(item = item.routines, navController = navController)
                 }
             }
         }
     }
 
+}
+
+@Composable
+fun DailyRoutineCompletionVisualization() {
+    Card(
+        shape = RoundedCornerShape(7.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+            CircularProgressIndicator(
+                // TODO: actually have accurate progress instead of mock
+                progress = 0.25f,
+                color = Green,
+                backgroundColor = LightGrey,
+                strokeWidth = 15.dp,
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(100.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                "Great job! \nYou've completed 4 out of 5 of your routines today.",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .width(200.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    }
 }
 
 /** Make padding part of theme */
@@ -116,7 +204,6 @@ fun RoutineWeeklyTracker() {
         shape = RoundedCornerShape(7.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .background(White)
             .padding(10.dp)
     ) {
         Column(
@@ -129,8 +216,6 @@ fun RoutineWeeklyTracker() {
                     .fillMaxWidth()
                     .padding(horizontal = 5.dp)
             ) {
-                Text("Daily Routines", fontSize = 24.sp)
-                Text("Weekly view")
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -170,6 +255,7 @@ fun RoutineWeeklyTracker() {
 @Composable
 fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
     Card(
+        backgroundColor = Green,
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
@@ -181,12 +267,25 @@ fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
                 }
             )
     ) {
-        Text(
-            textAlign = TextAlign.Center,
-            text = "Add a routine",
+        Row(
             modifier = Modifier
-                .padding(10.dp)
-        )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "plusIcon",
+                tint = Black
+            )
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Add a routine",
+                modifier = Modifier
+                    .padding(10.dp)
+            )
+        }
+
     }
 }
 
@@ -208,7 +307,7 @@ fun AddRoutineForm(
 
     Column {
         SpeechBubble("Honk! Adding a new routine!")
-        Goose(200.dp, 8f)
+        Goose(size = 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -301,7 +400,6 @@ fun RoutineBlock(item: Routines, navController: NavController) {
                     backgroundColor = Grey,
                 )
             }
-
             IconButton(onClick = { navController.navigate("routines/${item.id}") }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,

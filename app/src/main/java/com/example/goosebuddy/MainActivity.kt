@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.receivers.HabitsReceiver
+import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.screens.Calendar
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
@@ -85,7 +86,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
             drawerContent = {
                 Text("hello this is a drawer")
             },
-            topBar = { TopBar(scaffoldState) },
+            topBar = { TopBar(scaffoldState, navController) },
             bottomBar = { BottomNavigation(navController = navController) }
         ) { padding ->
             Surface(
@@ -127,7 +128,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController, db)
     val testingLock = false
-    var startDestination = "home"
+    var startDestination = "onboarding"
     if (testingLock) {
         startDestination = "lock"
     }
@@ -152,25 +153,29 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
                 Routines(navController = navController, db=db)
             }
         }
-        composable("routines/{routine_id}") {
-            val subroutines = listOf(
-                Subroutine(name = "Part 1", description = "This is a description", completed = true),
-                Subroutine(name = "part 2", description = "This is a longer description", completed = true),
-                Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
-                Subroutine(name = "part 4", description = "This description has \nmultiple lines", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = false),
-            )
+        composable(
+            "routines/{routine_id}",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routine(
-                    name = "Morning Routine",
-                    subroutines = subroutines,
+                    id = routineId,
                     navController = navController,
+                    db = db
                 )
             }
         }
-        composable("routines/{routine_id}/timer") {
+        composable(
+            "routines/{routine_id}/timer",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                RoutineTimer(name = "Morning Routine", duration = 10.seconds)
+                RoutineTimer(
+                    routineId,
+                    db = db
+                )
             }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
@@ -190,13 +195,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, "welcome")
-        }
-        composable(
-            "onboarding/{step}",
-            arguments = listOf(navArgument("step") { type = NavType.StringType })
-        ) { backStackEntry ->
-            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, 0)
         }
         composable("lock"){
             Lock(navController=navController, db=db)
