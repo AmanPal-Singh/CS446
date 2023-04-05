@@ -1,4 +1,5 @@
 package com.example.goosebuddy.ui.screens
+import android.util.Log
 import com.example.goosebuddy.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,13 +16,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.ui.theme.*
 import java.lang.Integer.min
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.models.UserData
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 @Composable
 fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, step: String?) {
@@ -55,9 +55,20 @@ class OnboardingStep(
     var skippable: Boolean,
 )
 
+val suggestedHabit = mapOf(
+   "hasRoommates" to listOf(
+       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"
+
+
+       ),
+       Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
+   )
+)
+
 val onboardingSteps = arrayOf(
     OnboardingStep("welcome", false),
     OnboardingStep("name", false),
+    OnboardingStep("wat", false),
     OnboardingStep("year", false),
     OnboardingStep("residence", true),
     OnboardingStep("schedule", true),
@@ -84,6 +95,7 @@ fun OnboardingStepComponent(
         when (step.name) {
             "welcome" -> WelcomePage(userData)
             "name" -> NamePage(userData)
+            "wat" -> WatPage(userData)
             "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
             "schedule" -> SchedulePage(userData, navController, cvm)
@@ -97,8 +109,18 @@ fun OnboardingStepComponent(
                 // if user is on the last step and clicks submit
                 if (progress == onboardingSteps.size - 1) {
                     // save all the user data into dao
-                    var userdataDao = db.userdataDao()
+                    val userdataDao = db.userdataDao()
                     userdataDao.insertAll(userData)
+
+                    println(userData)
+                    //TODO: add suggested habits properly
+
+                    if (true){
+                        val habitsDao = db.habitsDao()
+                        for( habits in suggestedHabit["hasRoommates"]!!){
+                            habitsDao.insertAll(habits)
+                        }
+                    }
                     navController.navigate("lock")
                 } else {
                     val step = onboardingSteps[min(
@@ -205,6 +227,33 @@ fun NamePage(userData: UserData) {
 }
 
 @Composable
+fun WatPage(userData: UserData) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val nameMsg = "Enter your WAT number below. You can find it on your WAT card."
+        Text(nameMsg, textAlign = TextAlign.Center)
+
+        // text input field for name
+        var text = remember { mutableStateOf("") }
+        TextField(
+            value = text.value,
+            onValueChange = {
+                text.value = it
+                // update model
+                userData.wat = it.toIntOrNull() ?: 0
+            },
+            label = { Text(text = "WAT number") },
+            placeholder = { Text(text = "Enter your WAT number") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        )
+    }
+}
+
+
+
+@Composable
 fun YearPage(userData: UserData) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -220,7 +269,7 @@ fun YearPage(userData: UserData) {
             onValueChange = {
                 text.value = it
                 // update model
-                userData.year = it.toInt()
+                userData.year = it.toIntOrNull() ?: 0
             },
             label = { Text(text = "Year") },
             placeholder = { Text(text = "Enter your year as an integer") },

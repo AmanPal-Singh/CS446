@@ -18,13 +18,18 @@ import com.example.goosebuddy.ui.theme.LightBlue
 
 @Composable
 @Preview
-fun SpeechBubble(text: String = "Honk honk!" ) {
+fun SpeechBubble(
+    text: String = "Honk honk!",
+    includeLeftSpacing: Boolean = true,
+) {
     val shape = RoundedCornerShape(50)
     Row {
-        Spacer(modifier = Modifier
-            .width(125.dp)
-            .height(intrinsicSize = IntrinsicSize.Max)
-        )
+        if (includeLeftSpacing) {
+            Spacer(modifier = Modifier
+                .width(125.dp)
+                .height(intrinsicSize = IntrinsicSize.Max)
+            )
+        }
         Column() {
             Card(
                 modifier = Modifier

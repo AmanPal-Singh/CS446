@@ -1,12 +1,14 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, navController: NavController, habitId: Int) {
+fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, onHabitChange: () -> Unit, habitId: Int) {
     var habitsDao = db.habitsDao()
     var habit = habitsDao.loadSingle(habitId)
 
@@ -33,14 +35,14 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
     var habitName by remember { mutableStateOf(TextFieldValue(habit.title)) }
     var habitDescription by remember { mutableStateOf(TextFieldValue(habit.description)) }
 
-    var schedule by remember {
-        mutableStateOf(TextFieldValue(""))
+    var habitCompletionSteps by remember {
+        mutableStateOf(TextFieldValue("${habit.completionSteps}"))
     }
 
     var expanded by remember { mutableStateOf(false) }
     Column {
         SpeechBubble("Honk! Updating the habit ${habitName.text}...")
-        Goose(200.dp, 8f)
+        Goose(size = 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -68,19 +70,27 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     },
                     label = { Text(text = "Description") },
                 )
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = habitCompletionSteps,
+                    onValueChange = { newText ->
+                        habitCompletionSteps = newText
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                    ),
+                    label = { Text(text = "Steps") },
+                )
                 Button(onClick = { scope.launch {
                     // Update habit
+                    habit.title = habitName.text
+                    habit.description = habitDescription.text
+                    habit.completionSteps = habitCompletionSteps.text.toInt()
                     habitsDao.update(
-                        com.example.goosebuddy.models.Habits(
-                            habit.id,
-                            habitName.text,
-                            habitDescription.text,
-                            0,
-                            "Daily"
-                        )
+                        habit
                     )
                     sheetState.hide()
-                    navController.navigate(BottomNavigationItem.Habits.screen_route)
+                    onHabitChange()
                 }  }) {
                     Text("Update Habit")
                 }

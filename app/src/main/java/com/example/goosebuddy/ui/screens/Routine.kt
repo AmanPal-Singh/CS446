@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,15 +25,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
+import com.example.goosebuddy.models.RoutineWithSubroutine
 import com.example.goosebuddy.ui.shared.components.DeleteButton
 
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.Grey
-import com.example.goosebuddy.ui.theme.LightGrey
+import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
@@ -41,19 +44,20 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
+import com.example.goosebuddy.models.Subroutines
 
-class Subroutine(
-    var name: String,
-    var description: String,
-    var completed: Boolean,
-    var duration: Duration = 60.seconds
-)
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostController) {
+fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
+    var subroutinesDao = db.subroutinesDao()
+    var routinesDao = db.routinesDao()
+    val routine = routinesDao.get(id)
+    val subroutines = routine.subroutines;
+
     val editingEnabled = remember { mutableStateOf(false) }
-    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.name }) }
+    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.title }) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val state = rememberReorderableLazyListState(onMove = { from, to ->
@@ -69,7 +73,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
         sheetBackgroundColor = Color.Transparent,
         sheetElevation = 0.dp,
         sheetContent = {
-            AddSubroutine(scope, sheetState)
+            AddSubroutine(routine, scope, sheetState, navController, db)
         },
     ) {
         Column(
@@ -80,25 +84,8 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                 .fillMaxHeight()
                 .background(LightGrey)
         ) {
-            Text(name, fontSize = 24.sp)
-            OutlinedButton(
-                onClick = { navController.navigate("routines/1/timer")  },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Green,
-                ),
-                border = BorderStroke(0.dp, Color.Transparent),
-                modifier = Modifier
-                    .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
-                    .height(40.dp)
-            ) {
-                Text("Start", fontSize = 16.sp)
-                Icon(
-                    painter =  painterResource(id = R.drawable.play_arrow),
-                    contentDescription = "",
-                    tint = Color.DarkGray
-                )
-            }
-
+            Text(routine.routines.title, fontSize = 24.sp)
+            TopActionButtons(editingEnabled = editingEnabled, navController = navController)
             LazyColumn(
                 state = state.listState,
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -109,14 +96,14 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
 
                 items(currentOrder.value, { it }) { name ->
                     ReorderableItem(state, key = name) { isDragging ->
-                        val subroutine = subroutines.find { s -> s.name == name }
+                        val subroutine = subroutines.find { s -> s.title == name }
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         if (subroutine != null) {
                             SubroutineCard(
-                                name = subroutine.name,
+                                name = subroutine.title,
                                 description = subroutine.description,
                                 completed = subroutine.completed,
-                                duration = subroutine.duration,
+                                duration =  subroutine.duration.seconds,
                                 editingEnabled = editingEnabled,
                                 elevation = elevation.value
                             )
@@ -129,6 +116,49 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
     }
 }
 
+@Composable
+fun TopActionButtons(
+    editingEnabled: MutableState<Boolean>,
+    navController: NavHostController
+) {
+    if (editingEnabled.value) {
+        OutlinedButton(
+            onClick = { /** TODO: delete routine  and navigate back to routines page */  },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Red,
+            ),
+            border = BorderStroke(0.dp, Color.Transparent),
+            modifier = Modifier
+                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                .height(40.dp)
+        ) {
+            Text("Delete routine", fontSize = 16.sp)
+            Icon(
+                painter =  painterResource(id = R.drawable.delete),
+                contentDescription = "",
+                tint = Color.DarkGray
+            )
+        }
+    } else {
+        OutlinedButton(
+            onClick = { navController.navigate("routines/1/timer")  },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Green,
+            ),
+            border = BorderStroke(0.dp, Color.Transparent),
+            modifier = Modifier
+                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                .height(40.dp)
+        ) {
+            Text("Start", fontSize = 16.sp)
+            Icon(
+                painter =  painterResource(id = R.drawable.play_arrow),
+                contentDescription = "",
+                tint = Color.DarkGray
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -138,32 +168,60 @@ fun ActionButtons(
     scope: CoroutineScope
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
-            .padding(10.dp)
             .fillMaxWidth()
+            .padding(horizontal = 5.dp)
+            .height(intrinsicSize = IntrinsicSize.Max)
     ) {
         if (editingEnabled.value) {
-            OutlinedButton(onClick = { editingEnabled.value = false }) {
+            Button(
+                onClick = { editingEnabled.value = false },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
+            ) {
                 Text("Cancel")
             }
-            Spacer(modifier = Modifier.size(20.dp))
-            Button(onClick = { editingEnabled.value = false }) {
+            Spacer(modifier = Modifier.size(5.dp))
+            Button(
+                onClick = { editingEnabled.value = false },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.save),
+                    contentDescription = "save icon",
+                    tint = Black,
+                    modifier = Modifier
+                        .height(20.dp)
+                )
                 Text("Save")
             }
         } else {
             Button(
+                onClick = { editingEnabled.value = true },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.pencil),
+                        contentDescription = "Edit Routine",
+                        tint = Black
+                    )
+                }
+            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+            Button(
                 onClick = {
                     scope.launch {
-                        sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        sheetState.show()
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
             ) {
-                Text("Add")
-            }
-            Spacer(modifier = Modifier.size(20.dp))
-            Button(onClick = { editingEnabled.value = true }) {
-                Text("Edit")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "plusIcon",
+                    tint = Black
+                )
+                Text(text = "Add step to routine", color = Black)
             }
         }
     }
@@ -216,7 +274,15 @@ fun SubroutineCard(
 // TODO: add icon picker: https://github.com/maltaisn/icondialoglib
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
+fun AddSubroutine(
+    routine: RoutineWithSubroutine,
+    scope: CoroutineScope,
+    sheetState: ModalBottomSheetState,
+    navController: NavController,
+    db: AppDatabase
+) {
+    var subroutinesDao = db.subroutinesDao()
+
     var name by remember {
         mutableStateOf(TextFieldValue(""))
     }
@@ -232,7 +298,7 @@ fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
     var selectedUnit by remember { mutableStateOf(0) }
     Column {
         SpeechBubble("Honk! Adding a subroutine...")
-        Goose(200.dp, 8f)
+        Goose(size= 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -301,12 +367,16 @@ fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
                 }
                 Row{
                     Button(onClick = { scope.launch {
+                        // Add subroutine
+                        subroutinesDao.insertAll(Subroutines(0, routine.routines.id, name.text, description.text, false, durationNumber.text.toInt()))
                         // Reset form
                         name = TextFieldValue("")
                         description = TextFieldValue("")
                         durationNumber = TextFieldValue("60")
                         selectedUnit = 0
                         sheetState.hide()
+                        navController.navigate("routines/${routine.routines.id}")
+
                     }  }) {
                         Text("Add")
                     }

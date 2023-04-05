@@ -1,7 +1,12 @@
 package com.example.goosebuddy
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings.Global.getString
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -12,6 +17,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -30,12 +37,37 @@ import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
+    private val channelId = "channelId"
+    private val channelName = R.string.channel_name.toString()
+    private val notifyId = 0
+    val notificationManager: NotificationManager =
+        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Creates a notification channel
+        createNotificationChannel()
+
         setContent {
-            RootNavigationGraph(ctx = applicationContext)
+            RootNavigationGraph(ctx = applicationContext, channelId, notifyId, notificationManager)
         }
     }
+
+    private fun  createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel.
+            val descriptionText = R.string.channel_description.toString()
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val mChannel = NotificationChannel(channelId, channelName, importance)
+            mChannel.description = descriptionText
+            // Register the channel with the system. You can't change the importance
+            // or other notification behaviors after this.
+            val notificationManager = applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(mChannel)
+        }
+    }
+
 }
 
 @Composable
@@ -46,7 +78,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
             drawerContent = {
                 Text("hello this is a drawer")
             },
-            topBar = { TopBar(scaffoldState) },
+            topBar = { TopBar(scaffoldState, navController) },
             bottomBar = { BottomNavigation(navController = navController) }
         ) { padding ->
             Surface(
@@ -63,12 +95,12 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 }
 
 @Composable
-fun RootNavigationGraph(ctx: Context) {
+fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notificationManager: NotificationManager) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
     val calendarState = rememberSelectableCalendarState()
     var db = createInstance(ctx)
-    val calendarViewModel = CalendarViewModel(calendarState, navController)
+    val calendarViewModel = CalendarViewModel(calendarState, navController, db)
     val testingLock = false
     var startDestination = "home"
     if (testingLock) {
@@ -81,7 +113,7 @@ fun RootNavigationGraph(ctx: Context) {
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Home()
+                Home(db=db)
             }
         }
         composable(BottomNavigationItem.Habits.screen_route) {
@@ -94,25 +126,29 @@ fun RootNavigationGraph(ctx: Context) {
                 Routines(navController = navController, db=db)
             }
         }
-        composable("routines/{routine_id}") {
-            val subroutines = listOf(
-                Subroutine(name = "Part 1", description = "This is a description", completed = true),
-                Subroutine(name = "part 2", description = "This is a longer description", completed = true),
-                Subroutine(name = "part 3", description = "This is an even longer description", completed = false),
-                Subroutine(name = "part 4", description = "This description has \nmultiple lines", completed = false),
-                Subroutine(name = "part 5", description = "aaa", completed = false),
-            )
+        composable(
+            "routines/{routine_id}",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Routine(
-                    name = "Morning Routine",
-                    subroutines = subroutines,
-                    navController = navController
+                    id = routineId,
+                    navController = navController,
+                    db = db
                 )
             }
         }
-        composable("routines/{routine_id}/timer") {
+        composable(
+            "routines/{routine_id}/timer",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                RoutineTimer(name = "Morning Routine", duration = 10.seconds)
+                RoutineTimer(
+                    routineId,
+                    db = db
+                )
             }
         }
         composable(BottomNavigationItem.Calendar.screen_route) {
