@@ -23,25 +23,33 @@ import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 
 class OnboardingStep(
-    var name: String,
-    var skippable: Boolean,
+    var name: String
 )
 
 val suggestedHabit = mapOf(
     "hasRoommates" to listOf(
+        Habits(0, "Chore schedule", "Set up a chore schedule with your roommates and stick with it!", schedule = "Weekly"),
+        Habits(0, "Hang out with roommates", "It's important to have a good relationship with your roommates!", schedule = "Weekly"),
+    ),
+    "onStudentRes" to listOf(
         Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
-        Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
+        Habits(0, "Shower", "Being clean is an important for your (and your friends') health!"),
+        ),
+    "firstTimeAlone" to listOf(
+        Habits(0, "Call your parents", "Your parents miss you! Let them know how you are doing!"),
+        Habits(0, "Go on a walk", "Get your daily steps in!"),
     )
 )
 
 val onboardingSteps = arrayOf(
-    OnboardingStep("welcome", false),
-    OnboardingStep("name", false),
-    OnboardingStep("wat", false),
-    OnboardingStep("year", false),
-    OnboardingStep("residence", true),
-    OnboardingStep("schedule", true),
-    OnboardingStep("submit", false)
+    OnboardingStep("welcome"),
+    OnboardingStep("name"),
+    OnboardingStep("wat"),
+    OnboardingStep("year"),
+    OnboardingStep("residence"),
+    OnboardingStep("submit"),
+    OnboardingStep("recommendations"),
+    OnboardingStep("schedule"),
 )
 
 @Composable
@@ -87,8 +95,9 @@ fun BottomButtons(
                 "wat" -> "Next"
                 "year" -> "Done!"
                 "residence" -> "Got it!"
-                "schedule" -> "Next!"
                 "submit" -> "Yay! Done!"
+                "recommendations" -> "Let's get started!"
+                "schedule" -> "Show me the app!"
                 else -> "Next!"
             }
             Text(buttonMsg)
@@ -97,11 +106,11 @@ fun BottomButtons(
 }
 
 @Composable
-fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, firstStep: Int?) {
+fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, firstStep: Int) {
     // the user data collected throughout the onboarding process
     // will be added to the database after user submits
     // will be used to make recommendations to users
-    val userData = remember { mutableStateOf(UserData(0)) }
+    val userData = remember { mutableStateOf(UserData(firstStep)) }
 
     // which step we are currently are
     // default to starting from first step: 0
@@ -130,8 +139,16 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                 BottomButtons(
                     step = step,
                     onClick = {
-                        // add userData to db and make recommendations if last step
+                        // navigate to next onboarding step if not last step
                         if (step.value == onboardingSteps.size - 1) {
+                            // navigate out of onboarding - to lock
+                            navController.navigate("lock")
+                        } else {
+                            step.value += 1
+                        }
+
+                        // add userData to db and make recommendations when on submit step
+                        if (onboardingSteps[step.value].name == "submit") {
                             println("user data")
                             println(userData.value)
 
@@ -140,21 +157,24 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                             userDataDao.insert(userData.value)
 
                             // make recommendations based on user data
-                            //TODO: add suggested habits properly
+                            val habitsDao = db.habitsDao()
+                            habitsDao.deleteAll()
+
                             if (userData.value.hasRoommates) {
-                                val habitsDao = db.habitsDao()
                                 for( habits in suggestedHabit["hasRoommates"]!!) {
                                     habitsDao.insertAll(habits)
                                 }
                             }
-
-                            // navigate out of onboarding - to lock
-                            navController.navigate("lock")
-                        }
-
-                        // navigate to next onboarding step if not last step
-                        else {
-                            step.value += 1
+                            if (userData.value.onStudentRes) {
+                                for( habits in suggestedHabit["onStudentRes"]!!) {
+                                    habitsDao.insertAll(habits)
+                                }
+                            }
+                            if (userData.value.firstTimeAlone) {
+                                for( habits in suggestedHabit["firstTimeAlone"]!!) {
+                                    habitsDao.insertAll(habits)
+                                }
+                            }
                         }
                     },
                 )
@@ -169,7 +189,7 @@ fun OnboardingStepComponent(
     step: MutableState<Int>,
     navController: NavHostController,
     db: AppDatabase,
-    cvm: CalendarViewModel
+    cvm: CalendarViewModel,
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -186,8 +206,9 @@ fun OnboardingStepComponent(
             "wat" -> WatPage(userData)
             "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
-            "schedule" -> SchedulePage(navController, cvm)
             "submit" -> SubmitPage()
+            "recommendations" -> RecommendationsPage(db)
+            "schedule" -> SchedulePage(navController, cvm)
         }
     }
 }
@@ -334,18 +355,46 @@ fun ResidencePage(userData: MutableState<UserData>) {
 }
 
 @Composable
+fun SubmitPage() {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val submitMsg = "Congrats, you are all set!\nSubmit whenever you are ready!"
+        SpeechBubble(submitMsg)
+        Goose(size=200.dp)
+    }
+}
+
+@Composable
+fun RecommendationsPage(db: AppDatabase,) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val habitsDao = db.habitsDao()
+        val habits = habitsDao.getAll()
+        val habitsMsg = habits.joinToString(", ") { "\"${it.title}\"" }
+
+        val recomendationMsg = "We have made a few recommendations based on your submission!\nWe have added ${habitsMsg}! You can review them in Habits!"
+        SpeechBubble(recomendationMsg)
+        Goose(size=200.dp)
+    }
+}
+
+@Composable
 fun SchedulePage(navController: NavHostController, cvm: CalendarViewModel) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val residenceMsg = "Import your schedule"
+        val residenceMsg = "One more thing! You can import your schedule if you like!"
         Text(residenceMsg, textAlign = TextAlign.Center)
 
         fun onImportSchedule(subject: String, courseNumber: String, classNumber: String) {
             cvm.importSchedule(subject, courseNumber, classNumber)
 
-            // navigate back to onboarding page
+            // navigate back to schedule page
             navController.navigate("onboarding/schedule")
         }
 
@@ -354,15 +403,3 @@ fun SchedulePage(navController: NavHostController, cvm: CalendarViewModel) {
     }
 }
 
-
-@Composable
-fun SubmitPage() {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        val submitMsg = "Congrats, you are all set!\n Submit whenever you are ready!"
-        SpeechBubble(submitMsg)
-        Goose(size=200.dp)
-    }
-}

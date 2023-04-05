@@ -10,7 +10,7 @@ data class UserData(
     var year: Int = 0,
     val hasRoommates: Boolean = false,
     val onStudentRes: Boolean = false,
-    val firstTimeAlone: Boolean = true,
+    val firstTimeAlone: Boolean = false,
 )
 {
     override fun toString(): String {
