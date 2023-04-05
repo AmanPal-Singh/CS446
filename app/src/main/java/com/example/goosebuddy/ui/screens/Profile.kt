@@ -10,14 +10,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.shared.components.Goose
 
 @Composable
 fun Profile(db: AppDatabase) {
     val profileDao = db.userdataDao()
 
-    var userData = profileDao.getAll()
+    val userData = profileDao.getAll()
     Log.i("profile", userData.toString())
 
     var name by remember {
@@ -38,7 +37,7 @@ fun Profile(db: AppDatabase) {
         modifier = Modifier
             .fillMaxWidth(),
     ) {
-        Goose(225.dp, honkSound = true)
+        Goose(size=225.dp, honkSound = true)
         Spacer(modifier = Modifier.size(30.dp))
         UserField(name = "Name", value = name, enabled = editingEnabled, onChange = { new -> name = new })
         UserField(name= "Year", value = year, enabled = editingEnabled, onChange = { new -> year = new})
@@ -53,7 +52,7 @@ fun Profile(db: AppDatabase) {
             updateData = {
                 userData.name = name.text
                 userData.year = year.text.toInt()
-                profileDao.insertAll(userData)
+                profileDao.update(userData)
                 Log.i("profile", "user data updated to ${userData.toString()}")
                 Log.i("profile.userDao", "userDao: ${profileDao.getAll()}")
             }
