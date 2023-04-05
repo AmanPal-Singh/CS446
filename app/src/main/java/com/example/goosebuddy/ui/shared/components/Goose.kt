@@ -33,7 +33,9 @@ enum class GooseAccessory {
     None,
     Flag,
     Heart,
-    Pencil
+    Pencil,
+    Book,
+    Clipboard
 }
 
 
@@ -55,6 +57,10 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
         return R.drawable.heart
     } else if (accessory == GooseAccessory.Pencil) {
         return R.drawable.pencil_accessory
+    } else if (accessory == GooseAccessory.Book) {
+        return R.drawable.book
+    } else if (accessory == GooseAccessory.Clipboard) {
+        return R.drawable.clipboard
     }
     return null
 }
@@ -63,7 +69,7 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
 fun Goose(
     variation: GooseVariation = GooseVariation.Default,
     accessory: GooseAccessory = GooseAccessory.None,
-    accessoryPlacement: Pair<Dp, Dp> = Pair(-120.dp, 0.dp),
+    accessoryPlacement: Pair<Dp, Dp> = Pair(-125.dp, 0.dp),
     size: Dp,
     rotationZ: Float = 0f,
     honkSound: Boolean = false,
