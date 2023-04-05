@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
+import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -104,7 +105,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController, db)
     val testingLock = false
-    var startDestination = "home"
+    var startDestination = "onboarding"
     if (testingLock) {
         startDestination = "lock"
     }
@@ -170,13 +171,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         composable(
             "onboarding"
         ) {
-            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, "welcome")
-        }
-        composable(
-            "onboarding/{step}",
-            arguments = listOf(navArgument("step") { type = NavType.StringType })
-        ) { backStackEntry ->
-            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, backStackEntry.arguments?.getString("step"))
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, 0)
         }
         composable("lock"){
             Lock(navController=navController, db=db)
