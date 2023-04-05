@@ -101,7 +101,7 @@ fun Routines(navController: NavController, db: AppDatabase) {
                 AddRoutineBlock(sheetState, scope)
 
                 routinesDao.getAll().forEach { item ->
-                    RoutineBlock(item = item, navController = navController)
+                    RoutineBlock(item = item.routines, navController = navController)
                 }
             }
         }
