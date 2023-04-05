@@ -102,7 +102,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController, db)
     val testingLock = false
-    var startDestination = "home"
+    var startDestination = "onboarding"
     if (testingLock) {
         startDestination = "lock"
     }
@@ -162,7 +162,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Greeting(name = "profile")
+                Profile(db=db)
             }
         }
         composable(

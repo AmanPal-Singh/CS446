@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.shared.components.Goose
 
 @Composable
@@ -48,6 +49,13 @@ fun Profile(db: AppDatabase) {
             revertChanges = {
                 name = TextFieldValue(userData.name)
                 year = TextFieldValue(userData.year.toString())
+            },
+            updateData = {
+                userData.name = name.text
+                userData.year = year.text.toInt()
+                profileDao.insertAll(userData)
+                Log.i("profile", "user data updated to ${userData.toString()}")
+                Log.i("profile.userDao", "userDao: ${profileDao.getAll()}")
             }
         )
     }
@@ -73,7 +81,7 @@ fun UserField(name: String, value: TextFieldValue, enabled: Boolean, onChange: (
 }
 
 @Composable
-fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditing: () -> Unit, disableEditing: () -> Unit) {
+fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditing: () -> Unit, disableEditing: () -> Unit, updateData: () -> Unit) {
     Row() {
         if (!editingEnabled) {
             Button(onClick = {  enableEditing() }) {
@@ -82,7 +90,6 @@ fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditin
         } else {
             Row () {
                 Button(onClick = {
-                    // TODO: revert to previous state
                     revertChanges()
                     disableEditing()
                 }) {
@@ -90,6 +97,7 @@ fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditin
                 }
                 Button(onClick = {
                     // TODO: save new
+                    updateData()
                     disableEditing()
                 }) {
                     Text("Save")

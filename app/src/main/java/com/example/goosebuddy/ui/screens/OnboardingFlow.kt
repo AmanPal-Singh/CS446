@@ -91,7 +91,7 @@ fun OnboardingStepComponent(
             .background(color = Beige)
     ) {
 
-        val userData = UserData()
+        val userData = UserData(0)
         when (step.name) {
             "welcome" -> WelcomePage(userData)
             "name" -> NamePage(userData)
