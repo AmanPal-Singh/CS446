@@ -29,7 +29,6 @@ import java.util.*
 
 @Composable
 fun TopBar(scaffoldState: ScaffoldState, navController: NavHostController) {
-    val scope = rememberCoroutineScope()
     var includeBackBtn = remember { mutableStateOf(false) }
     var title = navController.currentDestination?.route.toString().replaceFirstChar{ it.uppercaseChar() }
     if (title.contains("/")) {

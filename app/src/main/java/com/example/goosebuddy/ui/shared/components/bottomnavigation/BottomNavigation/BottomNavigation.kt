@@ -79,7 +79,10 @@ fun BottomNavigation(
 fun getModifier(item: BottomNavigationItem, navController: NavController): Modifier {
     val isHomeButton = item.title == "Home"
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    var currentDestination = navBackStackEntry?.destination?.route.toString()
+    if (currentDestination.contains("/")) {
+        currentDestination = currentDestination.split("/")[0]
+    }
     val homeModifier = Modifier
         .background(LightBlue, RoundedCornerShape(18.dp))
         .width(65.dp)
@@ -105,7 +108,7 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
     var modifier: Modifier =  if (isHomeButton) homeModifier else defaultModifier
 
     // TODO: change to begins with
-    if (currentDestination?.route == item.screen_route) {
+    if (currentDestination == item.screen_route) {
         modifier = if (item.title !== "Home") {
             modifier.then(selectedModifier)
         } else {
