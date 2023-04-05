@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 @Entity
 data class UserData(
-    @PrimaryKey val key: Int = 0,
+    @PrimaryKey(autoGenerate = true) val key: Int = 0,
     var name: String = "",
     val wat: Int = 0,
     val year: Int = 0,

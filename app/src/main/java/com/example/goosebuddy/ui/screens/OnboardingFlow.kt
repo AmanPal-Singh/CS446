@@ -1,6 +1,4 @@
 package com.example.goosebuddy.ui.screens
-import com.example.goosebuddy.R
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,46 +8,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.ui.theme.*
-import java.lang.Integer.min
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.models.UserData
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-
-@Composable
-fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, step: String?) {
-    val onboardingStep = onboardingSteps.find { s -> s.name == step }
-    val completed = onboardingSteps.indexOf(onboardingStep) + 1
-    GooseBuddyTheme {
-        Scaffold(
-            topBar = { ProgressIndicator(completed = completed, total = onboardingSteps.size) }
-        ) { padding ->
-            Surface(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize()
-                    .fillMaxHeight()
-            ) {
-                if (onboardingStep != null) {
-                    OnboardingStepComponent(
-                        step = onboardingStep,
-                        navController = navController,
-                        db = db,
-                        cvm = cvm
-                    )
-                }
-            }
-        }
-    }
-}
+import androidx.compose.ui.Alignment.Companion.CenterVertically
+import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.SpeechBubble
 
 class OnboardingStep(
     var name: String,
@@ -57,103 +28,21 @@ class OnboardingStep(
 )
 
 val suggestedHabit = mapOf(
-   "hasRoommates" to listOf(
-       Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"
-
-
-       ),
-       Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
-   )
+    "hasRoommates" to listOf(
+        Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
+        Habits(0, "Shower", "ensuring you're clean is an important part of your day!")
+    )
 )
 
 val onboardingSteps = arrayOf(
     OnboardingStep("welcome", false),
     OnboardingStep("name", false),
-//    OnboardingStep("wat", false),
-//    OnboardingStep("year", false),
-//    OnboardingStep("residence", true),
-//    OnboardingStep("schedule", true),
+    OnboardingStep("wat", false),
+    OnboardingStep("year", false),
+    OnboardingStep("residence", true),
+    OnboardingStep("schedule", true),
     OnboardingStep("submit", false)
 )
-
-@Composable
-fun OnboardingStepComponent(
-    step: OnboardingStep,
-    navController: NavHostController,
-    db: AppDatabase,
-    cvm: CalendarViewModel
-) {
-    Column(
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .background(color = Beige)
-    ) {
-//        var userData = UserData()
-//        var userData = remember { mutableStateOf(UserData()) }
-//        val (userData, setUserData) = remember { mutableStateOf(UserData()) }
-//        var name = remember { mutableStateOf("")}
-
-        val userData = UserData()
-        val userdataDao = db.userdataDao()
-        userdataDao.insert(userData)
-
-        fun setUserData(newUserData: UserData) {
-            println(newUserData)
-            userdataDao.update(newUserData)
-            val temp = userdataDao.getAll()
-            println("temp: ")
-            println(temp)
-        }
-
-        when (step.name) {
-            "welcome" -> WelcomePage()
-            "name" -> NamePage(userData, ::setUserData)
-//            "wat" -> WatPage(userData, ::setUserData)
-//            "year" -> YearPage(userData, ::setUserData)
-//            "residence" -> ResidencePage(userData, ::setUserData)
-//            "schedule" -> SchedulePage(userData, navController, cvm, ::setUserData)
-            "submit" -> SubmitPage()
-        }
-
-        BottomButtons(
-            buttonText = if (step.name == "submit") "Submit" else "Next",
-            onClick = {
-                val progress = onboardingSteps.indexOf(step)
-                // if user is on the last step and clicks submit
-                if (progress == onboardingSteps.size - 1) {
-                    // save all the user data into dao
-                    val savedUserData = userdataDao.getAll()
-                    println("==>")
-                    println(savedUserData)
-                    println("<==")
-//                    println(userData)
-//                    println("name")
-//                    println(name.value)
-//                    println("end")
-                    //TODO: add suggested habits properly
-
-                    if (userData.hasRoommates || true){
-                        val habitsDao = db.habitsDao()
-                        for( habits in suggestedHabit["hasRoommates"]!!){
-                            habitsDao.insertAll(habits)
-                        }
-                    }
-                    navController.navigate("lock")
-                } else {
-                    val step = onboardingSteps[min(
-                        progress + 1,
-                        onboardingSteps.size - 1
-                    )].name
-                    navController.navigate("onboarding/$step")
-                }
-            },
-            skippable = step.skippable
-        )
-    }
-}
 
 @Composable
 fun ProgressIndicator(completed: Int, total: Int) {
@@ -180,8 +69,7 @@ fun ProgressIndicator(completed: Int, total: Int) {
 
 @Composable
 fun BottomButtons(
-    buttonText: String,
-    skippable: Boolean,
+    step: MutableState<Int>,
     onClick: () -> Unit
 ) {
     Column(
@@ -189,18 +77,120 @@ fun BottomButtons(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Button(
-            onClick = { onClick() }
+            modifier = Modifier.padding(50.dp),
+            onClick = { onClick() },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Green)
         ) {
-            Text("$buttonText")
+            val buttonMsg = when (onboardingSteps[step.value].name) {
+                "welcome" -> "Let's go!"
+                "name" -> "Done!"
+                "wat" -> "Next"
+                "year" -> "Done!"
+                "residence" -> "Got it!"
+                "schedule" -> "Next!"
+                "submit" -> "Yay! Done!"
+                else -> "Next!"
+            }
+            Text(buttonMsg)
         }
-        if (skippable) {
-            Button(onClick = {}) {
-                Text(text = "Skip for now")
+    }
+}
+
+@Composable
+fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: CalendarViewModel, firstStep: Int?) {
+    // the user data collected throughout the onboarding process
+    // will be added to the database after user submits
+    // will be used to make recommendations to users
+    val userData = remember { mutableStateOf(UserData()) }
+
+    // which step we are currently are
+    // default to starting from first step: 0
+    val step = remember { mutableStateOf(0) }
+
+    GooseBuddyTheme {
+        Scaffold(
+            topBar = { ProgressIndicator(completed = step.value + 1, total = onboardingSteps.size) }
+        ) { padding ->
+            Surface(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .fillMaxHeight()
+            ) {
+                // the onboarding content shown to user based on which step
+                OnboardingStepComponent(
+                    userData,
+                    step,
+                    navController = navController,
+                    db = db,
+                    cvm = cvm
+                )
+
+                // the buttons for navigation throughout onboarding
+                BottomButtons(
+                    step = step,
+                    onClick = {
+                        // add userData to db and make recommendations if last step
+                        if (step.value == onboardingSteps.size - 1) {
+                            println("user data")
+                            println(userData.value)
+
+                            // add userData to db
+                            val userDataDao = db.userdataDao()
+                            userDataDao.insert(userData.value)
+
+                            // make recommendations based on user data
+                            //TODO: add suggested habits properly
+                            if (userData.value.hasRoommates) {
+                                val habitsDao = db.habitsDao()
+                                for( habits in suggestedHabit["hasRoommates"]!!) {
+                                    habitsDao.insertAll(habits)
+                                }
+                            }
+
+                            // navigate out of onboarding - to lock
+                            navController.navigate("lock")
+                        }
+
+                        // navigate to next onboarding step if not last step
+                        else {
+                            step.value += 1
+                        }
+                    },
+                )
             }
         }
     }
 }
 
+@Composable
+fun OnboardingStepComponent(
+    userData: MutableState<UserData>,
+    step: MutableState<Int>,
+    navController: NavHostController,
+    db: AppDatabase,
+    cvm: CalendarViewModel
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .background(color = Beige)
+            .padding(50.dp),
+    ) {
+        // determine what content to show user based on which step
+        val onboardingStep = onboardingSteps[step.value]
+        when (onboardingStep.name) {
+            "welcome" -> WelcomePage()
+            "name" -> NamePage(userData)
+            "wat" -> WatPage(userData)
+            "year" -> YearPage(userData)
+            "residence" -> ResidencePage(userData)
+            "schedule" -> SchedulePage(navController, cvm)
+            "submit" -> SubmitPage()
+        }
+    }
+}
 
 
 @Composable
@@ -209,27 +199,21 @@ fun WelcomePage() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val imageModifier = Modifier
-            .size(150.dp)
-        Image(
-            painter = painterResource(id = R.drawable.onboarding_goose),
-            contentDescription = "Goose Image",
-            contentScale = ContentScale.Fit,
-            modifier = imageModifier
-        )
         val welcomeMsg = "Welcome to GooseBuddy!\nAre you ready to get started on your journey?"
-        Text(welcomeMsg, textAlign = TextAlign.Center)
+        SpeechBubble(welcomeMsg)
+        Goose(200.dp)
     }
 }
 
 @Composable
-fun NamePage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
+fun NamePage(userData: MutableState<UserData>) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val nameMsg = "What's your name?"
-        Text(nameMsg, textAlign = TextAlign.Center)
+        val nameMsg = "My name is Mr. Goose!\nWhat's your name?"
+        SpeechBubble(nameMsg)
+        Goose(200.dp)
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -237,11 +221,7 @@ fun NamePage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
             value = text.value,
             onValueChange = {
                 text.value = it
-                // update model
-                userData.name = it
-                setUserData(userData)
-//                userData.value.name = it
-//                setUserData(userData)
+                userData.value = userData.value.copy(name = it)
             },
             label = { Text(text = "Name") },
             placeholder = { Text(text = "Enter your name") },
@@ -250,13 +230,14 @@ fun NamePage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
 }
 
 @Composable
-fun WatPage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
+fun WatPage(userData: MutableState<UserData>) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val nameMsg = "Enter your WAT number below. You can find it on your WAT card."
-        Text(nameMsg, textAlign = TextAlign.Center)
+        val watMsg = "Hey ${userData.value.name}! Enter your WAT number below.\nYou can find it on your WAT card."
+        SpeechBubble(watMsg)
+        Goose(200.dp)
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -265,8 +246,7 @@ fun WatPage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
             onValueChange = {
                 text.value = it
                 // update model
-//                userData.wat = it.toIntOrNull() ?: 0
-                setUserData(userData)
+                userData.value = userData.value.copy(wat = it.toIntOrNull() ?: 0)
             },
             label = { Text(text = "WAT number") },
             placeholder = { Text(text = "Enter your WAT number") },
@@ -278,13 +258,14 @@ fun WatPage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
 
 
 @Composable
-fun YearPage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
+fun YearPage(userData: MutableState<UserData>) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val nameMsg = "What year are you in?"
-        Text(nameMsg, textAlign = TextAlign.Center)
+        val yearMsg = "What year are you in?"
+        SpeechBubble(yearMsg)
+        Goose(200.dp)
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -293,8 +274,7 @@ fun YearPage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
             onValueChange = {
                 text.value = it
                 // update model
-//                userData.year = it.toIntOrNull() ?: 0
-                setUserData(userData)
+                userData.value = userData.value.copy(year = it.toIntOrNull() ?: 0)
             },
             label = { Text(text = "Year") },
             placeholder = { Text(text = "Enter your year as an integer") },
@@ -305,13 +285,14 @@ fun YearPage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
 
 
 @Composable
-fun ResidencePage(userData: UserData, setUserData: (userData: UserData) -> Unit) {
-    Column(
+fun ResidencePage(userData: MutableState<UserData>) {
+    Column (
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val residenceMsg = "Describe your residence situation"
-        Text(residenceMsg, textAlign = TextAlign.Center)
+        SpeechBubble(residenceMsg)
+        Goose(200.dp)
 
         val livingSituations = mapOf(
             "roommates" to "I have roommates.",
@@ -325,7 +306,9 @@ fun ResidencePage(userData: UserData, setUserData: (userData: UserData) -> Unit)
                 mutableStateOf(false)
             }
 
-            Row {
+            Row (
+                verticalAlignment = CenterVertically,
+            ) {
                 Text(
                     modifier = Modifier.padding(start = 2.dp),
                     text = livingSituations.getValue(it)
@@ -335,14 +318,11 @@ fun ResidencePage(userData: UserData, setUserData: (userData: UserData) -> Unit)
                     onCheckedChange = { checked_ ->
                         isChecked = checked_
                         // update model
-                        if (it == "roommates") {
-//                            userData.hasRoommates = checked_
-                        } else if (it == "student_res") {
-//                            userData.onStudentRes = checked_
-                        } else if (it == "first_time") {
-//                            userData.firstTimeAlone = checked_
+                        when (it) {
+                            "roommates" -> userData.value = userData.value.copy(hasRoommates = checked_)
+                            "student_res" -> userData.value = userData.value.copy(onStudentRes = checked_)
+                            "first_time" -> userData.value = userData.value.copy(firstTimeAlone = checked_)
                         }
-                        setUserData(userData)
                     },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Yellow
@@ -354,7 +334,7 @@ fun ResidencePage(userData: UserData, setUserData: (userData: UserData) -> Unit)
 }
 
 @Composable
-fun SchedulePage(userData: UserData, navController: NavHostController, cvm: CalendarViewModel,  setUserData: (userData: UserData) -> Unit) {
+fun SchedulePage(navController: NavHostController, cvm: CalendarViewModel) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -381,15 +361,8 @@ fun SubmitPage() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val imageModifier = Modifier
-            .size(150.dp)
-        Image(
-            painter = painterResource(id = R.drawable.onboarding_goose),
-            contentDescription = "Goose Image",
-            contentScale = ContentScale.Fit,
-            modifier = imageModifier
-        )
         val submitMsg = "Congrats, you are all set!\n Submit whenever you are ready!"
-        Text(submitMsg, textAlign = TextAlign.Center)
+        SpeechBubble(submitMsg)
+        Goose(200.dp)
     }
 }
