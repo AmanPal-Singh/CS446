@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseAccessory
+import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.theme.*
 
 @Composable
@@ -56,7 +58,13 @@ fun Profile(db: AppDatabase) {
         ,
     ) {
         Spacer(modifier = Modifier.height(20.dp))
-        Goose(size=225.dp, honkSound = true)
+        Goose(
+            variation = GooseVariation.Waving,
+            accessory = GooseAccessory.Heart,
+            accessoryPlacement = Pair(0.dp, 0.dp),
+            size=225.dp,
+            honkSound = true
+        )
         Spacer(modifier = Modifier.size(30.dp))
         UserField(name = "Name", value = name, enabled = editingEnabled, onChange = { new -> name = new })
         UserField(name= "Year", value = year, enabled = editingEnabled, onChange = { new -> year = new})
