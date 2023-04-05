@@ -165,7 +165,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
             if (habits.value.isEmpty()) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
-                    "There are no habits here yet. \n Click the buttons above to add a new habit!",
+                    "There are no habits here yet. \n Click 'Add Habit' above to add a new habit!",
                     textAlign = TextAlign.Center,
                 )
             } else {
@@ -220,6 +220,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                     editingEnabled,
                                     onHabitChange = {
                                         habits.value = habitsDao.getAll()
+                                        habit.value = habitsDao.getAll().find { h -> h.id == item }
                                         currentOrder.value = currentOrder.value
                                     }
                                 )
@@ -339,7 +340,6 @@ fun HabitBlock(
                                 if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()){
                                     item.streak += 1;
                                 }
-
                             }
                             habitsDao.update(item)
                             onHabitChange()
