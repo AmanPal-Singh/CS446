@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -254,6 +255,7 @@ fun RoutineWeeklyTracker() {
 @Composable
 fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
     Card(
+        backgroundColor = Green,
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
@@ -265,12 +267,25 @@ fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
                 }
             )
     ) {
-        Text(
-            textAlign = TextAlign.Center,
-            text = "Add a routine",
+        Row(
             modifier = Modifier
-                .padding(10.dp)
-        )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "plusIcon",
+                tint = Black
+            )
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Add a routine",
+                modifier = Modifier
+                    .padding(10.dp)
+            )
+        }
+
     }
 }
 
