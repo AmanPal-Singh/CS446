@@ -176,7 +176,7 @@ fun DailyRoutineCompletionVisualization() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-          /**   CircularProgressIndicator(
+            CircularProgressIndicator(
                 // TODO: actually have accurate progress instead of mock
                 progress = 0.25f,
                 color = Green,
@@ -185,7 +185,7 @@ fun DailyRoutineCompletionVisualization() {
                 modifier = Modifier
                     .width(100.dp)
                     .height(100.dp)
-            ) */
+            )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 "Great job! \nYou've completed 4 out of 5 of your routines today.",
