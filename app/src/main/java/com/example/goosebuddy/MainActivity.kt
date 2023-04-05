@@ -128,7 +128,11 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
     var db = createInstance(ctx)
     val calendarViewModel = CalendarViewModel(calendarState, navController, db)
     val testingLock = false
-    var startDestination = "onboarding"
+
+    // skip onboarding if there is already a user
+    val userDataDao = db.userdataDao()
+    var startDestination = if (userDataDao.getNumUsers() == 0) "onboarding" else "lock"
+
     if (testingLock) {
         startDestination = "lock"
     }
@@ -196,6 +200,25 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
             "onboarding"
         ) {
             OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, 0)
+        }
+
+        composable(
+            "onboarding/schedule"
+        ) {
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, 7)
+        }
+        composable(
+            "routines/{routine_id}",
+            arguments = listOf(navArgument("routine_id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routine_id")!!.toInt()
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                Routine(
+                    id = routineId,
+                    navController = navController,
+                    db = db
+                )
+            }
         }
         composable("lock"){
             Lock(navController=navController, db=db)

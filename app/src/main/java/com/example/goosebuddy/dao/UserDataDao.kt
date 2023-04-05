@@ -10,6 +10,9 @@ interface UserDataDao {
     @Query("SELECT * FROM userdata")
     fun getAll(): UserData
 
+    @Query("SELECT COUNT(*) FROM userdata")
+    fun getNumUsers(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(userData: UserData)
     @Update
