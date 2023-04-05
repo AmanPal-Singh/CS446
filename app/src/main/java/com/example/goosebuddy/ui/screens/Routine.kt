@@ -25,8 +25,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
+import com.example.goosebuddy.models.RoutineWithSubroutine
 import com.example.goosebuddy.ui.shared.components.DeleteButton
 
 import com.example.goosebuddy.ui.shared.components.Goose
@@ -41,19 +44,20 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
+import com.example.goosebuddy.models.Subroutines
 
-class Subroutine(
-    var name: String,
-    var description: String,
-    var completed: Boolean,
-    var duration: Duration = 60.seconds
-)
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostController) {
+fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
+    var subroutinesDao = db.subroutinesDao()
+    var routinesDao = db.routinesDao()
+    val routine = routinesDao.get(id)
+    val subroutines = routine.subroutines;
+
     val editingEnabled = remember { mutableStateOf(false) }
-    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.name }) }
+    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.title }) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val state = rememberReorderableLazyListState(onMove = { from, to ->
@@ -69,7 +73,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
         sheetBackgroundColor = Color.Transparent,
         sheetElevation = 0.dp,
         sheetContent = {
-            AddSubroutine(scope, sheetState)
+            AddSubroutine(routine, scope, sheetState, navController, db)
         },
     ) {
         Column(
@@ -80,7 +84,7 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
                 .fillMaxHeight()
                 .background(LightGrey)
         ) {
-            Text(name, fontSize = 24.sp)
+            Text(routine.routines.title, fontSize = 24.sp)
             TopActionButtons(editingEnabled = editingEnabled, navController = navController)
             LazyColumn(
                 state = state.listState,
@@ -92,14 +96,14 @@ fun Routine(name: String, subroutines: List<Subroutine>, navController: NavHostC
 
                 items(currentOrder.value, { it }) { name ->
                     ReorderableItem(state, key = name) { isDragging ->
-                        val subroutine = subroutines.find { s -> s.name == name }
+                        val subroutine = subroutines.find { s -> s.title == name }
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         if (subroutine != null) {
                             SubroutineCard(
-                                name = subroutine.name,
+                                name = subroutine.title,
                                 description = subroutine.description,
                                 completed = subroutine.completed,
-                                duration = subroutine.duration,
+                                duration =  subroutine.duration.seconds,
                                 editingEnabled = editingEnabled,
                                 elevation = elevation.value
                             )
@@ -270,7 +274,15 @@ fun SubroutineCard(
 // TODO: add icon picker: https://github.com/maltaisn/icondialoglib
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
+fun AddSubroutine(
+    routine: RoutineWithSubroutine,
+    scope: CoroutineScope,
+    sheetState: ModalBottomSheetState,
+    navController: NavController,
+    db: AppDatabase
+) {
+    var subroutinesDao = db.subroutinesDao()
+
     var name by remember {
         mutableStateOf(TextFieldValue(""))
     }
@@ -355,12 +367,16 @@ fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
                 }
                 Row{
                     Button(onClick = { scope.launch {
+                        // Add subroutine
+                        subroutinesDao.insertAll(Subroutines(0, routine.routines.id, name.text, description.text, false, durationNumber.text.toInt()))
                         // Reset form
                         name = TextFieldValue("")
                         description = TextFieldValue("")
                         durationNumber = TextFieldValue("60")
                         selectedUnit = 0
                         sheetState.hide()
+                        navController.navigate("routines/${routine.routines.id}")
+
                     }  }) {
                         Text("Add")
                     }
