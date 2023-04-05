@@ -18,24 +18,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.goosebuddy.ui.theme.Green
-import com.example.goosebuddy.ui.theme.Grey
-import com.example.goosebuddy.ui.theme.Red
-import com.example.goosebuddy.ui.theme.White
-import com.example.goosebuddy.ui.theme.Yellow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Routines
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
+import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -79,6 +80,8 @@ fun Routines(navController: NavController, db: AppDatabase) {
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
+    val showHelpfulGoose = remember { mutableStateOf(false) }
+
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetBackgroundColor = Color.Transparent,
@@ -94,18 +97,75 @@ fun Routines(navController: NavController, db: AppDatabase) {
                 .background(Grey)
                 .fillMaxHeight()
         ) {
-            RoutineWeeklyTracker()
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.info_outline),
+                    contentDescription = "info button",
+                    tint = Green,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable(
+                            onClick = { showHelpfulGoose.value = !showHelpfulGoose.value }
+                        )
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth(1f)
+            ) {
+                Column(Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                ) {
+                    RoutineWeeklyTracker()
+                }
+                if (showHelpfulGoose.value) {
+                    Card(
+                        shape = RoundedCornerShape(7.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    ){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Beige)
+                                .align(Alignment.TopStart)
+                                .offset(x = -125.dp)
+                        ) {
+                            Goose(
+                                variation = GooseVariation.Waving,
+                                size = 200.dp,
+                                rotationZ = 30f,
+                            )
+                            Text("Honk honk! \nEstablishing routines are a great way to stay on top of your goals!")
+                        }
+                    }
+                }
+            }
+
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 AddRoutineBlock(sheetState, scope)
-
                 routinesDao.getAll().forEach { item ->
                     RoutineBlock(item = item, navController = navController)
                 }
             }
         }
     }
+
+}
+
+@Composable
+fun DailyRoutineCompletionVisualization() {
 
 }
 
@@ -116,7 +176,6 @@ fun RoutineWeeklyTracker() {
         shape = RoundedCornerShape(7.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .background(White)
             .padding(10.dp)
     ) {
         Column(
@@ -129,8 +188,6 @@ fun RoutineWeeklyTracker() {
                     .fillMaxWidth()
                     .padding(horizontal = 5.dp)
             ) {
-                Text("Daily Routines", fontSize = 24.sp)
-                Text("Weekly view")
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -208,7 +265,7 @@ fun AddRoutineForm(
 
     Column {
         SpeechBubble("Honk! Adding a new routine!")
-        Goose(200.dp, 8f)
+        Goose(size = 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()

@@ -22,19 +22,39 @@ import com.example.goosebuddy.R
 
 enum class GooseState { Pressed, Idle }
 
+enum class GooseVariation {
+    Default,
+    Waving
+}
+
+fun getGooseResource(variation: GooseVariation): Int {
+    if (variation == GooseVariation.Default) {
+        return R.drawable.buddy
+    } else if (variation == GooseVariation.Waving) {
+        return  R.drawable.waving_goose
+    }
+    return R.drawable.buddy
+}
+
 @Composable
-fun Goose(size: Dp, rotationZ: Float = 0f, honkSound: Boolean = false) {
+fun Goose(
+    variation: GooseVariation = GooseVariation.Default,
+    size: Dp,
+    rotationZ: Float = 0f,
+    honkSound: Boolean = false,
+    modifier: Modifier = Modifier
+) {
 
     var state by remember { mutableStateOf(GooseState.Idle) }
     val ty by animateFloatAsState(if (state == GooseState.Pressed) 0f else 20f)
 
     val mContext = LocalContext.current
     val mMediaPlayer = MediaPlayer.create(mContext, R.raw.honk_sound)
-    val imageModifier = Modifier
+    val imageModifier = modifier
         .size(size = size)
         .graphicsLayer(
             rotationZ = rotationZ,
-            translationY = ty
+            translationY = ty,
         )
         .clickable(
             onClick = {
@@ -56,7 +76,7 @@ fun Goose(size: Dp, rotationZ: Float = 0f, honkSound: Boolean = false) {
             }
         }
     Image(
-        painter = painterResource(id = R.drawable.buddy),
+        painter = painterResource(id = getGooseResource(variation)),
         contentDescription = "Goose Image",
         contentScale = ContentScale.Fit,
         modifier = imageModifier

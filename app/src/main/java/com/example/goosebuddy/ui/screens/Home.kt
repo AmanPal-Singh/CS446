@@ -53,7 +53,7 @@ fun Home() {
         Spacer(modifier = Modifier.size(70.dp))
         SpeechBubble("beautiful honk honk")
         Spacer(modifier = Modifier.size(30.dp))
-        Goose(225.dp, honkSound = true)
+        Goose(size = 225.dp, honkSound = true)
         SpeechOptions(options = options)
     }
 }

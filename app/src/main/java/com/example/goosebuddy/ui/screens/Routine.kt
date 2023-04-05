@@ -286,7 +286,7 @@ fun AddSubroutine(scope: CoroutineScope, sheetState: ModalBottomSheetState) {
     var selectedUnit by remember { mutableStateOf(0) }
     Column {
         SpeechBubble("Honk! Adding a subroutine...")
-        Goose(200.dp, 8f)
+        Goose(size= 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
