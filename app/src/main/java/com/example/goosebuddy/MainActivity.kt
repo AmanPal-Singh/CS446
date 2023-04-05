@@ -5,11 +5,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings.Global.getString
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -21,8 +20,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,23 +28,23 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.receivers.HabitsReceiver
-import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.screens.*
-import com.example.goosebuddy.ui.screens.Calendar
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.shared.components.topbar.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
+import java.time.LocalDateTime
 import java.util.*
 
-import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
     private val channelId = "channelId"
     private val channelName = R.string.channel_name.toString()
     private val notifyId = 0
+    var receiver: HabitsReceiver? = null
+    var intentFilter: IntentFilter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +55,17 @@ class MainActivity : ComponentActivity() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val alarmManager: AlarmManager =
             getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        receiver = HabitsReceiver()
+        intentFilter = IntentFilter("com.example.goosebuddy.broadcastreceiver.SOME_ACTION")
         setContent {
-            RootNavigationGraph(ctx = applicationContext, channelId, notifyId, notificationManager, alarmManager)
+            RootNavigationGraph(ctx = baseContext, channelId, notifyId, notificationManager, alarmManager)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        registerReceiver(receiver, intentFilter)
     }
 
     private fun  createNotificationChannel(){
@@ -104,20 +109,20 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 }
 
 private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
-    //
+    val currentTime = LocalDateTime.now()
     val updateTime: Calendar = Calendar.getInstance()
-    updateTime.setTimeZone(TimeZone.getTimeZone("EST"))
-    updateTime.set(Calendar.HOUR_OF_DAY, 11)
-    updateTime.set(Calendar.MINUTE, 0)
+    updateTime.set(Calendar.HOUR_OF_DAY, currentTime.hour)
+    updateTime.set(Calendar.MINUTE, currentTime.minute)
+    updateTime.set(Calendar.SECOND, currentTime.second + 1)
     val intent = Intent(ctx, HabitsReceiver::class.java)
     val pendingIntent = PendingIntent.getBroadcast(
         ctx,
         0, intent, PendingIntent.FLAG_IMMUTABLE
     )
-    alarmManager.setInexactRepeating(
+    alarmManager.setExact(
         AlarmManager.RTC_WAKEUP,
-        updateTime.getTimeInMillis(),
-        AlarmManager.INTERVAL_DAY, pendingIntent
+        updateTime.timeInMillis,
+        pendingIntent
     )
 }
 

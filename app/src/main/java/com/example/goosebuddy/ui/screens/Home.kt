@@ -41,7 +41,6 @@ val defaultMessages = listOf(
 )
 
 @Composable
-@Preview
 fun Home(db:AppDatabase) {
     Column(
         verticalArrangement = Arrangement.Bottom,
