@@ -59,14 +59,6 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
             }
         }
     )
-    val bigText = NotificationCompat.BigTextStyle()
-    val notif = NotificationCompat.Builder(ctx,"channelId")
-        .setContentTitle("HONK HONK!")
-        .setContentText("The day is almost up! Make sure to complete your remaining habits")
-        .setSmallIcon(R.drawable.pencil)
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setStyle(bigText)
-        .build()
 
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
@@ -148,7 +140,6 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                 sheetState.show()
                                 //sheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }
-                            notificationManager.notify(0, notif)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Green),
                     )
@@ -162,58 +153,10 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                     }
                 }
             }
-            LazyColumn(
-                state = orderState.listState,
-                modifier = Modifier
-                    .reorderable(orderState)
-                    .detectReorderAfterLongPress(orderState),
-                // content padding
-                contentPadding = PaddingValues(
-                    start = 12.dp,
-                    top = 16.dp,
-                    end = 12.dp,
-                    bottom = 16.dp
-                ),
-            ) {
-                items(currentOrder.value, { it }) { item ->
-                    ReorderableItem(orderState, key = item) { isDragging ->
-                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        val habit = habits.value.find { h -> h.id == item }
-                        if (habit != null) {
-                            HabitBlock(
-                                item = habit,
-                                navController = navController,
-                                onHabitChange = { habits.value = habitsDao.getAll() },
-                                db = db,
-                                scope = scope,
-                                sheetState = sheetState,
-                                editingEnabled = editingEnabled,
-                                modifier = Modifier
-                                    .shadow(elevation.value)
-                                    .clickable(
-                                        onClick = {
-                                            sheetNewContent = {
-                                                UpdateHabit(
-                                                    scope = scope,
-                                                    sheetState = sheetState,
-                                                    db = db,
-                                                    onHabitChange = {
-                                                        habits.value = habitsDao.getAll()
-                                                    },
-                                                    habitId = habit.id
-                                                )
-                                            }
-                                        }
-                                    )
-                            )
-                        }
-                    }
-                }
-            }
-            if (habits.value.size == 0) {
+            if (habits.value.isEmpty()) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
-                    "There are no habits here yet. \n Click the buttons above to add a new habit!",
+                    "There are no habits here yet. \n Click 'Add Habit' above to add a new habit!",
                     textAlign = TextAlign.Center,
                 )
             } else {
@@ -233,10 +176,10 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                     items(currentOrder.value, { it }) { item ->
                         ReorderableItem(orderState, key = item,) { isDragging ->
                             val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                            val habit = habits.value.find { h -> h.id == item }
-                            if (habit != null) {
+                            val habit = remember { mutableStateOf(habitsDao.loadSingle(item)) }
+                            if (habit.value != null) {
                                 HabitBlock(
-                                    item = habit,
+                                    item = habit.value!!,
                                     navController = navController,
                                     db,
                                     scope,
@@ -245,25 +188,32 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                         .shadow(elevation.value)
                                         .clickable(
                                             onClick = {
-                                                sheetNewContent = {
-                                                    UpdateHabit(
-                                                        scope = scope,
-                                                        sheetState = sheetState,
-                                                        db = db,
-                                                        onHabitChange = {
-                                                            habits.value = habitsDao.getAll()
-                                                        },
-                                                        habitId = habit.id
-                                                    )
-                                                }
+                                                if (editingEnabled.value) {
+                                                    sheetNewContent = {
+                                                        UpdateHabit(
+                                                            scope = scope,
+                                                            sheetState = sheetState,
+                                                            db = db,
+                                                            onHabitChange = {
+                                                                habits.value = habitsDao.getAll()
+                                                                currentOrder.value = currentOrder.value
+                                                            },
+                                                            habitId = habit.value!!.id
+                                                        )
+                                                    }
 
-                                                scope.launch {
-                                                    sheetState.show()
+                                                    scope.launch {
+                                                        sheetState.show()
+                                                    }
                                                 }
                                             }
                                         ),
                                     editingEnabled,
-                                    onHabitChange = { habits.value = habitsDao.getAll() }
+                                    onHabitChange = {
+                                        habits.value = habitsDao.getAll()
+                                        habit.value = habitsDao.loadSingle(item)
+                                        currentOrder.value = currentOrder.value
+                                    }
                                 )
                             }
                         }
@@ -342,7 +292,6 @@ fun HabitBlock(
                         enabled = item.currentlyCompletedSteps != 0,
                         onClick = {
                             item.currentlyCompletedSteps -= 1
-
                             if (item.currentlyCompletedSteps < item.completionSteps){
                                 item.streak -= 1
                                 if (item.streak == 0) {
@@ -351,7 +300,6 @@ fun HabitBlock(
                                     item.lastCompletedDate = item.lastCompletedDate!!.minus(1, DateTimeUnit.DAY)
                                 }
                             }
-
                             habitsDao.update(item)
                             onHabitChange()
                         },
@@ -382,8 +330,8 @@ fun HabitBlock(
                                 // potentially update the streak if it not set for today.
                                 if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()){
                                     item.streak += 1;
+                                    item.lastCompletedDate = kotlinx.datetime.LocalDate.now()
                                 }
-
                             }
                             habitsDao.update(item)
                             onHabitChange()

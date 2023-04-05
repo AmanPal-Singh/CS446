@@ -7,11 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -31,8 +31,11 @@ enum class GooseVariation {
 
 enum class GooseAccessory {
     None,
-    Flag
+    Flag,
+    Heart,
+    Pencil
 }
+
 
 fun getGooseResource(variation: GooseVariation): Int {
     if (variation == GooseVariation.Default) {
@@ -48,6 +51,10 @@ fun getGooseResource(variation: GooseVariation): Int {
 fun getAccessoryResource(accessory: GooseAccessory): Int? {
     if (accessory == GooseAccessory.Flag) {
         return R.drawable.flag
+    } else if (accessory == GooseAccessory.Heart) {
+        return R.drawable.heart
+    } else if (accessory == GooseAccessory.Pencil) {
+        return R.drawable.pencil_accessory
     }
     return null
 }
@@ -56,6 +63,7 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
 fun Goose(
     variation: GooseVariation = GooseVariation.Default,
     accessory: GooseAccessory = GooseAccessory.None,
+    accessoryPlacement: Pair<Dp, Dp> = Pair(-120.dp, 0.dp),
     size: Dp,
     rotationZ: Float = 0f,
     honkSound: Boolean = false,
@@ -93,7 +101,12 @@ fun Goose(
             }
         }
 
-    Row() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         Image(
             painter = painterResource(id = getGooseResource(variation)),
             contentDescription = "Goose Image",
@@ -107,8 +120,9 @@ fun Goose(
                 contentDescription = "Goose Image",
                 contentScale = ContentScale.Fit,
                 modifier = imageModifier
-                    .offset(x = -120.dp)
-                    .size(size.times(0.25f))
+                    .offset(accessoryPlacement.first, accessoryPlacement.second)
+                    .size(size)
+                    .scale(0.4f)
             )
         }
     }

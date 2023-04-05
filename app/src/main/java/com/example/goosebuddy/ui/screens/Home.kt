@@ -11,8 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
@@ -30,20 +32,20 @@ val options = arrayOf(
 )
 
 val defaultMessages = listOf(
-    "Honk Honk Honk!",
-    "I may look cute but we are dangerous creatues! \n Respect our space",
-    "Don't Policy 71!",
-    "Physics has a lot of study spaces!",
-    "Don't forget your iClicker!",
-    "Be nice!",
-    "Thank Mr. Goose",
-    "Be sure to try different clubs! \n There is a variety of things to try!",
+    "\nHonk Honk Honk!\n",
+    "I may look cute but we are dangerous creatures! \nRespect our space",
+    "\nDon't Policy 71!\n",
+    "\nPhysics has a lot of study spaces!\n",
+    "\nDon't forget your iClicker!\n",
+    "\nBe nice!\n",
+    "\nThank Mr. Goose\n",
+    "\nBe sure to try different clubs! \n here is a variety of things to try!",
 )
 
 @Composable
 fun Home(db:AppDatabase) {
     Column(
-        verticalArrangement = Arrangement.Bottom,
+        verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -53,9 +55,7 @@ fun Home(db:AppDatabase) {
         DatedGreeting()
         Spacer(modifier = Modifier.size(70.dp))
         val text = remember { mutableStateOf(getDefaultGooseMessage(db)) }
-        GooseText(text.value)
-        Spacer(modifier = Modifier.size(30.dp))
-        Goose(size = 225.dp, honkSound = true)
+        GooseAndSpeechBubble(text.value)
         SpeechOptions(options = options, text, defaultMessages)
     }
 }
@@ -64,7 +64,7 @@ private fun getDefaultGooseMessage(db: AppDatabase): String {
     var calendarDao = db.CalendarItemDao()
     var current = kotlinx.datetime.LocalDate.now()
     var calendarItemsToday = calendarDao.getOnDate(current)
-    var text = "Honk Honk!"
+    var text = "\nHonk Honk!\n"
     run breaking@
     {
         calendarItemsToday.forEach { calendarItem ->
@@ -75,8 +75,18 @@ private fun getDefaultGooseMessage(db: AppDatabase): String {
     return text
 }
 @Composable
-fun GooseText(text: String){
-    SpeechBubble(text)
+fun GooseAndSpeechBubble(text: String){
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        SpeechBubble(text, includeLeftSpacing = false)
+        Spacer(modifier = Modifier.size(30.dp))
+        Goose(size = 225.dp, honkSound = true)
+    }
+
 }
 
 @Composable
@@ -104,7 +114,7 @@ fun DatedGreeting() {
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Text(formatted)
+        Text(text = formatted, fontSize = 24.sp, fontWeight = FontWeight.Medium)
         Text(greeting)
     }
 }
