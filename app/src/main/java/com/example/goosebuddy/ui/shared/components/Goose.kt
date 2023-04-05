@@ -33,6 +33,7 @@ enum class GooseAccessory {
     None,
     Flag,
     Heart,
+    Pencil
 }
 
 
@@ -52,6 +53,8 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
         return R.drawable.flag
     } else if (accessory == GooseAccessory.Heart) {
         return R.drawable.heart
+    } else if (accessory == GooseAccessory.Pencil) {
+        return R.drawable.pencil_accessory
     }
     return null
 }
