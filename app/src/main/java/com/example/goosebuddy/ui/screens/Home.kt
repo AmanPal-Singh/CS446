@@ -55,7 +55,7 @@ fun Home(db:AppDatabase) {
         Spacer(modifier = Modifier.size(70.dp))
         GooseText(db)
         Spacer(modifier = Modifier.size(30.dp))
-        Goose(225.dp, honkSound = true)
+        Goose(size = 225.dp, honkSound = true)
         SpeechOptions(options = options)
     }
 }

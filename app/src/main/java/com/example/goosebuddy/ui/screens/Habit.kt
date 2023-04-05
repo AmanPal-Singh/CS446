@@ -42,7 +42,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
     var expanded by remember { mutableStateOf(false) }
     Column {
         SpeechBubble("Honk! Updating the habit ${habitName.text}...")
-        Goose(200.dp, 8f)
+        Goose(size = 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
