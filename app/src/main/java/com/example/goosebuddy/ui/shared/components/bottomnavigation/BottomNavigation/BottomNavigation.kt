@@ -93,7 +93,7 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
 
     val selectedModifier = Modifier
         .drawBehind {
-            val strokeWidth = Stroke.DefaultMiter
+            val strokeWidth = Stroke.DefaultMiter + 10f
             val y = size.height - strokeWidth / 2
 
             drawLine(
@@ -104,10 +104,9 @@ fun getModifier(item: BottomNavigationItem, navController: NavController): Modif
             )
         }
     val homeSelectedModifier = Modifier
-        .border(3.dp, LightGrey, RoundedCornerShape(18.dp))
+        .border(4.dp, LightGrey, RoundedCornerShape(18.dp))
     var modifier: Modifier =  if (isHomeButton) homeModifier else defaultModifier
 
-    // TODO: change to begins with
     if (currentDestination == item.screen_route) {
         modifier = if (item.title !== "Home") {
             modifier.then(selectedModifier)
