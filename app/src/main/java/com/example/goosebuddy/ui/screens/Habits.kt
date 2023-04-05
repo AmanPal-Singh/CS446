@@ -325,9 +325,7 @@ fun HabitBlock(
                 if (!editingEnabled.value) {
                     Button(
                         onClick = {
-                            println(item.currentlyCompletedSteps)
                             item.currentlyCompletedSteps += 1
-                            println(item.currentlyCompletedSteps)
                             if (item.currentlyCompletedSteps == item.completionSteps) {
                                 // potentially update the streak if it not set for today.
                                 if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()){
