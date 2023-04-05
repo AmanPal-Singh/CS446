@@ -101,7 +101,7 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
     // the user data collected throughout the onboarding process
     // will be added to the database after user submits
     // will be used to make recommendations to users
-    val userData = remember { mutableStateOf(UserData()) }
+    val userData = remember { mutableStateOf(UserData(0)) }
 
     // which step we are currently are
     // default to starting from first step: 0

@@ -10,14 +10,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.models.UserData
 import com.example.goosebuddy.ui.shared.components.Goose
 
 @Composable
 fun Profile(db: AppDatabase) {
     val profileDao = db.userdataDao()
 
-    var userData = profileDao.getAll()
+    val userData = profileDao.getAll()
     Log.i("profile", userData.toString())
 
     var name by remember {
