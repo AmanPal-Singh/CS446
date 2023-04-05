@@ -172,6 +172,13 @@ fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditin
                         disableEditing() },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
                 ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.save),
+                        contentDescription = "Save",
+                        tint = Black,
+                        modifier = Modifier
+                            .height(20.dp)
+                    )
                     Text("Save")
                 }
             }
