@@ -162,54 +162,6 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                     }
                 }
             }
-            LazyColumn(
-                state = orderState.listState,
-                modifier = Modifier
-                    .reorderable(orderState)
-                    .detectReorderAfterLongPress(orderState),
-                // content padding
-                contentPadding = PaddingValues(
-                    start = 12.dp,
-                    top = 16.dp,
-                    end = 12.dp,
-                    bottom = 16.dp
-                ),
-            ) {
-                items(currentOrder.value, { it }) { item ->
-                    ReorderableItem(orderState, key = item) { isDragging ->
-                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        val habit = habits.value.find { h -> h.id == item }
-                        if (habit != null) {
-                            HabitBlock(
-                                item = habit,
-                                navController = navController,
-                                onHabitChange = { habits.value = habitsDao.getAll() },
-                                db = db,
-                                scope = scope,
-                                sheetState = sheetState,
-                                editingEnabled = editingEnabled,
-                                modifier = Modifier
-                                    .shadow(elevation.value)
-                                    .clickable(
-                                        onClick = {
-                                            sheetNewContent = {
-                                                UpdateHabit(
-                                                    scope = scope,
-                                                    sheetState = sheetState,
-                                                    db = db,
-                                                    onHabitChange = {
-                                                        habits.value = habitsDao.getAll()
-                                                    },
-                                                    habitId = habit.id
-                                                )
-                                            }
-                                        }
-                                    )
-                            )
-                        }
-                    }
-                }
-            }
             if (habits.value.size == 0) {
                 Spacer(modifier = Modifier.height(80.dp))
                 Text(
