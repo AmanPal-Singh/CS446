@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -57,7 +58,7 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
     val subroutines = routine.subroutines;
 
     val editingEnabled = remember { mutableStateOf(false) }
-    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.title }) }
+    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.routineId }) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(
         ModalBottomSheetValue.Hidden,
@@ -96,10 +97,9 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
                     .reorderable(state)
                     .detectReorderAfterLongPress(state)
             ) {
-
-                items(currentOrder.value, { it }) { name ->
-                    ReorderableItem(state, key = name) { isDragging ->
-                        val subroutine = subroutines.find { s -> s.title == name }
+                itemsIndexed(currentOrder.value) {  index, item->
+                    ReorderableItem(state, key = index) { isDragging ->
+                        val subroutine = subroutines.find { s -> s.routineId == item }
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         if (subroutine != null) {
                             SubroutineCard(
