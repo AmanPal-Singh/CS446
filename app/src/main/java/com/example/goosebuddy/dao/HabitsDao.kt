@@ -22,5 +22,5 @@ interface HabitsDao {
     fun deleteAll()
 
     @Update
-    fun update(habits: Habits)
+    fun update(vararg habits: Habits)
 }

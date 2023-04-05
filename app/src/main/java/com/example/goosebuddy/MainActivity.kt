@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
 import com.example.goosebuddy.receivers.HabitsReceiver
+import com.example.goosebuddy.receivers.ResetHabitsReceiver
 import com.example.goosebuddy.ui.screens.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
     private val channelName = R.string.channel_name.toString()
     private val notifyId = 0
     var receiver: HabitsReceiver? = null
+    var resetReceiver: ResetHabitsReceiver? = null
     var intentFilter: IntentFilter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +59,7 @@ class MainActivity : ComponentActivity() {
             getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         receiver = HabitsReceiver()
+        resetReceiver = ResetHabitsReceiver()
         intentFilter = IntentFilter("com.example.goosebuddy.broadcastreceiver.SOME_ACTION")
         setContent {
             RootNavigationGraph(ctx = baseContext, channelId, notifyId, notificationManager, alarmManager)
@@ -66,11 +69,13 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         registerReceiver(receiver, intentFilter)
+        registerReceiver(resetReceiver, intentFilter)
     }
 
     override fun onPause() {
         super.onPause()
         unregisterReceiver(receiver)
+        unregisterReceiver(resetReceiver)
     }
 
     private fun  createNotificationChannel(){
@@ -125,6 +130,27 @@ private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
         ctx,
         0, intent, PendingIntent.FLAG_IMMUTABLE
     )
+    // test with every 60 seconds for now
+    alarmManager.setInexactRepeating(
+        AlarmManager.RTC_WAKEUP,
+        updateTime.timeInMillis,
+        1000 * 60,
+        pendingIntent
+    )
+}
+
+private fun setHabitsResetAlarm(alarmManager: AlarmManager, ctx: Context) {
+    // Sets recurring alarm to reset habits at midnight
+    val currentTime = LocalDateTime.now()
+    val updateTime: Calendar = Calendar.getInstance()
+    updateTime.set(Calendar.HOUR_OF_DAY, currentTime.hour)
+    updateTime.set(Calendar.MINUTE, currentTime.minute)
+    updateTime.set(Calendar.SECOND, currentTime.second + 1)
+    val intent = Intent(ctx, ResetHabitsReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(
+        ctx,
+        1, intent, PendingIntent.FLAG_IMMUTABLE
+    )
     // test with every 90 seconds for now
     alarmManager.setInexactRepeating(
         AlarmManager.RTC_WAKEUP,
@@ -152,6 +178,8 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         startDestination = "lock"
     }
     setHabitsAlarm(alarmManager, ctx)
+    setHabitsResetAlarm(alarmManager, ctx)
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
