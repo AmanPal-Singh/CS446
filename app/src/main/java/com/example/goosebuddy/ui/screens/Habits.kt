@@ -1,5 +1,7 @@
 package com.example.goosebuddy.ui.screens
 
+import android.app.NotificationManager
+import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.runtime.getValue
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.app.NotificationCompat
 import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
@@ -47,7 +50,7 @@ import org.burnoutcrew.reorderable.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Habits(navController: NavController, db: AppDatabase) {
+fun Habits(navController: NavController, db: AppDatabase, notificationManager: NotificationManager, ctx : Context) {
     var habitsDao = db.habitsDao()
 
     var habits = remember { mutableStateOf(habitsDao.getAll()) }
@@ -64,6 +67,13 @@ fun Habits(navController: NavController, db: AppDatabase) {
             }
         }
     )
+
+    val notif = NotificationCompat.Builder(ctx,"channelId")
+        .setContentTitle("HONK HONK!")
+        .setContentText("The day is almost up! Make sure to complete your remaining habits")
+        .setSmallIcon(R.drawable.pencil)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .build()
 
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
