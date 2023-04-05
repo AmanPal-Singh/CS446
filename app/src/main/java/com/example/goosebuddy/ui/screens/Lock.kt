@@ -1,6 +1,7 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -60,16 +61,19 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         shape = CircleShape,
                         onClick = { addDigitToPin(digits[0]) },
                         modifier = btnModifier,
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                     ) {Text(digits[0])}
                     Button(
                         shape = CircleShape,
                         onClick = { addDigitToPin(digits[1]) },
                         modifier = btnModifier,
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                     ) {Text(digits[1])}
                     Button(
                         shape = CircleShape,
                         onClick = { addDigitToPin(digits[2]) },
                         modifier = btnModifier,
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                     ) {Text(digits[2])}
                 }
 
@@ -114,11 +118,22 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         }
                     },
                     modifier = btnModifier,
-                ) {Text("x")}
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.close),
+                        contentDescription = "close icon",
+                        modifier = Modifier
+                            .height(10.dp)
+                            .width(10.dp)
+
+                    )
+                }
                 Button(
                     shape = CircleShape,
                     onClick = { addDigitToPin("0") },
                     modifier = btnModifier,
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                 ) {Text("0")}
                 Button(
                     shape = CircleShape,
@@ -136,8 +151,18 @@ fun Lock(db: AppDatabase, navController: NavController) {
                             }
                         }
                     },
-                    modifier = btnModifier
-                ) {Text("Submit")}
+                    modifier = btnModifier,
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.tick),
+                        contentDescription = "submit icon",
+                        modifier = Modifier
+                            .height(15.dp)
+                            .width(15.dp)
+
+                    )
+                }
             }
         }
     }
