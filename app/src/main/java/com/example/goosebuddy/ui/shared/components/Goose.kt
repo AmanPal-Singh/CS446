@@ -101,12 +101,7 @@ fun Goose(
             }
         }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
+    Row() {
         Image(
             painter = painterResource(id = getGooseResource(variation)),
             contentDescription = "Goose Image",
