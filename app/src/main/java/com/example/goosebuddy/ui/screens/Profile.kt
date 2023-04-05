@@ -8,9 +8,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.theme.*
 
@@ -127,26 +129,36 @@ fun UserField(name: String, value: TextFieldValue, enabled: Boolean, onChange: (
 fun EditButtons(editingEnabled: Boolean, revertChanges: () -> Unit, enableEditing: () -> Unit, disableEditing: () -> Unit, updateData: () -> Unit) {
     Row() {
         if (!editingEnabled) {
-            Button(onClick = {  enableEditing() }) {
+            Button(
+                onClick = {  enableEditing() },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.pencil),
+                    tint = Black,
+                    contentDescription = "Edit"
+                )
                 Text("Edit Profile")
             }
         } else {
             Row () {
-                Button(onClick = {
-                    revertChanges()
-                    disableEditing()
-                }) {
+                OutlinedButton(
+                    onClick = { revertChanges()
+                        disableEditing() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
+                ) {
                     Text("Cancel")
                 }
-                Button(onClick = {
-                    // TODO: save new
-                    updateData()
-                    disableEditing()
-                }) {
+                Spacer(modifier = Modifier.size(20.dp))
+                Button(
+                    onClick = {  // TODO: save new
+                        updateData()
+                        disableEditing() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
+                ) {
                     Text("Save")
                 }
             }
         }
-
     }
 }
