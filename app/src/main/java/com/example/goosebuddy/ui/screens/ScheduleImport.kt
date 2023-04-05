@@ -56,26 +56,30 @@ fun ScheduleImportGoose(
     sheetState: ModalBottomSheetState,
     scope: CoroutineScope,
 ) {
+
     // TODO: Validation
-    SpeechBubble("Honk! Adding a course...")
-    Goose(200.dp, 8f)
-    Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(White)
-    ) {
-        SubjectField(sivm = sivm)
-        CourseNumberField(sivm = sivm)
-        ClassNumberField(sivm = sivm)
-        Button(
-            onClick = { scope.launch {
-                sheetState.hide()
-                onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
+    Column {
+        SpeechBubble("Honk! Adding a course...")
+        Goose(size = 200.dp, rotationZ = 8f)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .padding(15.dp)
+        ) {
+            SubjectField(sivm = sivm)
+            CourseNumberField(sivm = sivm)
+            ClassNumberField(sivm = sivm)
+            Button(
+                onClick = { scope.launch {
+                    sheetState.hide()
+                    onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
+                }
+                }) {
+                Text("Import schedule")
             }
-        }) {
-            Text("Import schedule")
         }
     }
 }

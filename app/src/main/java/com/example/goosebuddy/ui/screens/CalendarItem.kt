@@ -49,7 +49,7 @@ fun CalendarItem(
     val ctx = LocalContext.current
     Column {
         SpeechBubble("Honk! ${if (mode == "add") "Adding" else "Editing"} a Task...")
-        Goose(200.dp, 8f)
+        Goose(size = 200.dp, rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()

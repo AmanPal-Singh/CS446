@@ -121,7 +121,6 @@ private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notificationManager: NotificationManager, alarmManager: AlarmManager) {
     val navController = rememberNavController()

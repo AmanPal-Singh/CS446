@@ -43,11 +43,15 @@ class CalendarViewModel(
     val db: AppDatabase,
     val scrollState: ScrollState
 ) : ViewModel() {
+    val API_KEY_HEADER = "X-API-KEY"
+    val API_KEY = "0DFD62ADA40F4B4680AE7EFE4B15CE5A" // TODO: this is bad extract to env var later
+    val TERM_URL = "https://openapi.data.uwaterloo.ca/v3/Terms/current"
+
     private suspend fun getScheduleInfo(subject: String, courseNumber: String, classNumber: String) : ScheduleData {
         // First, get current term code
-        val termUrl = "https://openapi.data.uwaterloo.ca/v3/Terms/current"
-        val (_, _, termResult) = Fuel.get(termUrl)
-            .header("X-API-KEY", "0DFD62ADA40F4B4680AE7EFE4B15CE5A")
+
+        val (_, _, termResult) = Fuel.get(TERM_URL)
+            .header(API_KEY_HEADER, API_KEY)
             .awaitStringResponseResult()
         // By the time this var is used, should be overridden. Or an exception would have been thrown
         var termData = TermData("")
@@ -71,7 +75,7 @@ class CalendarViewModel(
         val termCode = termData.termCode
         val classScheduleUrl = "https://openapi.data.uwaterloo.ca/v3/ClassSchedules/${termCode}/${subject}/${courseNumber}"
         val (_, _, classScheduleResult) = Fuel.get(classScheduleUrl)
-            .header("X-API-KEY", "0DFD62ADA40F4B4680AE7EFE4B15CE5A")
+            .header(API_KEY_HEADER, API_KEY)
             .awaitStringResponseResult()
         // By the time this var is used, should be overridden. Or an exception would have been thrown
         var classScheduleData: List<ClassScheduleData> = listOf()

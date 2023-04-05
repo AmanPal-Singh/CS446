@@ -45,22 +45,18 @@ fun Calendar(
                 .background(LightGrey)
                 .padding(10.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(10.dp)
-            ) {
-                Text("Calendar", fontSize = 40.sp)
-            }
             Button(
                 onClick = {
                     sheetContent.value = {
                         val sivm = ScheduleImportViewModel()
-                        ScheduleImportGoose(
-                            sivm = sivm,
-                            onSubmit = cvm::onSubmitCalendarImport,
-                            sheetState = sheetState,
-                            scope = coroutineScope,
-                        )
+                        Column {
+                            ScheduleImportGoose(
+                                sivm = sivm,
+                                onSubmit = cvm::onSubmitCalendarImport,
+                                sheetState = sheetState,
+                                scope = coroutineScope,
+                            )
+                        }
                     }
                     coroutineScope.launch {
                         sheetState.show()
@@ -208,7 +204,15 @@ private fun CalendarBlock(
                 Button(
                     onClick = {
                         sheetContent.value = {
-                            val civm = CalendarItemViewModel(item)
+                            val updatedCalendarItem = CalendarItem(
+                                id = item.id,
+                                title = item.title,
+                                date = item.date,
+                                startTime = item.startTime,
+                                endTime = item.endTime,
+                                checked = checked.value,
+                            )
+                            val civm = CalendarItemViewModel(updatedCalendarItem)
                             CalendarItem(
                                 civm = civm,
                                 mode = "edit",
