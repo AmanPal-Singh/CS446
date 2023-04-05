@@ -11,14 +11,16 @@ import kotlinx.datetime.LocalDate
 
 @Database(entities = [
     Routines::class,
+    Subroutines::class,
     WeekdayData::class,
     Habits::class,
     UserData::class,
     Lock::class,
     CalendarItem::class
-], version = 7)
+], version = 10)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routinesDao(): RoutinesDao;
+    abstract fun subroutinesDao(): SubroutinesDao;
     abstract fun weekdayDataDao(): WeekdayDataDao;
     abstract fun habitsDao(): HabitsDao;
     abstract fun userdataDao(): UserDataDao;
