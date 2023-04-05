@@ -377,7 +377,9 @@ fun AddSubroutine(
                         sheetState.hide()
                         navController.navigate("routines/${routine.routines.id}")
 
-                    }  }) {
+                    }  },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                        ) {
                         Text("Add")
                     }
                 }

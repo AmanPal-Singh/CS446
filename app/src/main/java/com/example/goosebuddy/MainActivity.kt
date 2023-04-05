@@ -15,6 +15,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -130,10 +131,11 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
     val calendarState = rememberSelectableCalendarState()
+    val calendarScrollState = rememberScrollState()
     var db = createInstance(ctx)
-    val calendarViewModel = CalendarViewModel(calendarState, navController, db)
+    val calendarViewModel = CalendarViewModel(calendarState, navController, db, calendarScrollState)
     val testingLock = false
-    var startDestination = "onboarding"
+    var startDestination = "home"
     if (testingLock) {
         startDestination = "lock"
     }
@@ -187,10 +189,6 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Calendar(cvm = calendarViewModel)
             }
-        }
-        composable(calendarImportRoute) {
-            val sivm = ScheduleImportViewModel()
-            ScheduleImport(sivm = sivm, onSubmit = calendarViewModel::onSubmitCalendarImport)
         }
         composable(BottomNavigationItem.Profile.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
