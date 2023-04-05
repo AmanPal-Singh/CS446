@@ -263,7 +263,7 @@ fun NamePage(userData: MutableState<UserData>) {
 
         // text input field for name
         var text = remember { mutableStateOf("") }
-        TextField(
+        OutlinedTextField(
             value = text.value,
             onValueChange = {
                 text.value = it
