@@ -9,17 +9,35 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.MainActivity
 import com.example.goosebuddy.R
+import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
 
 
 class HabitsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
 
         println("ALARM RECEIVED IN")
+        var db = AppDatabase.createInstance(context)
+        var habitsDao = db.habitsDao()
+        var habits = habitsDao.getAll()
+        println("${habits}")
+
+        var isComplete = true // assume they have completed unless proven wrong
+
+        run breaking@{
+            habits.forEach { item ->
+                if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()) {
+                    isComplete = false
+                    return@breaking
+                }
+            }
+        }
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        // confirm that there is exist one habit that needs to be completed
+        if (!isComplete && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             val intent = Intent(context, MainActivity::class.java)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)

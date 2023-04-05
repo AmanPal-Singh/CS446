@@ -59,14 +59,6 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
             }
         }
     )
-    val bigText = NotificationCompat.BigTextStyle()
-    val notif = NotificationCompat.Builder(ctx,"channelId")
-        .setContentTitle("HONK HONK!")
-        .setContentText("The day is almost up! Make sure to complete your remaining habits")
-        .setSmallIcon(R.drawable.pencil)
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setStyle(bigText)
-        .build()
 
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
@@ -148,7 +140,6 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                 sheetState.show()
                                 //sheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }
-                            notificationManager.notify(0, notif)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Green),
                     )
@@ -339,6 +330,7 @@ fun HabitBlock(
                                 // potentially update the streak if it not set for today.
                                 if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()){
                                     item.streak += 1;
+                                    item.lastCompletedDate = kotlinx.datetime.LocalDate.now()
                                 }
                             }
                             habitsDao.update(item)

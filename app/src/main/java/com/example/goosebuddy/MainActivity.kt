@@ -68,6 +68,11 @@ class MainActivity : ComponentActivity() {
         registerReceiver(receiver, intentFilter)
     }
 
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(receiver)
+    }
+
     private fun  createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create the NotificationChannel.
@@ -109,6 +114,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 }
 
 private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
+    // Sets recurring alarm for habits every day at 11:00 local
     val currentTime = LocalDateTime.now()
     val updateTime: Calendar = Calendar.getInstance()
     updateTime.set(Calendar.HOUR_OF_DAY, currentTime.hour)
@@ -119,9 +125,11 @@ private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
         ctx,
         0, intent, PendingIntent.FLAG_IMMUTABLE
     )
-    alarmManager.setExact(
+    // test with every 90 seconds for now
+    alarmManager.setInexactRepeating(
         AlarmManager.RTC_WAKEUP,
         updateTime.timeInMillis,
+        1000 * 90,
         pendingIntent
     )
 }
