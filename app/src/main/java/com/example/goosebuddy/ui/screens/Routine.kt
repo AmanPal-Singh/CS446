@@ -58,7 +58,7 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
     val subroutines = routine.subroutines;
 
     val editingEnabled = remember { mutableStateOf(false) }
-    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.routineId }) }
+    val currentOrder = remember { mutableStateOf(subroutines.map { s -> s.subId }) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(
         ModalBottomSheetValue.Hidden,
@@ -99,7 +99,7 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
             ) {
                 itemsIndexed(currentOrder.value) {  index, item->
                     ReorderableItem(state, key = index) { isDragging ->
-                        val subroutine = subroutines.find { s -> s.routineId == item }
+                        val subroutine = subroutines.find { s -> s.subId == item }
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         if (subroutine != null) {
                             SubroutineCard(

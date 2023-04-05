@@ -36,9 +36,17 @@ import kotlin.time.toDuration
 fun RoutineTimer(id: Int, db: AppDatabase) {
     var routinesDao = db.routinesDao()
     val routine = routinesDao.get(id)
-    val subroutine = routine.subroutines.find{ !it.completed }
-    val name = subroutine!!.title
-    val duration = subroutine.duration.toDuration(DurationUnit.SECONDS)
+    val subroutineIndex = routine.subroutines.indexOfFirst{ !it.completed }
+    val index = remember { mutableStateOf(subroutineIndex) }
+
+    if (index.value >= routine.subroutines.size) {
+        index.value = routine.subroutines.size - 1
+    } else if (index.value < 0) {
+        index.value = 0
+    }
+    val name = routine.subroutines[index.value]!!.title
+    val duration = routine.subroutines[index.value]!!.duration.toDuration(DurationUnit.SECONDS)
+    println(routine.subroutines[index.value])
 
     val viewModel by remember {
         mutableStateOf(RoutineTimerViewModel(duration))
@@ -76,7 +84,7 @@ fun RoutineTimer(id: Int, db: AppDatabase) {
             )
         }
 
-        ControlButtons(viewModel = viewModel, isPlaying = isPlaying)
+        ControlButtons(viewModel = viewModel, isPlaying = isPlaying, index)
     }
 }
 
@@ -105,7 +113,7 @@ fun TimerControlButton(
 }
 
 @Composable
-fun ControlButtons(viewModel: RoutineTimerViewModel, isPlaying: Boolean) {
+fun ControlButtons(viewModel: RoutineTimerViewModel, isPlaying: Boolean, index: MutableState<Int>) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -113,7 +121,7 @@ fun ControlButtons(viewModel: RoutineTimerViewModel, isPlaying: Boolean) {
             .padding(10.dp)
     ) {
         TimerControlButton(
-            onClick = { /*TODO*/ },
+            onClick = { index.value -= 1 },
             drawableId = R.drawable.skip_previous
         )
         TimerControlButton(
@@ -121,7 +129,7 @@ fun ControlButtons(viewModel: RoutineTimerViewModel, isPlaying: Boolean) {
             drawableId = if (isPlaying) R.drawable.pause else R.drawable.play_arrow
         )
         TimerControlButton(
-            onClick = { /*TODO*/ },
+            onClick = { index.value += 1 },
             drawableId = R.drawable.skip_next
         )
     }
