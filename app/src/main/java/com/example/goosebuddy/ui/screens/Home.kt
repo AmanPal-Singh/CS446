@@ -82,7 +82,7 @@ fun GooseAndSpeechBubble(text: String){
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        SpeechBubble(text)
+        SpeechBubble(text, includeLeftSpacing = false)
         Spacer(modifier = Modifier.size(30.dp))
         Goose(size = 225.dp, honkSound = true)
     }
