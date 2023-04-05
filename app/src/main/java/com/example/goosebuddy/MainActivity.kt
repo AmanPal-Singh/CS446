@@ -1,5 +1,6 @@
 package com.example.goosebuddy
 
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -40,17 +41,18 @@ class MainActivity : ComponentActivity() {
     private val channelId = "channelId"
     private val channelName = R.string.channel_name.toString()
     private val notifyId = 0
-    val notificationManager: NotificationManager =
-        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Creates a notification channel
         createNotificationChannel()
-
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val alarmManager: AlarmManager =
+            getSystemService(Context.ALARM_SERVICE) as AlarmManager
         setContent {
-            RootNavigationGraph(ctx = applicationContext, channelId, notifyId, notificationManager)
+            RootNavigationGraph(ctx = applicationContext, channelId, notifyId, notificationManager, alarmManager)
         }
     }
 
@@ -95,7 +97,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 }
 
 @Composable
-fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notificationManager: NotificationManager) {
+fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notificationManager: NotificationManager, alarmManager: AlarmManager) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
     val calendarState = rememberSelectableCalendarState()
@@ -118,7 +120,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         }
         composable(BottomNavigationItem.Habits.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Habits(navController = navController, db=db)
+                Habits(navController = navController, db=db, notificationManager, ctx=ctx)
             }
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
