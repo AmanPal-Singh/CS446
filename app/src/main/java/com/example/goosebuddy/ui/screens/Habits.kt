@@ -4,35 +4,24 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat
 import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
@@ -47,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
 import org.burnoutcrew.reorderable.*
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -67,12 +57,13 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
             }
         }
     )
-
+    val bigText = NotificationCompat.BigTextStyle()
     val notif = NotificationCompat.Builder(ctx,"channelId")
         .setContentTitle("HONK HONK!")
         .setContentText("The day is almost up! Make sure to complete your remaining habits")
         .setSmallIcon(R.drawable.pencil)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setStyle(bigText)
         .build()
 
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
@@ -155,6 +146,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                 sheetState.show()
                                 //sheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }
+                            notificationManager.notify(0, notif)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Grey),
                     )
@@ -182,7 +174,7 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                 ),
             ) {
                 items(currentOrder.value, { it }) { item ->
-                    ReorderableItem(orderState, key = item,) { isDragging ->
+                    ReorderableItem(orderState, key = item) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         val habit = habits.value.find { h -> h.id == item }
                         if (habit != null) {
@@ -196,13 +188,17 @@ fun Habits(navController: NavController, db: AppDatabase, notificationManager: N
                                     .shadow(elevation.value)
                                     .clickable(
                                         onClick = {
-                                            sheetNewContent = { UpdateHabit(
-                                                scope = scope,
-                                                sheetState = sheetState,
-                                                db = db,
-                                                onHabitChange = { habits.value = habitsDao.getAll() },
-                                                habitId = habit.id
-                                            ) }
+                                            sheetNewContent = {
+                                                UpdateHabit(
+                                                    scope = scope,
+                                                    sheetState = sheetState,
+                                                    db = db,
+                                                    onHabitChange = {
+                                                        habits.value = habitsDao.getAll()
+                                                    },
+                                                    habitId = habit.id
+                                                )
+                                            }
 
                                             scope.launch {
                                                 sheetState.show()

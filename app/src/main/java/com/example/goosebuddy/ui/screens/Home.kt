@@ -41,7 +41,6 @@ val options = arrayOf(
 )
 
 @Composable
-@Preview
 fun Home(db:AppDatabase) {
     Column(
         verticalArrangement = Arrangement.Bottom,
