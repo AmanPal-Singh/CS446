@@ -14,11 +14,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.ui.theme.*
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.models.Habits
-import com.example.goosebuddy.models.UserData
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.Relation
+import com.example.goosebuddy.models.*
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 
@@ -40,6 +43,13 @@ val suggestedHabit = mapOf(
         Habits(0, "Go on a walk", "Get your daily steps in!"),
     )
 )
+
+val pomodoroSub1 = Subroutines(0, 0, "study", "Study time", false, 1500)
+val pomodoroSub2 = Subroutines(0, 1, "break", "Break time", false, 300)
+val pomodoroSub3 = Subroutines(0, 2, "study", "Study time", false, 1500)
+val pomodoroSub4 = Subroutines(0, 3, "break", "Break time", false, 300)
+val pomodoroSub5 = Subroutines(0, 4, "study", "Study time", false, 1500)
+val pomodoroRoutine = Routines(0, "pomodoro", "Pomodoro to help with studying and taking breaks!", 0, 5)
 
 val onboardingSteps = arrayOf(
     OnboardingStep("welcome"),
@@ -149,8 +159,6 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
 
                         // add userData to db and make recommendations when on submit step
                         if (onboardingSteps[step.value].name == "submit") {
-                            println("user data")
-                            println(userData.value)
 
                             // add userData to db
                             val userDataDao = db.userdataDao()
@@ -175,6 +183,11 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                                     habitsDao.insertAll(habits)
                                 }
                             }
+
+                            // add pomodoro for everyone
+                            val routinesDao = db.routinesDao()
+                            routinesDao.insert(pomodoroRoutine, subroutines = listOf(pomodoroSub1, pomodoroSub2, pomodoroSub3, pomodoroSub4, pomodoroSub5))
+
                         }
                     },
                 )
@@ -376,7 +389,7 @@ fun RecommendationsPage(db: AppDatabase,) {
         val habits = habitsDao.getAll()
         val habitsMsg = habits.joinToString(", ") { "\"${it.title}\"" }
 
-        val recomendationMsg = "We have made a few recommendations based on your submission!\nWe have added ${habitsMsg}! You can review them in Habits!"
+        val recomendationMsg = "We have made a few recommendations based on your submission!\n\n\nWe have added ${habitsMsg}! You can review them in Habits!\n\n\nWe also added a pomodoro routine to help you with studying!"
         SpeechBubble(recomendationMsg)
         Goose(size=200.dp)
     }
