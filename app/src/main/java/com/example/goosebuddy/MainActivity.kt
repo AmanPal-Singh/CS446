@@ -46,7 +46,7 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
             drawerContent = {
                 Text("hello this is a drawer")
             },
-            topBar = { TopBar(scaffoldState) },
+            topBar = { TopBar(scaffoldState, navController) },
             bottomBar = { BottomNavigation(navController = navController) }
         ) { padding ->
             Surface(
@@ -81,7 +81,7 @@ fun RootNavigationGraph(ctx: Context) {
     ) {
         composable(BottomNavigationItem.Home.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Home()
+                Home(db=db)
             }
         }
         composable(BottomNavigationItem.Habits.screen_route) {

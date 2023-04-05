@@ -18,6 +18,7 @@ import kotlinx.datetime.LocalDate
     Lock::class,
     CalendarItem::class
 ], version = 10)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun routinesDao(): RoutinesDao;
     abstract fun subroutinesDao(): SubroutinesDao;
