@@ -56,7 +56,7 @@ fun Home(db:AppDatabase) {
         val text = remember { mutableStateOf(getDefaultGooseMessage(db)) }
         GooseText(text.value)
         Spacer(modifier = Modifier.size(30.dp))
-        Goose(225.dp, honkSound = true)
+        Goose(size = 225.dp, honkSound = true)
         SpeechOptions(options = options, text, defaultMessages)
     }
 }
