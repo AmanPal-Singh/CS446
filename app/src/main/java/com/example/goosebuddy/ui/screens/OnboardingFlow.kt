@@ -201,7 +201,7 @@ fun WelcomePage() {
     ) {
         val welcomeMsg = "Welcome to GooseBuddy!\nAre you ready to get started on your journey?"
         SpeechBubble(welcomeMsg)
-        Goose(200.dp)
+        Goose(size=200.dp)
     }
 }
 
@@ -213,7 +213,7 @@ fun NamePage(userData: MutableState<UserData>) {
     ) {
         val nameMsg = "My name is Mr. Goose!\nWhat's your name?"
         SpeechBubble(nameMsg)
-        Goose(200.dp)
+        Goose(size=200.dp)
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -237,7 +237,7 @@ fun WatPage(userData: MutableState<UserData>) {
     ) {
         val watMsg = "Hey ${userData.value.name}! Enter your WAT number below.\nYou can find it on your WAT card."
         SpeechBubble(watMsg)
-        Goose(200.dp)
+        Goose(size=200.dp)
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -265,7 +265,7 @@ fun YearPage(userData: MutableState<UserData>) {
     ) {
         val yearMsg = "What year are you in?"
         SpeechBubble(yearMsg)
-        Goose(200.dp)
+        Goose(size=200.dp)
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -292,7 +292,7 @@ fun ResidencePage(userData: MutableState<UserData>) {
     ) {
         val residenceMsg = "Describe your residence situation"
         SpeechBubble(residenceMsg)
-        Goose(200.dp)
+        Goose(size=200.dp)
 
         val livingSituations = mapOf(
             "roommates" to "I have roommates.",
@@ -363,6 +363,6 @@ fun SubmitPage() {
     ) {
         val submitMsg = "Congrats, you are all set!\n Submit whenever you are ready!"
         SpeechBubble(submitMsg)
-        Goose(200.dp)
+        Goose(size=200.dp)
     }
 }

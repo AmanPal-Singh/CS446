@@ -1,13 +1,10 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,8 +38,11 @@ import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.shared.components.DeleteButton
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
+import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.minus
 import org.burnoutcrew.reorderable.*
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -182,8 +182,23 @@ fun Habits(navController: NavController, db: AppDatabase) {
                                 db,
                                 scope,
                                 sheetState,
-                                { new -> sheetNewContent = new },
-                                Modifier.shadow(elevation.value),
+                                Modifier
+                                    .shadow(elevation.value)
+                                    .clickable(
+                                        onClick = {
+                                            sheetNewContent = { UpdateHabit(
+                                                scope = scope,
+                                                sheetState = sheetState,
+                                                db = db,
+                                                onHabitChange = { habits.value = habitsDao.getAll() },
+                                                habitId = habit.id
+                                            ) }
+
+                                            scope.launch {
+                                                sheetState.show()
+                                            }
+                                        }
+                                    ),
                                 editingEnabled,
                                 onHabitChange = { habits.value = habitsDao.getAll() }
                             )
@@ -203,7 +218,6 @@ fun HabitBlock(
     db: AppDatabase,
     scope: CoroutineScope,
     sheetState: ModalBottomSheetState,
-    composable: (it: @Composable (() -> Unit)) -> Unit ,
     modifier: Modifier, editingEnabled: MutableState<Boolean>,
     onHabitChange: () -> Unit
 ) {
@@ -264,9 +278,18 @@ fun HabitBlock(
                         enabled = item.currentlyCompletedSteps != 0,
                         onClick = {
                             item.currentlyCompletedSteps -= 1
+
+                            if (item.currentlyCompletedSteps < item.completionSteps){
+                                item.streak -= 1
+                                if (item.streak == 0) {
+                                    item.lastCompletedDate = null
+                                } else {
+                                    item.lastCompletedDate = item.lastCompletedDate!!.minus(1, DateTimeUnit.DAY)
+                                }
+                            }
+
                             habitsDao.update(item)
                             onHabitChange()
-                           // navController.navigate(BottomNavigationItem.Habits.screen_route)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Beige),
                         modifier = Modifier
@@ -292,7 +315,11 @@ fun HabitBlock(
                         onClick = {
                             item.currentlyCompletedSteps += 1
                             if (item.currentlyCompletedSteps == item.completionSteps) {
-                                item.streak += 1
+                                // potentially update the streak if it not set for today.
+                                if (item.lastCompletedDate == null || item.lastCompletedDate!! < kotlinx.datetime.LocalDate.now()){
+                                    item.streak += 1;
+                                }
+
                             }
                             habitsDao.update(item)
                             onHabitChange()
@@ -329,25 +356,6 @@ fun HabitBlock(
                             }
                         )
                     }
-                }
-                Button(
-                    onClick = {
-                        composable {
-                            UpdateHabit(
-                                scope = scope,
-                                sheetState = sheetState,
-                                db = db,
-                                onHabitChange = onHabitChange,
-                                habitId = item.id
-                            )
-                        }
-                        scope.launch {
-                            sheetState.show()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Black)
-                ) {
-                    Text(text = "Edit", color = White)
                 }
             }
         }
