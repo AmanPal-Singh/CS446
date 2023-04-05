@@ -206,9 +206,11 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         }
 
         composable(
-            "onboarding/schedule"
-        ) {
-            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, 7)
+            "onboarding/{step}",
+            arguments = listOf(navArgument("step") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val step = backStackEntry.arguments?.getString("step")!!.toInt()
+            OnboardingFlow(navController = navController, db=db, cvm=calendarViewModel, step)
         }
         composable(
             "routines/{routine_id}",
