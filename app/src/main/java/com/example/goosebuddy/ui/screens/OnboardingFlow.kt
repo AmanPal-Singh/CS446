@@ -23,6 +23,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.example.goosebuddy.models.*
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseAccessory
+import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 
 class OnboardingStep(
@@ -57,9 +59,9 @@ val onboardingSteps = arrayOf(
     OnboardingStep("wat"),
     OnboardingStep("year"),
     OnboardingStep("residence"),
-    OnboardingStep("submit"),
-    OnboardingStep("recommendations"),
     OnboardingStep("schedule"),
+    OnboardingStep("recommendations"),
+    OnboardingStep("submit"),
 )
 
 @Composable
@@ -104,13 +106,13 @@ fun BottomButtons(
         ) {
             val buttonMsg = when (onboardingSteps[step.value].name) {
                 "welcome" -> "Let's go!"
-                "name" -> "Done!"
+                "name" -> "Next"
                 "wat" -> "Next"
                 "year" -> "Done!"
                 "residence" -> "Got it!"
-                "submit" -> "Yay! Done!"
+                "submit" -> "Let's get started!"
                 "recommendations" -> "Let's get started!"
-                "schedule" -> "Show me the app!"
+                "schedule" -> "Next"
                 else -> "Next!"
             }
             Text(buttonMsg)
@@ -230,9 +232,9 @@ fun OnboardingStepComponent(
             "wat" -> WatPage(userData)
             "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
-            "submit" -> SubmitPage()
-            "recommendations" -> RecommendationsPage(db)
             "schedule" -> SchedulePage(navController, cvm)
+            "recommendations" -> RecommendationsPage(db)
+            "submit" -> SubmitPage()
         }
         // the buttons for navigation throughout onboarding
     }
@@ -245,9 +247,13 @@ fun WelcomePage() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val welcomeMsg = "Welcome to GooseBuddy!\nAre you ready to get started on your journey?"
+        val welcomeMsg = "Welcome to GooseBuddy!\n\n" +
+                "University may be overwhelming\n"+
+                "but I am here to help you navigate through university by helping you build\n" +
+                "good habits and reach your goals!\n\n" +
+                "Are you ready to get started on your journey?"
         SpeechBubble(welcomeMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(variation = GooseVariation.Waving, size=300.dp)
     }
 }
 
@@ -259,7 +265,11 @@ fun NamePage(userData: MutableState<UserData>) {
     ) {
         val nameMsg = "My name is Mr. Goose!\nWhat's your name?"
         SpeechBubble(nameMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Clipboard,
+            size= 200.dp
+        )
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -283,7 +293,11 @@ fun WatPage(userData: MutableState<UserData>) {
     ) {
         val watMsg = "Hey ${userData.value.name}! Enter your WAT number below.\nYou can find it on your WAT card."
         SpeechBubble(watMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Clipboard,
+            size=200.dp
+        )
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -309,9 +323,13 @@ fun YearPage(userData: MutableState<UserData>) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val yearMsg = "What year are you in? \nPlease enter your year as an integer"
+        val yearMsg = "What year are you in? \nPlease enter your year as an integer."
         SpeechBubble(yearMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Clipboard,
+            size= 200.dp
+        )
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -337,7 +355,11 @@ fun ResidencePage(userData: MutableState<UserData>) {
     ) {
         val residenceMsg = "What is your living situation like? \nPlease select all that apply."
         SpeechBubble(residenceMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Clipboard,
+            size= 200.dp
+        )
 
         val livingSituations = mapOf(
             "roommates" to "I have roommates.",
@@ -389,7 +411,11 @@ fun SubmitPage() {
     ) {
         val submitMsg = "Congrats, you are all set!\nSubmit whenever you are ready!"
         SpeechBubble(submitMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(
+            variation = GooseVariation.Waving,
+            accessory = GooseAccessory.Heart,
+            size= 300.dp
+        )
     }
 }
 
@@ -405,7 +431,11 @@ fun RecommendationsPage(db: AppDatabase,) {
 
         val recomendationMsg = "We have made a few recommendations based on your submission!\n\n\nWe have added ${habitsMsg}! You can review them in Habits!\n\n\nWe also added a pomodoro routine to help you with studying!"
         SpeechBubble(recomendationMsg, includeLeftSpacing = false)
-        Goose(size=200.dp)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Pencil,
+            size= 200.dp
+        )
     }
 }
 
@@ -415,9 +445,10 @@ fun SchedulePage(navController: NavHostController, cvm: CalendarViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val residenceMsg = "One more thing! You can import your schedule if you like!"
-        Text(residenceMsg, textAlign = TextAlign.Center)
 
+        val residenceMsg = "One more thing! You can import your schedule if you like!"
+        SpeechBubble(residenceMsg, includeLeftSpacing = false)
+        Goose(size = 200.dp)
         fun onImportSchedule(subject: String, courseNumber: String, classNumber: String) {
             cvm.importSchedule(subject, courseNumber, classNumber)
 
