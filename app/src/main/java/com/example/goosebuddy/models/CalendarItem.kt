@@ -1,17 +1,21 @@
 package com.example.goosebuddy.models
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
+import androidx.room.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-@Entity
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = CalendarSeries::class,
+        childColumns = ["seriesId"],
+        parentColumns = ["id"]
+    )]
+)
 @TypeConverters(DateTimeConverters::class)
 data class CalendarItem (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+    val seriesId: Int?,
     val title: String,
     val date: LocalDate?,
     val startTime: LocalTime?,

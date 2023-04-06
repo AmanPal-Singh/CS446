@@ -1,40 +1,46 @@
 package com.example.goosebuddy.ui.screens
 
 import android.app.TimePickerDialog
-import android.widget.TimePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 import com.example.goosebuddy.models.CalendarItem
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
+import com.example.goosebuddy.ui.shared.components.textFieldStyleBlue
+import com.example.goosebuddy.ui.theme.Beige
 import com.example.goosebuddy.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-class CalendarItemViewModel(calendarItem: CalendarItem) : ViewModel() {
-    val id = calendarItem.id
-    val title = mutableStateOf(calendarItem.title)
-    val date = mutableStateOf(calendarItem.date)
-    val startTime = mutableStateOf(calendarItem.startTime)
-    val endTime = mutableStateOf(calendarItem.endTime)
-    val checked = calendarItem.checked
+class CalendarItemViewModel(
+    val id: Int,
+    val seriesId: Int?,
+    title: String,
+    date: LocalDate,
+    startTime: LocalTime,
+    endTime: LocalTime,
+    val checked: Boolean
+) : ViewModel() {
+    val title = mutableStateOf(title)
+    val date = mutableStateOf(date)
+    val startTime = mutableStateOf(startTime)
+    val endTime = mutableStateOf(endTime)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -69,63 +75,86 @@ fun CalendarItem(
                         civm.title.value = newTitle
                     },
                     label = { Text("Subject") },
+                    colors = textFieldStyleBlue()
                 )
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
                 ) {
-                    ClickableText(
-                        text = AnnotatedString(civm.startTime.value.toString()),
-                        onClick = {
-                            val timePicker = TimePickerDialog(
-                                ctx,
-                                { _, selectedHour, selectedMinute ->
-                                    civm.startTime.value =
-                                        LocalTime(selectedHour, selectedMinute, 0)
-                                },
-                                civm.startTime.value?.hour!!, civm.startTime.value?.minute!!, false
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Start time: ", )
+                        ClickableText(
+                            text = AnnotatedString(civm.startTime.value.toString()),
+                            onClick = {
+                                val timePicker = TimePickerDialog(
+                                    ctx,
+                                    { _, selectedHour, selectedMinute ->
+                                        civm.startTime.value =
+                                            LocalTime(selectedHour, selectedMinute, 0)
+                                    },
+                                    civm.startTime.value?.hour!!, civm.startTime.value?.minute!!, false
+                                )
+                                timePicker.show()
+                            },
+                            style = TextStyle(
+                                color = Color.Blue,
+                                fontSize = 16.sp
                             )
-                            timePicker.show()
-                        },
-                        modifier = Modifier,
-                    )
-                    ClickableText(
-                        text = AnnotatedString(civm.endTime.value.toString()),
-                        onClick = {
-                            val timePicker = TimePickerDialog(
-                                ctx,
-                                { _, selectedHour, selectedMinute ->
-                                    civm.endTime.value =
-                                        LocalTime(selectedHour, selectedMinute, 0)
-                                },
-                                civm.endTime.value?.hour!!, civm.endTime.value?.minute!!, false
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("End time: ")
+                        ClickableText(
+                            text = AnnotatedString(civm.endTime.value.toString()),
+                            onClick = {
+                                val timePicker = TimePickerDialog(
+                                    ctx,
+                                    { _, selectedHour, selectedMinute ->
+                                        civm.endTime.value =
+                                            LocalTime(selectedHour, selectedMinute, 0)
+                                    },
+                                    civm.endTime.value?.hour!!, civm.endTime.value?.minute!!, false
+                                )
+                                timePicker.show()
+                            },
+                            style = TextStyle(
+                                color = Color.Blue,
+                                fontSize = 16.sp
                             )
-                            timePicker.show()
-                        },
-                        modifier = Modifier,
-                    )
+                        )
+                    }
                 }
 
                 // Add or edit button
                 if (mode == "add") {
-                    Button(onClick = {
-                        val dao = cvm.db.CalendarItemDao()
-                        val newCalendarItem = CalendarItem(
-                            id = civm.id,
-                            title = civm.title.value,
-                            date = civm.date.value!!,
-                            startTime = civm.startTime.value!!,
-                            endTime = civm.endTime.value!!,
-                            checked = civm.checked,
-                        )
-                        dao.insertAll(newCalendarItem)
+                    Button(
+                        onClick = {
+                            val dao = cvm.db.CalendarItemDao()
+                            val newCalendarItem = CalendarItem(
+                                id = civm.id,
+                                seriesId = civm.seriesId,
+                                title = civm.title.value,
+                                date = civm.date.value,
+                                startTime = civm.startTime.value,
+                                endTime = civm.endTime.value,
+                                checked = civm.checked,
+                            )
+                            dao.insertAll(newCalendarItem)
 
-                        scope.launch {
-                            // Add
-                            sheetState.hide()
-                            cvm.navController.navigate(BottomNavigationItem.Calendar.screen_route)
-                        }
-                    }) {
+                            scope.launch {
+                                // Add
+                                sheetState.hide()
+                                cvm.navController.navigate(BottomNavigationItem.Calendar.screen_route)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
+                    ) {
                         Text("Add")
                     }
                 } else {
@@ -134,10 +163,11 @@ fun CalendarItem(
                         val dao = cvm.db.CalendarItemDao()
                         val updatedCalendarItem = CalendarItem(
                             id = civm.id,
+                            seriesId = civm.seriesId,
                             title = civm.title.value,
-                            date = civm.date.value!!,
-                            startTime = civm.startTime.value!!,
-                            endTime = civm.endTime.value!!,
+                            date = civm.date.value,
+                            startTime = civm.startTime.value,
+                            endTime = civm.endTime.value,
                             checked = civm.checked,
                         )
                         dao.update(updatedCalendarItem)
@@ -147,7 +177,9 @@ fun CalendarItem(
                             sheetState.hide()
                             cvm.navController.navigate(BottomNavigationItem.Calendar.screen_route)
                         }
-                    }) {
+                    },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
+                    ) {
                         Text("Update")
                     }
                 }
