@@ -69,7 +69,7 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
 fun Goose(
     variation: GooseVariation = GooseVariation.Default,
     accessory: GooseAccessory = GooseAccessory.None,
-    accessoryPlacement: Pair<Dp, Dp> = Pair(-125.dp, 0.dp),
+    accessoryPlacement: Pair<Dp, Dp> = Pair(-90.dp, 0.dp),
     size: Dp,
     rotationZ: Float = 0f,
     honkSound: Boolean = false,
@@ -123,7 +123,7 @@ fun Goose(
                 modifier = imageModifier
                     .offset(accessoryPlacement.first, accessoryPlacement.second)
                     .size(size)
-                    .scale(0.4f)
+                    .scale(0.7f)
             )
         }
     }

@@ -54,19 +54,19 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         shape = CircleShape,
                         onClick = { addDigitToPin(digits[0]) },
                         modifier = btnModifier,
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                        colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {Text(digits[0])}
                     Button(
                         shape = CircleShape,
                         onClick = { addDigitToPin(digits[1]) },
                         modifier = btnModifier,
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                        colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {Text(digits[1])}
                     Button(
                         shape = CircleShape,
                         onClick = { addDigitToPin(digits[2]) },
                         modifier = btnModifier,
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                        colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {Text(digits[2])}
                 }
 
@@ -111,7 +111,7 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         }
                     },
                     modifier = btnModifier,
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                 ) {
                     Text("\u232b")
                 }
@@ -119,7 +119,7 @@ fun Lock(db: AppDatabase, navController: NavController) {
                     shape = CircleShape,
                     onClick = { addDigitToPin("0") },
                     modifier = btnModifier,
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                 ) {Text("0")}
                 Button(
                     shape = CircleShape,
@@ -138,7 +138,7 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         }
                     },
                     modifier = btnModifier,
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.tick),
