@@ -27,6 +27,12 @@ class ScheduleImportViewModel : ViewModel() {
     val subject = mutableStateOf("")
     val courseNumber = mutableStateOf("")
     val classNumber = mutableStateOf("")
+
+    fun clear() {
+        subject.value = ""
+        courseNumber.value = ""
+        classNumber.value = ""
+    }
 }
 
 val IMPORT_SCHEDULE_ROUTE = "calendar/courseSchedule"
@@ -83,6 +89,7 @@ fun ScheduleImportPage(
             onClick = {
                 cvm.viewModelScope.launch {
                     onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
+                    sivm.clear()
                     // Update mutable state course list so view updates
                     courseList.value = calendarSeriesDao.getAll()
                 }
