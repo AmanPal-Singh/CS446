@@ -22,4 +22,7 @@ interface CalendarItemDao {
 
     @Delete
     fun delete(calendarItem: CalendarItem)
+
+    @Query("DELETE FROM CalendarItem WHERE seriesId=:seriesId")
+    fun deleteInSeries(seriesId: Int)
 }

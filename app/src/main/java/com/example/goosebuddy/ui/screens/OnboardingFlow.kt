@@ -22,10 +22,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.example.goosebuddy.models.*
+import androidx.lifecycle.viewModelScope
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.GooseAccessory
 import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import kotlinx.coroutines.launch
 
 class OnboardingStep(
     var name: String
@@ -450,10 +452,12 @@ fun SchedulePage(navController: NavHostController, cvm: CalendarViewModel) {
         SpeechBubble(residenceMsg, includeLeftSpacing = false)
         Goose(size = 200.dp)
         fun onImportSchedule(subject: String, courseNumber: String, classNumber: String) {
-            cvm.importSchedule(subject, courseNumber, classNumber)
+            cvm.viewModelScope.launch{
+                cvm.importSchedule(subject, courseNumber, classNumber)
 
-            // navigate back to schedule page
-            navController.navigate("onboarding/schedule")
+                // navigate back to onboarding page
+                navController.navigate("onboarding/schedule")
+            }
         }
 
         val sivm = ScheduleImportViewModel()

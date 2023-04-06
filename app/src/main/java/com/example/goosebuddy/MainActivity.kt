@@ -39,7 +39,6 @@ import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState
 import java.time.LocalDateTime
 import java.util.*
 
-
 class MainActivity : ComponentActivity() {
     private val channelId = "channelId"
     private val channelName = R.string.channel_name.toString()
@@ -228,6 +227,12 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         composable(BottomNavigationItem.Calendar.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
                 Calendar(cvm = calendarViewModel)
+            }
+        }
+        composable(IMPORT_SCHEDULE_ROUTE) {
+            MainFoundation(navController = navController, scaffoldState = scaffoldState) {
+                val sivm = ScheduleImportViewModel()
+                ScheduleImportPage(sivm, onSubmit = calendarViewModel::importSchedule, calendarViewModel)
             }
         }
         composable(BottomNavigationItem.Profile.screen_route) {

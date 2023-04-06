@@ -1,29 +1,41 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import com.example.goosebuddy.ui.shared.components.Goose
-import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.White
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.viewModelScope
+import com.example.goosebuddy.models.CalendarSeries
+import com.example.goosebuddy.ui.shared.components.DeleteButton
+import com.example.goosebuddy.ui.shared.components.textFieldStyleBlue
+import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.launch
+import kotlin.reflect.KSuspendFunction3
 
 class ScheduleImportViewModel : ViewModel() {
     val subject = mutableStateOf("")
     val courseNumber = mutableStateOf("")
     val classNumber = mutableStateOf("")
+
+    fun clear() {
+        subject.value = ""
+        courseNumber.value = ""
+        classNumber.value = ""
+    }
 }
+
+val IMPORT_SCHEDULE_ROUTE = "calendar/courseSchedule"
 
 @Composable
 fun ScheduleImport(
@@ -44,45 +56,99 @@ fun ScheduleImport(
             colors = ButtonDefaults.buttonColors(backgroundColor = Green),
             onClick = {
                 onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
-            }) {
-            Text("Import schedule")
+            },
+        ) {
+            Text("Import schedule", color = Black)
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ScheduleImportGoose(
+fun ScheduleImportPage(
     sivm: ScheduleImportViewModel,
-    onSubmit: (String, String, String) -> Unit,
-    sheetState: ModalBottomSheetState,
-    scope: CoroutineScope,
+    onSubmit: KSuspendFunction3<String, String, String, Unit>,
+    cvm: CalendarViewModel,
 ) {
+    val calendarSeriesDao = cvm.db.CalendarSeriesDao()
+    val courseList = remember { mutableStateOf(calendarSeriesDao.getAll()) }
 
     // TODO: Validation
-    Column {
-        SpeechBubble("Honk! Adding a course...")
-        Goose(size = 200.dp, rotationZ = 8f)
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(White)
-                .padding(15.dp)
-        ) {
-            SubjectField(sivm = sivm)
-            CourseNumberField(sivm = sivm)
-            ClassNumberField(sivm = sivm)
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Green),
-                onClick = { scope.launch {
-                    sheetState.hide()
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(LightGrey)
+            .padding(15.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        SubjectField(sivm = sivm)
+        CourseNumberField(sivm = sivm)
+        ClassNumberField(sivm = sivm)
+        Button(
+            onClick = {
+                cvm.viewModelScope.launch {
                     onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
+                    sivm.clear()
+                    // Update mutable state course list so view updates
+                    courseList.value = calendarSeriesDao.getAll()
                 }
-                }) {
-                Text("Import schedule")
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
+        ) {
+            Text("Import schedule", color = Black)
+        }
+        Divider(
+            modifier = Modifier
+                .padding(0.dp, 15.dp)
+        )
+
+        CourseList(cvm, courseList)
+    }
+}
+
+@Composable
+private fun CourseList(cvm: CalendarViewModel, courseList: MutableState<List<CalendarSeries>>) {
+    Text("Course List")
+    val calendarSeriesDao = cvm.db.CalendarSeriesDao()
+    val calendarItemDao = cvm.db.CalendarItemDao()
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        for ( (index, course) in courseList.value.withIndex()) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(15.dp)
+                ) {
+                    Text(text = course.description)
+                    DeleteButton(
+                        onDelete = {
+                            // Delete all calendar items with this series
+                            // Must do this first to satisfy foreign key constraint
+                            calendarItemDao.deleteInSeries(course.id)
+
+                            // Delete calendar series
+                            calendarSeriesDao.delete(course)
+
+                            // Delete from mutableState so UI updates
+                            val newList = courseList.value.toMutableList()
+                            newList.removeAt(index)
+                            courseList.value = newList.toList()
+                        },
+                    )
+                }
             }
+
         }
     }
 }
@@ -93,7 +159,8 @@ private fun SubjectField(sivm: ScheduleImportViewModel) {
         value = sivm.subject.value,
         onValueChange = { sivm.subject.value = it },
         label = { Text("Subject") },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = textFieldStyleBlue()
     )
 }
 
@@ -103,7 +170,8 @@ private fun CourseNumberField(sivm: ScheduleImportViewModel) {
         value = sivm.courseNumber.value,
         onValueChange = { sivm.courseNumber.value = it },
         label = { Text("Course Number") },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = textFieldStyleBlue()
     )
 }
 
@@ -113,7 +181,8 @@ private fun ClassNumberField(sivm: ScheduleImportViewModel) {
         value = sivm.classNumber.value,
         onValueChange = { sivm.classNumber.value = it },
         label = { Text("Class Number") },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = textFieldStyleBlue()
     )
 }
 

@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.goosebuddy.models.CalendarItem
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
@@ -47,24 +46,11 @@ fun Calendar(
         ) {
             Button(
                 onClick = {
-                    sheetContent.value = {
-                        val sivm = ScheduleImportViewModel()
-                        Column {
-                            ScheduleImportGoose(
-                                sivm = sivm,
-                                onSubmit = cvm::onSubmitCalendarImport,
-                                sheetState = sheetState,
-                                scope = coroutineScope,
-                            )
-                        }
-                    }
-                    coroutineScope.launch {
-                        sheetState.show()
-                    }
+                    cvm.navController.navigate("calendar/courseSchedule")
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Beige)
             ) {
-                Text("Add course to schedule", color = Black)
+                Text("Edit course schedule", color = Black)
             }
             SelectableCalendar(
                 calendarState = cvm.calendarState,
@@ -114,15 +100,15 @@ private fun ComposeCalendarBlocksForDate(
             Button(
                 onClick = {
                     sheetContent.value = {
-                        val addTaskCalendarItem = CalendarItem(
+                        val civm = CalendarItemViewModel(
                             id = 0,
+                            seriesId = null,
                             title = "",
                             date = localDate,
                             startTime = LocalTime(9, 0, 0),
                             endTime = LocalTime(10, 0, 0),
                             checked = false
                         )
-                        val civm = CalendarItemViewModel(addTaskCalendarItem)
                         CalendarItem(
                             civm = civm,
                             mode = "add",
@@ -143,7 +129,7 @@ private fun ComposeCalendarBlocksForDate(
 
         items.forEach { item ->
             val checked = mutableStateOf(item.checked)
-            CalendarBlock(cvm = cvm, item = item, checked = checked, sheetContent, coroutineScope, sheetState)
+            CalendarBlock(cvm = cvm, item = item, checked, sheetContent, coroutineScope, sheetState)
         }
     }
     
@@ -161,6 +147,7 @@ private fun CalendarBlock(
     coroutineScope: CoroutineScope,
     sheetState: ModalBottomSheetState,
 ) {
+    //val checked = remember { mutableStateOf(item.checked) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -204,15 +191,15 @@ private fun CalendarBlock(
                 Button(
                     onClick = {
                         sheetContent.value = {
-                            val updatedCalendarItem = CalendarItem(
+                            val civm = CalendarItemViewModel(
                                 id = item.id,
+                                seriesId = item.seriesId,
                                 title = item.title,
-                                date = item.date,
-                                startTime = item.startTime,
-                                endTime = item.endTime,
+                                date = item.date!!,
+                                startTime = item.startTime!!,
+                                endTime = item.endTime!!,
                                 checked = checked.value,
                             )
-                            val civm = CalendarItemViewModel(updatedCalendarItem)
                             CalendarItem(
                                 civm = civm,
                                 mode = "edit",
