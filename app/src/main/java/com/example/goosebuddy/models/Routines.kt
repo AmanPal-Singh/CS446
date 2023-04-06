@@ -1,9 +1,6 @@
 package com.example.goosebuddy.models
 
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Relation
+import androidx.room.*
 
 @Entity
 data class Routines (
@@ -16,10 +13,20 @@ data class Routines (
     var totalSteps: Int
 )
 
-@Entity
+@Entity (
+    foreignKeys = [
+        ForeignKey(
+        entity = Routines::class,
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("routineId"),
+        onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class Subroutines (
     @PrimaryKey(autoGenerate = true)
     val subId: Int,
+    @ColumnInfo(index = true)
     val routineId: Int,
     var title: String,
     var description: String,
@@ -29,10 +36,10 @@ data class Subroutines (
 
 data class RoutineWithSubroutine (
     @Embedded
-    val routines: Routines,
+    var routines: Routines,
     @Relation(
         parentColumn = "id",
         entityColumn = "routineId"
     )
-    val subroutines: List<Subroutines>
+    var subroutines: List<Subroutines>
 )
