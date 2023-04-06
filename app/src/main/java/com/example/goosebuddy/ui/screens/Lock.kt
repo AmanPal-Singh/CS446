@@ -1,24 +1,17 @@
 package com.example.goosebuddy.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
@@ -120,14 +113,7 @@ fun Lock(db: AppDatabase, navController: NavController) {
                     modifier = btnModifier,
                     colors = ButtonDefaults.buttonColors(backgroundColor = Green)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.close),
-                        contentDescription = "close icon",
-                        modifier = Modifier
-                            .height(10.dp)
-                            .width(10.dp)
-
-                    )
+                    Text("\u232b")
                 }
                 Button(
                     shape = CircleShape,

@@ -16,9 +16,12 @@ import androidx.navigation.NavController
 import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.shared.components.Goose
+import com.example.goosebuddy.ui.shared.components.GooseAccessory
+import com.example.goosebuddy.ui.shared.components.GooseVariation
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.Black
+import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,7 +45,12 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
     var expanded by remember { mutableStateOf(false) }
     Column {
         SpeechBubble("Honk! Updating the habit ${habitName.text}...")
-        Goose(size = 200.dp, rotationZ = 8f)
+        Goose(
+            variation = GooseVariation.Holding,
+            accessory = GooseAccessory.Pencil,
+            accessoryPlacement = Pair(-130.dp, 10.dp),
+            size = 200.dp,
+            rotationZ = 8f)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -54,7 +62,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     .fillMaxWidth()
                     .padding(25.dp)
             ) {
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitName,
                     onValueChange = { newText ->
@@ -62,7 +70,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     },
                     label = { Text(text = "Name") },
                 )
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitDescription,
                     onValueChange = { newText ->
@@ -70,7 +78,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     },
                     label = { Text(text = "Description") },
                 )
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = habitCompletionSteps,
                     onValueChange = { newText ->
@@ -81,7 +89,9 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     ),
                     label = { Text(text = "Steps") },
                 )
-                Button(onClick = { scope.launch {
+                Button(
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Green),
+                    onClick = { scope.launch {
                     // Update habit
                     habit.title = habitName.text
                     habit.description = habitDescription.text

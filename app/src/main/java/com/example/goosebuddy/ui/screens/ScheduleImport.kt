@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.White
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ fun ScheduleImport(
         CourseNumberField(sivm = sivm)
         ClassNumberField(sivm = sivm)
         Button(
+            colors = ButtonDefaults.buttonColors(backgroundColor = Green),
             onClick = {
                 onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
             }) {
@@ -73,6 +75,7 @@ fun ScheduleImportGoose(
             CourseNumberField(sivm = sivm)
             ClassNumberField(sivm = sivm)
             Button(
+                colors = ButtonDefaults.buttonColors(backgroundColor = Green),
                 onClick = { scope.launch {
                     sheetState.hide()
                     onSubmit(sivm.subject.value, sivm.courseNumber.value, sivm.classNumber.value)
