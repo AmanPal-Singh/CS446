@@ -44,12 +44,12 @@ val suggestedHabit = mapOf(
     )
 )
 
-val pomodoroSub1 = Subroutines(0, 1, "study", "Study time", false, 1500)
-val pomodoroSub2 = Subroutines(0, 1, "break", "Break time", false, 300)
-val pomodoroSub3 = Subroutines(0, 1, "study", "Study time", false, 1500)
-val pomodoroSub4 = Subroutines(0, 1, "break", "Break time", false, 300)
-val pomodoroSub5 = Subroutines(0, 1, "study", "Study time", false, 1500)
-val pomodoroRoutine = Routines(1, "pomodoro", "Pomodoro to help with studying and taking breaks!", 0, 5)
+val pomodoroSub1 = Subroutines(0, 1, "Study 1", "Study time!", false, 3)
+val pomodoroSub2 = Subroutines(0, 1, "Break 1", "Have some water!", false, 3)
+val pomodoroSub3 = Subroutines(0, 1, "Study 2", "Study time!", false, 3)
+val pomodoroSub4 = Subroutines(0, 1, "Break 2", "Grab a snack!", false, 3)
+val pomodoroSub5 = Subroutines(0, 1, "Study 3", "Study time", false, 3)
+val pomodoroRoutine = Routines(1, "Pomodoro", "Time to study for MATH 135!", 0, 5)
 
 val onboardingSteps = arrayOf(
     OnboardingStep("welcome"),

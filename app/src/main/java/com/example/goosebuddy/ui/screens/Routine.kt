@@ -131,7 +131,7 @@ fun TopActionButtons(
     if (editingEnabled.value) {
         OutlinedButton(
             onClick = {
-                routinesDao.deleteRoutine(routine.routines.id)
+                // routinesDao.deleteRoutine(routine.routines.id)
                 navController.navigate(BottomNavigationItem.DailyRoutines.screen_route)
             },
             colors = ButtonDefaults.buttonColors(
