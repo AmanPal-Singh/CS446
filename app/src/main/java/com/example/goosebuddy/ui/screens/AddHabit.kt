@@ -44,10 +44,7 @@ import androidx.room.RoomDatabase
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.ui.theme.Yellow
 import com.example.goosebuddy.models.Habits
-import com.example.goosebuddy.ui.shared.components.Goose
-import com.example.goosebuddy.ui.shared.components.GooseAccessory
-import com.example.goosebuddy.ui.shared.components.GooseVariation
-import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.shared.components.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -70,12 +67,8 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
     var expanded by remember { mutableStateOf(false) }
     Column {
         SpeechBubble("Honk! Adding a habit...")
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Clipboard,
-            accessoryPlacement = Pair(-120.dp, 10.dp),
-            size = 200.dp, rotationZ = 8f
-        )
+        ClipboardAccessory(HoldingGoose()).decorate()
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()

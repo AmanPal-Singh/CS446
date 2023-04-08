@@ -155,34 +155,31 @@ private fun CourseList(cvm: CalendarViewModel, courseList: MutableState<List<Cal
 
 @Composable
 private fun SubjectField(sivm: ScheduleImportViewModel) {
-    TextField(
+    OutlinedTextField(
         value = sivm.subject.value,
         onValueChange = { sivm.subject.value = it },
         label = { Text("Subject") },
         modifier = Modifier.fillMaxWidth(),
-        colors = textFieldStyleBlue()
     )
 }
 
 @Composable
 private fun CourseNumberField(sivm: ScheduleImportViewModel) {
-    TextField(
+    OutlinedTextField(
         value = sivm.courseNumber.value,
         onValueChange = { sivm.courseNumber.value = it },
         label = { Text("Course Number") },
         modifier = Modifier.fillMaxWidth(),
-        colors = textFieldStyleBlue()
     )
 }
 
 @Composable
 private fun ClassNumberField(sivm: ScheduleImportViewModel) {
-    TextField(
+    OutlinedTextField(
         value = sivm.classNumber.value,
         onValueChange = { sivm.classNumber.value = it },
         label = { Text("Class Number") },
         modifier = Modifier.fillMaxWidth(),
-        colors = textFieldStyleBlue()
     )
 }
 

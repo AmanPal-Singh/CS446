@@ -38,16 +38,137 @@ enum class GooseAccessory {
     Clipboard
 }
 
+interface Goose {
+    @Composable
+    fun decorate()
+}
+
+class DefaultGoose: Goose {
+    @Composable
+    override fun decorate() = gooseRender()
+}
+
+class WavingGoose: Goose {
+    @Composable
+    override fun decorate() = gooseRender(GooseVariation.Waving)
+}
+
+class HoldingGoose: Goose {
+    @Composable
+    override fun decorate() = gooseRender(GooseVariation.Holding)
+}
+
+abstract class GooseDecorator (private val goose: Goose) : Goose {
+    @Composable
+    override fun decorate() {
+        return goose.decorate()
+    }
+}
+
+class FlagAccessory(goose: Goose) : GooseDecorator(goose) {
+    @Composable
+    override fun decorate() {
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy((-50).dp)
+        ) {
+            super.decorate()
+            decorateWithFlagAccessory()
+        }
+
+    }
+
+    @Composable
+    private fun decorateWithFlagAccessory() {
+        accessoryRender(accessory = GooseAccessory.Flag)
+    }
+}
+
+class HeartAccessory(goose: Goose) : GooseDecorator(goose) {
+    @Composable
+    override fun decorate() {
+        Row {
+            super.decorate()
+            decorateWithFlagAccessory()
+        }
+
+    }
+
+    @Composable
+    private fun decorateWithFlagAccessory() {
+        accessoryRender(accessory = GooseAccessory.Heart)
+    }
+}
+
+
+class PencilAccessory(goose: Goose) : GooseDecorator(goose) {
+    @Composable
+    override fun decorate(): Unit {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy((-70).dp)
+        ) {
+            super.decorate()
+            decorateWithFlagAccessory()
+        }
+
+    }
+
+    @Composable
+    private fun decorateWithFlagAccessory() {
+        accessoryRender(accessory = GooseAccessory.Pencil)
+    }
+}
+
+class BookAccessory(goose: Goose) : GooseDecorator(goose) {
+    @Composable
+    override fun decorate(): Unit {
+        Row {
+            super.decorate()
+            decorateWithFlagAccessory()
+        }
+
+    }
+
+    @Composable
+    private fun decorateWithFlagAccessory() {
+        accessoryRender(accessory = GooseAccessory.Book)
+    }
+}
+
+class ClipboardAccessory(goose: Goose) : GooseDecorator(goose) {
+    @Composable
+    override fun decorate(): Unit {
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy((-70).dp)
+        ) {
+            super.decorate()
+            decorateWithFlagAccessory()
+        }
+    }
+
+    @Composable
+    private fun decorateWithFlagAccessory() {
+        accessoryRender(
+            accessory = GooseAccessory.Clipboard,
+            modifier = Modifier
+                .size(100.dp)
+                .graphicsLayer(
+                    rotationZ = 20f,
+                )
+        )
+    }
+}
+
+
 
 fun getGooseResource(variation: GooseVariation): Int {
-    if (variation == GooseVariation.Default) {
-        return R.drawable.buddy
-    } else if (variation == GooseVariation.Waving) {
-        return  R.drawable.waving_goose
-    } else if (variation == GooseVariation.Holding) {
-        return R.drawable.holding_goose
+    return when (variation) {
+        GooseVariation.Default -> R.drawable.buddy
+        GooseVariation.Waving -> R.drawable.waving_goose
+        GooseVariation.Holding -> R.drawable.holding_goose
     }
-    return R.drawable.buddy
 }
 
 fun getAccessoryResource(accessory: GooseAccessory): Int? {
@@ -66,16 +187,13 @@ fun getAccessoryResource(accessory: GooseAccessory): Int? {
 }
 
 @Composable
-fun Goose(
-    variation: GooseVariation = GooseVariation.Default,
-    accessory: GooseAccessory = GooseAccessory.None,
-    accessoryPlacement: Pair<Dp, Dp> = Pair(-90.dp, 0.dp),
-    size: Dp,
+fun gooseRender(
+    pose: GooseVariation = GooseVariation.Default,
+    size: Dp = 200.dp,
     rotationZ: Float = 0f,
     honkSound: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-
     var state by remember { mutableStateOf(GooseState.Idle) }
     val ty by animateFloatAsState(if (state == GooseState.Pressed) 0f else 20f)
 
@@ -106,26 +224,27 @@ fun Goose(
                 }
             }
         }
-
-    Row() {
         Image(
-            painter = painterResource(id = getGooseResource(variation)),
+            painter = painterResource(id = getGooseResource(pose)),
             contentDescription = "Goose Image",
             contentScale = ContentScale.Fit,
             modifier = imageModifier
         )
-        val accessoryId = getAccessoryResource(accessory)
-        if (accessoryId != null) {
-            Image(
-                painter = painterResource(id = accessoryId),
-                contentDescription = "Goose Image",
-                contentScale = ContentScale.Fit,
-                modifier = imageModifier
-                    .offset(accessoryPlacement.first, accessoryPlacement.second)
-                    .size(size)
-                    .scale(0.7f)
-            )
-        }
-    }
 
+}
+
+@Composable
+fun accessoryRender(
+    accessory: GooseAccessory,
+    modifier: Modifier = Modifier
+) {
+    val accessoryId = getAccessoryResource(accessory)
+    if (accessoryId != null) {
+        Image(
+            painter = painterResource(id = accessoryId),
+            contentDescription = "Goose Image",
+            contentScale = ContentScale.Fit,
+            modifier = modifier
+        )
+    }
 }

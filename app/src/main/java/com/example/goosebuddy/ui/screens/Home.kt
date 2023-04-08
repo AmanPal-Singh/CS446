@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.ui.shared.components.DefaultGoose
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.theme.Beige
@@ -84,7 +85,7 @@ fun GooseAndSpeechBubble(text: String){
     ) {
         SpeechBubble(text, includeLeftSpacing = false)
         Spacer(modifier = Modifier.size(30.dp))
-        Goose(size = 225.dp, honkSound = true)
+        DefaultGoose().decorate()
     }
 
 }

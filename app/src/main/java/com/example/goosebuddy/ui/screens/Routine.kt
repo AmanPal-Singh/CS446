@@ -46,6 +46,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 import com.example.goosebuddy.models.Subroutines
+import com.example.goosebuddy.ui.shared.components.DefaultGoose
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 
@@ -89,6 +90,7 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
                 .background(LightGrey)
         ) {
             Text(routine.routines.title, fontSize = 24.sp)
+            Text(routine.routines.description)
             TopActionButtons(editingEnabled = editingEnabled, navController = navController, db = db, routine = routine)
             LazyColumn(
                 state = state.listState,
@@ -97,8 +99,8 @@ fun Routine(id: Int, navController: NavHostController, db: AppDatabase) {
                     .reorderable(state)
                     .detectReorderAfterLongPress(state)
             ) {
-                itemsIndexed(currentOrder.value) {  index, item->
-                    ReorderableItem(state, key = index) { isDragging ->
+                items(currentOrder.value) { item->
+                    ReorderableItem(state, key = item) { isDragging ->
                         val subroutine = subroutines.find { s -> s.subId == item }
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         if (subroutine != null) {
@@ -164,7 +166,7 @@ fun TopActionButtons(
             Icon(
                 painter =  painterResource(id = R.drawable.play_arrow),
                 contentDescription = "",
-                tint = Color.DarkGray
+                tint = Color.White
             )
         }
     }
@@ -312,7 +314,7 @@ fun AddSubroutine(
     var selectedUnit by remember { mutableStateOf(0) }
     Column {
         SpeechBubble("Honk! Adding a subroutine...")
-        Goose(size= 200.dp, rotationZ = 8f)
+        DefaultGoose().decorate()
         Card(
             modifier = Modifier
                 .fillMaxWidth()

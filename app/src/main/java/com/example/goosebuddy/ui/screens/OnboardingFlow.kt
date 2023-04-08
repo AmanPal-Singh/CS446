@@ -23,10 +23,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.example.goosebuddy.models.*
 import androidx.lifecycle.viewModelScope
-import com.example.goosebuddy.ui.shared.components.Goose
-import com.example.goosebuddy.ui.shared.components.GooseAccessory
-import com.example.goosebuddy.ui.shared.components.GooseVariation
-import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.shared.components.*
 import kotlinx.coroutines.launch
 
 class OnboardingStep(
@@ -255,7 +252,7 @@ fun WelcomePage() {
                 "good habits and reach your goals!\n\n" +
                 "Are you ready to get started on your journey?"
         SpeechBubble(welcomeMsg, includeLeftSpacing = false)
-        Goose(variation = GooseVariation.Waving, size=300.dp)
+        WavingGoose().decorate()
     }
 }
 
@@ -267,11 +264,7 @@ fun NamePage(userData: MutableState<UserData>) {
     ) {
         val nameMsg = "My name is Mr. Goose!\nWhat's your name?"
         SpeechBubble(nameMsg, includeLeftSpacing = false)
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Clipboard,
-            size= 200.dp
-        )
+        ClipboardAccessory(HoldingGoose()).decorate()
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -295,11 +288,7 @@ fun WatPage(userData: MutableState<UserData>) {
     ) {
         val watMsg = "Hey ${userData.value.name}! Enter your WAT number below.\nYou can find it on your WAT card."
         SpeechBubble(watMsg, includeLeftSpacing = false)
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Clipboard,
-            size=200.dp
-        )
+        ClipboardAccessory(HoldingGoose()).decorate()
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -327,11 +316,7 @@ fun YearPage(userData: MutableState<UserData>) {
     ) {
         val yearMsg = "What year are you in? \nPlease enter your year as an integer."
         SpeechBubble(yearMsg, includeLeftSpacing = false)
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Clipboard,
-            size= 200.dp
-        )
+        ClipboardAccessory(HoldingGoose()).decorate()
 
         // text input field for name
         var text = remember { mutableStateOf("") }
@@ -357,11 +342,7 @@ fun ResidencePage(userData: MutableState<UserData>) {
     ) {
         val residenceMsg = "What is your living situation like? \nPlease select all that apply."
         SpeechBubble(residenceMsg, includeLeftSpacing = false)
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Clipboard,
-            size= 200.dp
-        )
+        ClipboardAccessory(HoldingGoose()).decorate()
 
         val livingSituations = mapOf(
             "roommates" to "I have roommates.",
@@ -413,11 +394,7 @@ fun SubmitPage() {
     ) {
         val submitMsg = "Congrats, you are all set!\nSubmit whenever you are ready!"
         SpeechBubble(submitMsg, includeLeftSpacing = false)
-        Goose(
-            variation = GooseVariation.Waving,
-            accessory = GooseAccessory.Heart,
-            size= 300.dp
-        )
+        HeartAccessory(WavingGoose()).decorate()
     }
 }
 
@@ -433,11 +410,7 @@ fun RecommendationsPage(db: AppDatabase,) {
 
         val recomendationMsg = "We have made a few recommendations based on your submission!\n\n\nWe have added ${habitsMsg}! You can review them in Habits!\n\n\nWe also added a pomodoro routine to help you with studying!"
         SpeechBubble(recomendationMsg, includeLeftSpacing = false)
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Pencil,
-            size= 200.dp
-        )
+        PencilAccessory(HoldingGoose()).decorate()
     }
 }
 
@@ -450,7 +423,7 @@ fun SchedulePage(navController: NavHostController, cvm: CalendarViewModel) {
 
         val residenceMsg = "One more thing! You can import your schedule if you like!"
         SpeechBubble(residenceMsg, includeLeftSpacing = false)
-        Goose(size = 200.dp)
+        DefaultGoose().decorate()
         fun onImportSchedule(subject: String, courseNumber: String, classNumber: String) {
             cvm.viewModelScope.launch{
                 cvm.importSchedule(subject, courseNumber, classNumber)

@@ -28,10 +28,7 @@ import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Routines
-import com.example.goosebuddy.ui.shared.components.Goose
-import com.example.goosebuddy.ui.shared.components.GooseAccessory
-import com.example.goosebuddy.ui.shared.components.GooseVariation
-import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.shared.components.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
@@ -67,6 +64,15 @@ fun getColour(progress: Float): Color {
 @Composable
 fun Routines(navController: NavController, db: AppDatabase) {
     var routinesDao = db.routinesDao()
+    if (routinesDao.getAll().size == 1) {
+        routinesDao.insertAll(
+            Routines(0, "Morning Routine", "Time to get ready for ckasses!",1, 1 ),
+            Routines(0, "Gym" , "Time to hit PAC!", 1, 1),
+            Routines(0, "Night Routine", "Time to get ready for bed!", 1, 1 )
+        )
+    }
+    var routines = remember { mutableStateOf(routinesDao.getAll()) }
+
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
     val scope = rememberCoroutineScope()
 
@@ -115,7 +121,10 @@ fun Routines(navController: NavController, db: AppDatabase) {
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
                 ) {
-                    DailyRoutineCompletionVisualization()
+                    DailyRoutineCompletionVisualization(
+                        routines.value.filter { r -> r.routines.completedSteps == r.routines.totalSteps }.size,
+                        routines.value.size
+                    )
                 }
                 if (showHelpfulGoose.value) {
                     Card(
@@ -132,11 +141,7 @@ fun Routines(navController: NavController, db: AppDatabase) {
                                 .align(Alignment.TopStart)
                                 .offset(x = -125.dp)
                         ) {
-                            Goose(
-                                variation = GooseVariation.Waving,
-                                size = 200.dp,
-                                rotationZ = 30f,
-                            )
+                            WavingGoose().decorate()
                             Text("Honk honk! \nEstablishing routines are a great way to stay on top of your goals!")
                         }
                     }
@@ -156,7 +161,10 @@ fun Routines(navController: NavController, db: AppDatabase) {
 }
 
 @Composable
-fun DailyRoutineCompletionVisualization() {
+fun DailyRoutineCompletionVisualization(
+    numCompleted: Int,
+    numRoutines: Int
+) {
     Card(
         shape = RoundedCornerShape(7.dp),
         modifier = Modifier
@@ -171,7 +179,7 @@ fun DailyRoutineCompletionVisualization() {
             Spacer(modifier = Modifier.height(10.dp))
             CircularProgressIndicator(
                 // TODO: actually have accurate progress instead of mock
-                progress = 0.25f,
+                progress = numCompleted.toFloat()/numRoutines.toFloat(),
                 color = Green,
                 backgroundColor = LightGrey,
                 strokeWidth = 15.dp,
@@ -181,7 +189,7 @@ fun DailyRoutineCompletionVisualization() {
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                "Great job! \nYou've completed 4 out of 5 of your routines today.",
+                "Great job! \nYou've completed 3 out of $numRoutines of your routines today.",
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .width(200.dp)
@@ -270,7 +278,7 @@ fun AddRoutineBlock(sheetState: ModalBottomSheetState, scope: CoroutineScope) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "plusIcon",
-                tint = Black
+                tint = White
             )
             Text(
                 textAlign = TextAlign.Center,
@@ -301,12 +309,7 @@ fun AddRoutineForm(
 
     Column {
         SpeechBubble("Honk! Adding a new routine!")
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Flag,
-            size = 200.dp,
-            rotationZ = 8f
-        )
+        FlagAccessory(HoldingGoose()).decorate()
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -370,7 +373,11 @@ fun RoutineBlock(item: Routines, navController: NavController) {
                 .fillMaxWidth()
                 .padding(vertical = 10.dp)
         ) {
-            val checkedState = remember { mutableStateOf(item.totalSteps == item.completedSteps) }
+            val checkedState = remember {
+                mutableStateOf(
+                    item.totalSteps == item.completedSteps && item.completedSteps != 0
+                )
+            }
             Checkbox(
                 checked = checkedState.value,
                 onCheckedChange = {
