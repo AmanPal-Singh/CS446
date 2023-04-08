@@ -28,10 +28,7 @@ import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.models.Routines
-import com.example.goosebuddy.ui.shared.components.Goose
-import com.example.goosebuddy.ui.shared.components.GooseAccessory
-import com.example.goosebuddy.ui.shared.components.GooseVariation
-import com.example.goosebuddy.ui.shared.components.SpeechBubble
+import com.example.goosebuddy.ui.shared.components.*
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
@@ -144,11 +141,7 @@ fun Routines(navController: NavController, db: AppDatabase) {
                                 .align(Alignment.TopStart)
                                 .offset(x = -125.dp)
                         ) {
-                            Goose(
-                                variation = GooseVariation.Waving,
-                                size = 200.dp,
-                                rotationZ = 30f,
-                            )
+                            WavingGoose().decorate()
                             Text("Honk honk! \nEstablishing routines are a great way to stay on top of your goals!")
                         }
                     }
@@ -316,12 +309,7 @@ fun AddRoutineForm(
 
     Column {
         SpeechBubble("Honk! Adding a new routine!")
-        Goose(
-            variation = GooseVariation.Holding,
-            accessory = GooseAccessory.Flag,
-            size = 200.dp,
-            rotationZ = 8f
-        )
+        FlagAccessory(HoldingGoose()).decorate()
         Card(
             modifier = Modifier
                 .fillMaxWidth()

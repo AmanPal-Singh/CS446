@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.models.CalendarItem
+import com.example.goosebuddy.ui.shared.components.DefaultGoose
 import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
@@ -55,7 +56,7 @@ fun CalendarItem(
     val ctx = LocalContext.current
     Column {
         SpeechBubble("Honk! ${if (mode == "add") "Adding" else "Editing"} a Task...")
-        Goose(size = 200.dp, rotationZ = 8f)
+        DefaultGoose().decorate()
         Card(
             modifier = Modifier
                 .fillMaxWidth()

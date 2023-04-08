@@ -46,6 +46,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 import com.example.goosebuddy.models.Subroutines
+import com.example.goosebuddy.ui.shared.components.DefaultGoose
 import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 
@@ -313,7 +314,7 @@ fun AddSubroutine(
     var selectedUnit by remember { mutableStateOf(0) }
     Column {
         SpeechBubble("Honk! Adding a subroutine...")
-        Goose(size= 200.dp, rotationZ = 8f)
+        DefaultGoose().decorate()
         Card(
             modifier = Modifier
                 .fillMaxWidth()
