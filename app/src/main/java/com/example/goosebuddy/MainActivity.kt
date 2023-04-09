@@ -119,42 +119,39 @@ fun MainFoundation(navController: NavHostController, scaffoldState: ScaffoldStat
 
 private fun setHabitsAlarm(alarmManager: AlarmManager, ctx: Context) {
     // Sets recurring alarm for habits every day at 11:00 local
-    val currentTime = LocalDateTime.now()
     val updateTime: Calendar = Calendar.getInstance()
-    updateTime.set(Calendar.HOUR_OF_DAY, currentTime.hour)
-    updateTime.set(Calendar.MINUTE, currentTime.minute)
-    updateTime.set(Calendar.SECOND, currentTime.second + 1)
+    updateTime.set(Calendar.HOUR_OF_DAY, 22)
+    updateTime.set(Calendar.MINUTE, 0)
+    updateTime.set(Calendar.SECOND, 0)
     val intent = Intent(ctx, HabitsReceiver::class.java)
     val pendingIntent = PendingIntent.getBroadcast(
         ctx,
         0, intent, PendingIntent.FLAG_IMMUTABLE
     )
-    // test with every 60 seconds for now
+    // send notification at night around 10:00 PM
     alarmManager.setInexactRepeating(
         AlarmManager.RTC_WAKEUP,
         updateTime.timeInMillis,
-        1000 * 60,
+        1000 * 60 * 60 * 24,
         pendingIntent
     )
 }
 
 private fun setHabitsResetAlarm(alarmManager: AlarmManager, ctx: Context) {
     // Sets recurring alarm to reset habits at midnight
-    val currentTime = LocalDateTime.now()
     val updateTime: Calendar = Calendar.getInstance()
-    updateTime.set(Calendar.HOUR_OF_DAY, currentTime.hour)
-    updateTime.set(Calendar.MINUTE, currentTime.minute)
-    updateTime.set(Calendar.SECOND, currentTime.second + 1)
+    updateTime.set(Calendar.HOUR_OF_DAY, 0)
+    updateTime.set(Calendar.MINUTE, 0)
+    updateTime.set(Calendar.SECOND, 0)
     val intent = Intent(ctx, ResetHabitsReceiver::class.java)
     val pendingIntent = PendingIntent.getBroadcast(
         ctx,
         1, intent, PendingIntent.FLAG_IMMUTABLE
     )
-    // test with every 90 seconds for now
     alarmManager.setInexactRepeating(
         AlarmManager.RTC_WAKEUP,
         updateTime.timeInMillis,
-        1000 * 90,
+        1000 * 24 * 60 * 60,
         pendingIntent
     )
 }
