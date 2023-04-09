@@ -1,13 +1,11 @@
 package com.example.goosebuddy.ui.screens
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import android.graphics.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
@@ -26,9 +24,6 @@ import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
 import com.example.goosebuddy.ui.screens.Utility.formatTime
 import com.example.goosebuddy.ui.theme.*
-import kotlinx.coroutines.delay
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
