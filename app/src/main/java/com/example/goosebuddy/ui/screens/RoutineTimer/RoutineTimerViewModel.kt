@@ -10,11 +10,9 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 object Utility {
-
     //time to countdown - 1hr - 60secs
     private const val TIME_FORMAT = "%02d:%02d"
-
-
+    
     //convert time to milli seconds
     fun Long.formatTime(): String = String.format(
         TIME_FORMAT,
