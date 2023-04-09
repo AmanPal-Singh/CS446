@@ -11,12 +11,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.models.CalendarItem
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import com.example.goosebuddy.models.BottomNavigationItem
+
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

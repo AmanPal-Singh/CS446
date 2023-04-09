@@ -28,9 +28,9 @@ import androidx.core.app.NotificationCompat
 import androidx.navigation.NavController
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
+import com.example.goosebuddy.models.BottomNavigationItem
 import com.example.goosebuddy.models.Habits
 import com.example.goosebuddy.ui.shared.components.DeleteButton
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.theme.*
 import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
 import kotlinx.coroutines.CoroutineScope

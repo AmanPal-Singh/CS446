@@ -16,11 +16,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
+import com.example.goosebuddy.models.BottomNavigationItem
 import com.example.goosebuddy.models.CalendarItem
 import com.example.goosebuddy.ui.shared.components.DefaultGoose
-import com.example.goosebuddy.ui.shared.components.Goose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 import com.example.goosebuddy.ui.shared.components.textFieldStyleBlue
 import com.example.goosebuddy.ui.theme.Beige
 import com.example.goosebuddy.ui.theme.White
