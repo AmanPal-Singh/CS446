@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
+import com.example.goosebuddy.models.BottomNavigationItem
 import com.example.goosebuddy.models.RoutineWithSubroutine
 import com.example.goosebuddy.ui.shared.components.DeleteButton
 
@@ -47,7 +48,6 @@ import org.burnoutcrew.reorderable.reorderable
 
 import com.example.goosebuddy.models.Subroutines
 import com.example.goosebuddy.ui.shared.components.DefaultGoose
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
 
 
 @OptIn(ExperimentalMaterialApi::class)

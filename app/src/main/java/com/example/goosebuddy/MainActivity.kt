@@ -27,12 +27,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.goosebuddy.AppDatabase.Companion.createInstance
+import com.example.goosebuddy.models.BottomNavigationItem
 import com.example.goosebuddy.receivers.HabitsReceiver
 import com.example.goosebuddy.receivers.ResetHabitsReceiver
 import com.example.goosebuddy.ui.screens.*
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigation
-import com.example.goosebuddy.ui.shared.components.bottomnavigation.BottomNavigation.BottomNavigationItem
-import com.example.goosebuddy.ui.shared.components.topbar.TopBar
+import com.example.goosebuddy.ui.shared.components.BottomNavigation
+import com.example.goosebuddy.ui.shared.components.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
 import com.example.goosebuddy.ui.theme.Grey
 import io.github.boguszpawlowski.composecalendar.rememberSelectableCalendarState

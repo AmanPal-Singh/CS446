@@ -4,11 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.AppDatabase
-import com.example.goosebuddy.ui.screens.Utility.formatTime
 import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.time.Duration
 
 class HomeViewModel(db: AppDatabase): ViewModel() {
     private var _db: AppDatabase
