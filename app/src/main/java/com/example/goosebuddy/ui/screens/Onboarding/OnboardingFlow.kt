@@ -1,4 +1,4 @@
-package com.example.goosebuddy.ui.screens
+package com.example.goosebuddy.ui.screens.Onboarding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,45 +23,12 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.example.goosebuddy.models.*
 import androidx.lifecycle.viewModelScope
+import com.example.goosebuddy.ui.screens.CalendarViewModel
+import com.example.goosebuddy.ui.screens.Home.HomeViewModel
+import com.example.goosebuddy.ui.screens.ScheduleImport
+import com.example.goosebuddy.ui.screens.ScheduleImportViewModel
 import com.example.goosebuddy.ui.shared.components.*
 import kotlinx.coroutines.launch
-
-class OnboardingStep(
-    var name: String
-)
-
-val suggestedHabit = mapOf(
-    "hasRoommates" to listOf(
-        Habits(0, "Chore schedule", "Set up a chore schedule with your roommates and stick with it!", schedule = "Weekly"),
-        Habits(0, "Hang out with roommates", "It's important to have a good relationship with your roommates!", schedule = "Weekly"),
-    ),
-    "onStudentRes" to listOf(
-        Habits(0, "Do Laundry", "Doing laundry is an important task for your Hygiene!", schedule = "Weekly"),
-        Habits(0, "Shower", "Being clean is an important for your (and your friends') health!"),
-        ),
-    "firstTimeAlone" to listOf(
-        Habits(0, "Call your parents", "Your parents miss you! Let them know how you are doing!"),
-        Habits(0, "Go on a walk", "Get your daily steps in!"),
-    )
-)
-
-val pomodoroSub1 = Subroutines(0, 1, "Study 1", "Study time!", false, 3)
-val pomodoroSub2 = Subroutines(0, 1, "Break 1", "Have some water!", false, 3)
-val pomodoroSub3 = Subroutines(0, 1, "Study 2", "Study time!", false, 3)
-val pomodoroSub4 = Subroutines(0, 1, "Break 2", "Grab a snack!", false, 3)
-val pomodoroSub5 = Subroutines(0, 1, "Study 3", "Study time", false, 3)
-val pomodoroRoutine = Routines(1, "Pomodoro", "Time to study for MATH 135!", 0, 5)
-
-val onboardingSteps = arrayOf(
-    OnboardingStep("welcome"),
-    OnboardingStep("name"),
-    OnboardingStep("wat"),
-    OnboardingStep("year"),
-    OnboardingStep("residence"),
-    OnboardingStep("schedule"),
-    OnboardingStep("recommendations"),
-    OnboardingStep("submit"),
-)
 
 @Composable
 fun ProgressIndicator(completed: Int, total: Int) {
@@ -89,7 +56,8 @@ fun ProgressIndicator(completed: Int, total: Int) {
 @Composable
 fun BottomButtons(
     step: MutableState<Int>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onboardingViewModel: OnboardingViewModel
 ) {
     Column(
         verticalArrangement = Arrangement.Bottom,
@@ -103,7 +71,7 @@ fun BottomButtons(
             onClick = { onClick() },
             colors = ButtonDefaults.buttonColors(backgroundColor = Green)
         ) {
-            val buttonMsg = when (onboardingSteps[step.value].name) {
+            val buttonMsg = when (onboardingViewModel.onboardingSteps[step.value].name) {
                 "welcome" -> "Let's go!"
                 "name" -> "Next"
                 "wat" -> "Next"
@@ -124,6 +92,11 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
     // the user data collected throughout the onboarding process
     // will be added to the database after user submits
     // will be used to make recommendations to users
+
+    val viewModel by remember {
+        mutableStateOf(OnboardingViewModel(db))
+    }
+
     val userData = remember { mutableStateOf(UserData(firstStep)) }
 
     // which step we are currently are
@@ -132,13 +105,13 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
 
     GooseBuddyTheme {
         Scaffold(
-            topBar = { ProgressIndicator(completed = step.value + 1, total = onboardingSteps.size) },
+            topBar = { ProgressIndicator(completed = step.value + 1, total = viewModel.onboardingSteps.size) },
             bottomBar = {
                 BottomButtons(
                     step = step,
                     onClick = {
                         // navigate to next onboarding step if not last step
-                        if (step.value == onboardingSteps.size - 1) {
+                        if (step.value == viewModel.onboardingSteps.size - 1) {
                             // navigate out of onboarding - to lock
                             navController.navigate("lock")
                         } else {
@@ -146,37 +119,35 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                         }
 
                         // add userData to db and make recommendations when on submit step
-                        if (onboardingSteps[step.value].name == "submit") {
+                        if (viewModel.onboardingSteps[step.value].name == "submit") {
 
                             // add userData to db
-                            val userDataDao = db.userdataDao()
-                            userDataDao.insert(userData.value)
+                            viewModel.insertUserData(userData.value)
 
                             // make recommendations based on user data
-                            val habitsDao = db.habitsDao()
-                            habitsDao.deleteAll()
+                            viewModel.clearHabits()
 
                             if (userData.value.hasRoommates) {
-                                for( habits in suggestedHabit["hasRoommates"]!!) {
-                                    habitsDao.insertAll(habits)
+                                for( habits in viewModel.getSuggestedHabit("hasRoommates")!!) {
+                                    viewModel.insertHabits(habits)
                                 }
                             }
                             if (userData.value.onStudentRes) {
-                                for( habits in suggestedHabit["onStudentRes"]!!) {
-                                    habitsDao.insertAll(habits)
+                                for( habits in viewModel.getSuggestedHabit("onStudentRes")!!) {
+                                    viewModel.insertHabits(habits)
                                 }
                             }
                             if (userData.value.firstTimeAlone) {
-                                for( habits in suggestedHabit["firstTimeAlone"]!!) {
-                                    habitsDao.insertAll(habits)
+                                for( habits in viewModel.getSuggestedHabit("firstTimeAlone")!!) {
+                                    viewModel.insertHabits(habits)
                                 }
                             }
 
                             // add pomodoro for everyone
-                            val routinesDao = db.routinesDao()
-                            routinesDao.insert(pomodoroRoutine, subroutines = listOf(pomodoroSub1, pomodoroSub2, pomodoroSub3, pomodoroSub4, pomodoroSub5))
+                            viewModel.createPomodoroSubroutines()
                         }
                     },
+                    onboardingViewModel = viewModel
                 )
             }
         ) { padding ->
@@ -199,7 +170,8 @@ fun OnboardingFlow(navController: NavHostController, db: AppDatabase, cvm: Calen
                         step,
                         navController = navController,
                         db = db,
-                        cvm = cvm
+                        cvm = cvm,
+                        ovm = viewModel
                     )
                 }
             }
@@ -214,6 +186,7 @@ fun OnboardingStepComponent(
     navController: NavHostController,
     db: AppDatabase,
     cvm: CalendarViewModel,
+    ovm: OnboardingViewModel,
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -224,15 +197,15 @@ fun OnboardingStepComponent(
             .padding(50.dp)
     ) {
         // determine what content to show user based on which step
-        val onboardingStep = onboardingSteps[step.value]
+        val onboardingStep = ovm.onboardingSteps[step.value]
         when (onboardingStep.name) {
-            "welcome" -> WelcomePage()
+            "welcome" -> WelcomePage(ovm)
             "name" -> NamePage(userData)
             "wat" -> WatPage(userData)
             "year" -> YearPage(userData)
             "residence" -> ResidencePage(userData)
             "schedule" -> SchedulePage(navController, cvm)
-            "recommendations" -> RecommendationsPage(db)
+            "recommendations" -> RecommendationsPage(db, ovm)
             "submit" -> SubmitPage()
         }
         // the buttons for navigation throughout onboarding
@@ -241,17 +214,13 @@ fun OnboardingStepComponent(
 
 
 @Composable
-fun WelcomePage() {
+fun WelcomePage(onboardingViewModel: OnboardingViewModel) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val welcomeMsg = "Welcome to GooseBuddy!\n\n" +
-                "University may be overwhelming\n"+
-                "but I am here to help you navigate through university by helping you build\n" +
-                "good habits and reach your goals!\n\n" +
-                "Are you ready to get started on your journey?"
-        SpeechBubble(welcomeMsg, includeLeftSpacing = false)
+
+        SpeechBubble(onboardingViewModel.getWelcomeMessage(), includeLeftSpacing = false)
         WavingGoose().decorate()
     }
 }
@@ -399,13 +368,12 @@ fun SubmitPage() {
 }
 
 @Composable
-fun RecommendationsPage(db: AppDatabase,) {
+fun RecommendationsPage(db: AppDatabase, onboardingViewModel: OnboardingViewModel) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val habitsDao = db.habitsDao()
-        val habits = habitsDao.getAll()
+        val habits = onboardingViewModel.getHabits()
         val habitsMsg = habits.joinToString(", ") { "\"${it.title}\"" }
 
         val recomendationMsg = "We have made a few recommendations based on your submission!\n\n\nWe have added ${habitsMsg}! You can review them in Habits!\n\n\nWe also added a pomodoro routine to help you with studying!"
