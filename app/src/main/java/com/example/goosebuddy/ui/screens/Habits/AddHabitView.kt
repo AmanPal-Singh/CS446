@@ -14,16 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.models.Habits
+import com.example.goosebuddy.ui.screens.Habits.HabitsViewModel
 import com.example.goosebuddy.ui.shared.components.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, onHabitChange: () -> Unit) {
-    var habitsDao = db.habitsDao()
+fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, viewModel: HabitsViewModel, onHabitChange: () -> Unit) {
 
     var habitName by remember {
         mutableStateOf(TextFieldValue(""))
@@ -83,7 +82,7 @@ fun AddHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDa
                         scope.launch {
                             // Insert habit
                             var num = habitCompletionSteps.text.toInt()
-                            habitsDao.insertAll(Habits(0, habitName.text, habitDescription.text, 0, "Daily", completionSteps = num))
+                            viewModel.insertHabits(Habits(0, habitName.text, habitDescription.text, 0, "Daily", completionSteps = num))
                             // Reset form
                             habitName = TextFieldValue("")
                             habitDescription = TextFieldValue("")

@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.goosebuddy.AppDatabase
+import com.example.goosebuddy.ui.screens.Habits.HabitsViewModel
 import com.example.goosebuddy.ui.shared.components.*
 import com.example.goosebuddy.ui.theme.Green
 import kotlinx.coroutines.CoroutineScope
@@ -19,9 +20,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: AppDatabase, onHabitChange: () -> Unit, habitId: Int) {
-    var habitsDao = db.habitsDao()
-    var habit = habitsDao.loadSingle(habitId)
+fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, viewModel: HabitsViewModel, onHabitChange: () -> Unit, habitId: Int) {
+
+    var habit = viewModel.querySingle(habitId)
 
     // Form values
     var habitName by remember { mutableStateOf(TextFieldValue(habit.title)) }
@@ -81,9 +82,7 @@ fun UpdateHabit(scope: CoroutineScope, sheetState: ModalBottomSheetState, db: Ap
                     habit.title = habitName.text
                     habit.description = habitDescription.text
                     habit.completionSteps = habitCompletionSteps.text.toInt()
-                    habitsDao.update(
-                        habit
-                    )
+                    viewModel.updateHabit(habit)
                     sheetState.hide()
                     onHabitChange()
                 }  }) {

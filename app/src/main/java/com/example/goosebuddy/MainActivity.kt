@@ -31,6 +31,7 @@ import com.example.goosebuddy.models.BottomNavigationItem
 import com.example.goosebuddy.receivers.HabitsReceiver
 import com.example.goosebuddy.receivers.ResetHabitsReceiver
 import com.example.goosebuddy.ui.screens.*
+import com.example.goosebuddy.ui.screens.Habits.HabitsView
 import com.example.goosebuddy.ui.shared.components.BottomNavigation
 import com.example.goosebuddy.ui.shared.components.TopBar
 import com.example.goosebuddy.ui.theme.GooseBuddyTheme
@@ -188,7 +189,7 @@ fun RootNavigationGraph(ctx: Context, channelId: String, notifyId: Int, notifica
         }
         composable(BottomNavigationItem.Habits.screen_route) {
             MainFoundation(navController = navController, scaffoldState = scaffoldState) {
-                Habits(navController = navController, db=db, notificationManager, ctx=ctx)
+                HabitsView(navController = navController, db=db)
             }
         }
         composable(BottomNavigationItem.DailyRoutines.screen_route) {
