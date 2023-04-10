@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,14 +19,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.goosebuddy.AppDatabase
 import com.example.goosebuddy.R
+import com.example.goosebuddy.ui.screens.Onboarding.OnboardingViewModel
+import com.example.goosebuddy.ui.screens.Profile.ProfileViewModel
 import com.example.goosebuddy.ui.shared.components.*
 import com.example.goosebuddy.ui.theme.*
 
 @Composable
 fun Profile(db: AppDatabase) {
-    val profileDao = db.userdataDao()
+    val viewModel by remember {
+        mutableStateOf(ProfileViewModel(db))
+    }
 
-    val userData = profileDao.getAll()
+    val userData = viewModel.getUserData()
 
     var name by remember { mutableStateOf(TextFieldValue(userData.name)) }
 
@@ -33,7 +38,7 @@ fun Profile(db: AppDatabase) {
 
     var wat by remember { mutableStateOf(TextFieldValue("${userData.wat}")) }
 
-    var editingEnabled by remember { mutableStateOf(false) }
+    val editingEnabled by viewModel.editingEnabled.observeAsState(false)
 
     val checkBoxStates by remember { mutableStateOf( mutableMapOf(
         "roommate" to mutableStateOf(userData.hasRoommates),
@@ -65,8 +70,8 @@ fun Profile(db: AppDatabase) {
         CheckboxFields(checkBoxFns = checkBoxFns, state = checkBoxStates, enabled = editingEnabled)
         EditButtons(
             editingEnabled = editingEnabled,
-            enableEditing = { editingEnabled = true},
-            disableEditing = { editingEnabled = false},
+            enableEditing = { viewModel.setEditingEnabled(true)},
+            disableEditing = { viewModel.setEditingEnabled(false)},
             revertChanges = {
                 name = TextFieldValue(userData.name)
                 year = TextFieldValue(userData.year.toString())
@@ -79,9 +84,9 @@ fun Profile(db: AppDatabase) {
                 userData.hasRoommates = checkBoxStates["roommate"]?.value == true
                 userData.firstTimeAlone = checkBoxStates["alone"]?.value == true
                 userData.onStudentRes = checkBoxStates["res"]?.value == true
-                profileDao.update(userData)
+                viewModel.updateUserData(userData)
                 Log.i("profile", "user data updated to ${userData}")
-                Log.i("profile.userDao", "userDao: ${profileDao.getAll()}")
+                Log.i("profile.userDao", "userDao: ${viewModel.getUserData()}")
             }
         )
         Spacer(modifier = Modifier.height(20.dp))
