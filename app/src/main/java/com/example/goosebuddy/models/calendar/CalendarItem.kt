@@ -1,6 +1,7 @@
-package com.example.goosebuddy.models
+package com.example.goosebuddy.models.calendar
 
 import androidx.room.*
+import com.example.goosebuddy.models.DateTimeConverters
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 

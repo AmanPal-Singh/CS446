@@ -1,4 +1,4 @@
-package com.example.goosebuddy.models
+package com.example.goosebuddy.models.calendar
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
