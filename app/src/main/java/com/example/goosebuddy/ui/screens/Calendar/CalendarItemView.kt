@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.models.BottomNavigationItem
-import com.example.goosebuddy.models.CalendarItem
+import com.example.goosebuddy.models.calendar.CalendarItem
+import com.example.goosebuddy.ui.screens.Calendar.CalendarItemViewModel
 import com.example.goosebuddy.ui.shared.components.DefaultGoose
 import com.example.goosebuddy.ui.shared.components.SpeechBubble
 import com.example.goosebuddy.ui.shared.components.textFieldStyleBlue
@@ -27,21 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-
-class CalendarItemViewModel(
-    val id: Int,
-    val seriesId: Int?,
-    title: String,
-    date: LocalDate,
-    startTime: LocalTime,
-    endTime: LocalTime,
-    val checked: Boolean
-) : ViewModel() {
-    val title = mutableStateOf(title)
-    val date = mutableStateOf(date)
-    val startTime = mutableStateOf(startTime)
-    val endTime = mutableStateOf(endTime)
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -96,7 +82,7 @@ fun CalendarItem(
                                         civm.startTime.value =
                                             LocalTime(selectedHour, selectedMinute, 0)
                                     },
-                                    civm.startTime.value?.hour!!, civm.startTime.value?.minute!!, false
+                                    civm.startTime.value.hour, civm.startTime.value.minute, false
                                 )
                                 timePicker.show()
                             },

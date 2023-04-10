@@ -16,9 +16,8 @@ import androidx.lifecycle.ViewModel
 import com.example.goosebuddy.ui.theme.Green
 import com.example.goosebuddy.ui.theme.White
 import androidx.lifecycle.viewModelScope
-import com.example.goosebuddy.models.CalendarSeries
+import com.example.goosebuddy.models.calendar.CalendarSeries
 import com.example.goosebuddy.ui.shared.components.DeleteButton
-import com.example.goosebuddy.ui.shared.components.textFieldStyleBlue
 import com.example.goosebuddy.ui.theme.*
 import kotlinx.coroutines.launch
 import kotlin.reflect.KSuspendFunction3

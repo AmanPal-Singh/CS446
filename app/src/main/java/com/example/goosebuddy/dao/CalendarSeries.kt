@@ -1,8 +1,7 @@
 package com.example.goosebuddy.dao
 
 import androidx.room.*
-import com.example.goosebuddy.models.CalendarItem
-import com.example.goosebuddy.models.CalendarSeries
+import com.example.goosebuddy.models.calendar.CalendarSeries
 
 @Dao
 interface CalendarSeriesDao {

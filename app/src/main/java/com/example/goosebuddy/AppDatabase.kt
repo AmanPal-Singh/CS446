@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import com.example.goosebuddy.dao.*
 import com.example.goosebuddy.models.*
-import kotlinx.datetime.LocalDate
+import com.example.goosebuddy.models.calendar.CalendarItem
+import com.example.goosebuddy.models.calendar.CalendarSeries
 
 @Database(entities = [
     Routines::class,
