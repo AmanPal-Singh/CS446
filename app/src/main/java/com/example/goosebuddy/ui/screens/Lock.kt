@@ -7,6 +7,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,15 +33,10 @@ fun Lock(db: AppDatabase, navController: NavController) {
                 .fillMaxWidth()
                 .fillMaxHeight()
         ){
-            var pin by remember { mutableStateOf("") }
-            var isError by rememberSaveable { mutableStateOf(false) }
-            var canSubmit by rememberSaveable { mutableStateOf(false) }
-
-
-            fun addDigitToPin(digit: String){
-                pin += digit
-                canSubmit = pin.isNotEmpty()
-            }
+            val viewModel by remember { mutableStateOf(LockViewModel(db))}
+            val pin by viewModel.pin.observeAsState("")
+            val isError by viewModel.isError.observeAsState(false)
+            val canSubmit by viewModel.canSubmit.observeAsState(false)
 
             @Composable
             fun drawPinRow(digits: Array<String>){
@@ -52,19 +48,19 @@ fun Lock(db: AppDatabase, navController: NavController) {
                 ) {
                     Button(
                         shape = CircleShape,
-                        onClick = { addDigitToPin(digits[0]) },
+                        onClick = { viewModel.addDigitToPin(digits[0]) },
                         modifier = btnModifier,
                         colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {Text(digits[0])}
                     Button(
                         shape = CircleShape,
-                        onClick = { addDigitToPin(digits[1]) },
+                        onClick = { viewModel.addDigitToPin(digits[1]) },
                         modifier = btnModifier,
                         colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {Text(digits[1])}
                     Button(
                         shape = CircleShape,
-                        onClick = { addDigitToPin(digits[2]) },
+                        onClick = { viewModel.addDigitToPin(digits[2]) },
                         modifier = btnModifier,
                         colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                     ) {Text(digits[2])}
@@ -102,14 +98,7 @@ fun Lock(db: AppDatabase, navController: NavController) {
             ) {
                 Button(
                     shape = CircleShape,
-                    onClick = {
-                        if (pin.isNotEmpty()) {
-                            pin = pin.substring(0, pin.length - 1)
-                        }
-                        if (pin.isBlank()) {
-                            canSubmit = false
-                        }
-                    },
+                    onClick = { viewModel.backspace() },
                     modifier = btnModifier,
                     colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                 ) {
@@ -117,7 +106,7 @@ fun Lock(db: AppDatabase, navController: NavController) {
                 }
                 Button(
                     shape = CircleShape,
-                    onClick = { addDigitToPin("0") },
+                    onClick = { viewModel.addDigitToPin("0") },
                     modifier = btnModifier,
                     colors = ButtonDefaults.buttonColors(backgroundColor = LightBlue)
                 ) {Text("0")}
@@ -127,13 +116,8 @@ fun Lock(db: AppDatabase, navController: NavController) {
                         if(lockDao.getAll().isEmpty()){
                             lockDao.insert(Lock(0, pin.toInt()))
                         }else{
-                            if (pin.isNotEmpty()) {
-                                val valid_pin = lockDao.getAll()
-                                if (valid_pin[0].value == pin.toInt()) {
-                                    navController.navigate("home")
-                                } else {
-                                    isError = true
-                                }
+                            if(viewModel.verifyPin()){
+                                navController.navigate("home")
                             }
                         }
                     },
