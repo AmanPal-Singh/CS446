@@ -22,7 +22,6 @@ import com.example.goosebuddy.ui.theme.*
 
 @Composable
 fun Lock(db: AppDatabase, navController: NavController) {
-    val lockDao = db.lockDao()
     val btnModifier = Modifier.size(75.dp)
 
     GooseBuddyTheme() {
@@ -67,17 +66,10 @@ fun Lock(db: AppDatabase, navController: NavController) {
                 }
 
             }
-            if(lockDao.getAll().isEmpty()) {
-                Text(
-                    "Welcome !\nPlease enter your pin to register it.",
-                    textAlign = TextAlign.Center,
-                )
-            }else{
-                Text(
-                    "Welcome back!\nPlease enter your pin to proceed.",
-                    textAlign = TextAlign.Center,
-                )
-            }
+            Text(
+                "Welcome back!\nPlease enter your pin to proceed.",
+                textAlign = TextAlign.Center,
+            )
 
             Text(
                 pin,
@@ -113,12 +105,8 @@ fun Lock(db: AppDatabase, navController: NavController) {
                 Button(
                     shape = CircleShape,
                     onClick = {
-                        if(lockDao.getAll().isEmpty()){
-                            lockDao.insert(Lock(0, pin.toInt()))
-                        }else{
-                            if(viewModel.verifyPin()){
-                                navController.navigate("home")
-                            }
+                        if(viewModel.verifyPin()){
+                            navController.navigate("home")
                         }
                     },
                     modifier = btnModifier,
